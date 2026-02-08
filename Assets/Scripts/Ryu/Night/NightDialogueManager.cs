@@ -20,6 +20,11 @@ public class NightDialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private GameObject clickHint;
 
+    [Header("Scene Transition")]
+    [SerializeField] private SceneFadeManager fadeManager;
+    [SerializeField] private string tutorialSceneName = "Tutorial";
+    [SerializeField] private float fadeDuration = 1f;
+
     [Header("Dialogue Settings")]
     [SerializeField] private float typingSpeed = 0.05f; // 타이핑 효과 속도 (초)
 
@@ -236,8 +241,36 @@ public class NightDialogueManager : MonoBehaviour
 
     private void OnAllDialoguesComplete()
     {
-        Debug.Log("[NightDialogueManager] 모든 대사 표시 완료");
-        // TODO: 다음 동작 (씬 전환 또는 대기)
+        Debug.Log("[NightDialogueManager] 모든 대사 표시 완료. 다음 날로 진행합니다.");
+
+        // GameStateManager를 통해 다음 날 진행 (인간성 감소 포함)
+        bool gameOverOccurred = false;
+        if (GameStateManager.Instance != null)
+        {
+            gameOverOccurred = GameStateManager.Instance.AdvanceToNextDay();
+        }
+        else
+        {
+            Debug.LogWarning("[NightDialogueManager] GameStateManager.Instance를 찾을 수 없습니다.");
+        }
+
+        // 게임 오버가 발생했으면 씬 전환을 건너뜀 (TriggerGameOver에서 이미 처리됨)
+        if (gameOverOccurred)
+        {
+            Debug.Log("[NightDialogueManager] 게임 오버가 발생했습니다. 씬 전환을 건너뜁니다.");
+            return;
+        }
+
+        // Tutorial 씬으로 전환 (페이드 효과)
+        if (fadeManager != null)
+        {
+            fadeManager.LoadSceneWithFade(tutorialSceneName, fadeDuration);
+        }
+        else
+        {
+            Debug.LogWarning("[NightDialogueManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(tutorialSceneName);
+        }
     }
 
     private void Update()

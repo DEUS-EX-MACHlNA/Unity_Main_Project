@@ -14,6 +14,9 @@ public class InputHandler : MonoBehaviour
     [Header("Turn Management")]
     [SerializeField] private TurnManager turnManager;
 
+    [Header("Game State")]
+    [SerializeField] private GameStateManager gameStateManager;
+
     private bool needsDeselect = false;
     private int pendingCaretPos;
 
@@ -128,12 +131,25 @@ public class InputHandler : MonoBehaviour
         }
     }
 
-    private void OnApiSuccess(string response)
+    private void OnApiSuccess(string response, float humanityChange)
     {
         Debug.Log($"[InputHandler] 응답 수신: {response}");
+        Debug.Log($"[InputHandler] 인간성 변화량: {humanityChange:F1}");
+
+        // 응답 텍스트 표시
         resultText.text = response;
 
-        // 턴수 차감 (목업 데이터 포함)
+        // 인간성 변화량 적용
+        if (gameStateManager != null)
+        {
+            gameStateManager.ModifyHumanity(humanityChange);
+        }
+        else
+        {
+            Debug.LogWarning("[InputHandler] GameStateManager가 연결되지 않았습니다.");
+        }
+
+        // 턴 소모
         if (turnManager != null)
         {
             turnManager.ConsumeTurn();

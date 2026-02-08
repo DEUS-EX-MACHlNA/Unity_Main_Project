@@ -27,18 +27,22 @@ public class ApiClient : MonoBehaviour
     private class GameResponse
     {
         public string response;
+        public float humanity_change; // 백엔드에서 제공하는 인간성 변화량
     }
 
     /// <summary>
     /// 백엔드 서버에 메시지를 전송하고 응답을 콜백으로 반환합니다.
     /// 3초 타임아웃 시 목업 데이터를 반환합니다.
     /// </summary>
-    public Coroutine SendMessage(string chatInput, Action<string> onSuccess, Action<string> onError)
+    /// <param name="chatInput">사용자 입력 텍스트</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange)</param>
+    /// <param name="onError">에러 콜백</param>
+    public Coroutine SendMessage(string chatInput, Action<string, float> onSuccess, Action<string> onError)
     {
         return StartCoroutine(SendMessageCoroutine(chatInput, onSuccess, onError));
     }
 
-    private IEnumerator SendMessageCoroutine(string chatInput, Action<string> onSuccess, Action<string> onError)
+    private IEnumerator SendMessageCoroutine(string chatInput, Action<string, float> onSuccess, Action<string> onError)
     {
         string url = $"{baseUrl}/api/v1/game/{gameId}/step";
 
@@ -68,7 +72,7 @@ public class ApiClient : MonoBehaviour
             {
                 Debug.LogWarning($"[ApiClient] 요청 실패 또는 타임아웃: {request.error}");
                 Debug.Log($"[ApiClient] 목업 데이터를 반환합니다.");
-                onSuccess?.Invoke(MOCK_RESPONSE);
+                onSuccess?.Invoke(MOCK_RESPONSE, 0f);
                 yield break;
             }
 
@@ -78,15 +82,15 @@ public class ApiClient : MonoBehaviour
             try
             {
                 GameResponse gameResponse = JsonUtility.FromJson<GameResponse>(responseText);
-                if (!string.IsNullOrEmpty(gameResponse.response))
-                {
-                    onSuccess?.Invoke(gameResponse.response);
-                }
-                else
-                {
-                    Debug.LogWarning("[ApiClient] 응답의 response 필드가 비어있습니다. 목업 데이터를 반환합니다.");
-                    onSuccess?.Invoke(MOCK_RESPONSE);
-                }
+                
+                string response = !string.IsNullOrEmpty(gameResponse.response) 
+                    ? gameResponse.response 
+                    : MOCK_RESPONSE;
+                
+                // humanity_change는 선택적 필드 (없으면 0으로 처리)
+                float humanityChange = gameResponse.humanity_change;
+                
+                onSuccess?.Invoke(response, humanityChange);
             }
             catch (Exception e)
             {

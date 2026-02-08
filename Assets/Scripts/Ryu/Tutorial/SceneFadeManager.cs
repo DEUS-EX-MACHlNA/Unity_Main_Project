@@ -15,10 +15,31 @@ public class SceneFadeManager : MonoBehaviour
 
     private void Awake()
     {
+        // Inspector에서 설정되지 않은 경우 자동으로 찾기
+        if (fadeImage == null)
+        {
+            GameObject imageObj = GameObject.Find("FadeImage");
+            if (imageObj != null)
+            {
+                fadeImage = imageObj.GetComponent<Image>();
+            }
+        }
+
         if (fadeImage != null)
         {
-            // 초기 상태: 투명
-            fadeImage.color = new Color(0, 0, 0, 0);
+            // 현재 씬 이름 확인
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            
+            // Tutorial 씬과 Night 씬에서는 완전 투명(alpha=0)으로 시작
+            if (currentSceneName == "Tutorial" || currentSceneName == "Night")
+            {
+                fadeImage.color = new Color(0, 0, 0, 0);
+            }
+            else
+            {
+                // 다른 씬에서는 검은색 배경으로 유지
+                fadeImage.color = new Color(0, 0, 0, 1);
+            }
         }
     }
 
@@ -39,13 +60,8 @@ public class SceneFadeManager : MonoBehaviour
         
         Debug.Log($"[SceneFadeManager] {sceneName} 씬 로드 중...");
         
-        // 씬 로드
+        // 씬 로드 (새 씬은 검은색 배경으로 시작)
         SceneManager.LoadScene(sceneName);
-        
-        // 씬 로드 후 페이드 인
-        yield return StartCoroutine(FadeIn(fadeDuration));
-        
-        Debug.Log("[SceneFadeManager] 페이드 인 완료");
     }
 
     /// <summary>
