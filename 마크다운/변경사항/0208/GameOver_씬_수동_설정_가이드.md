@@ -129,7 +129,7 @@ GameOver 씬에 Main Camera가 없으면:
 
 1. **게임 오버 전환 테스트**:
    - 게임 실행
-   - HumanityTestHelper를 사용하여 인간성을 0%로 설정
+   - GameStateManager의 SetHumanity(0) 메서드를 사용하여 인간성을 0%로 설정
    - GameOver 씬으로 전환되는지 확인
    - 페이드 효과가 적용되는지 확인
 

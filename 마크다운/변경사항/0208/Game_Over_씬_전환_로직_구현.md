@@ -321,7 +321,7 @@ Tutorial 씬으로 전환 (페이드 효과)
 ## 수동 검증 필요 사항
 
 1. **게임 오버 전환 테스트**:
-   - HumanityTestHelper를 사용하여 인간성을 0%로 설정
+   - GameStateManager의 SetHumanity(0) 메서드를 사용하여 인간성을 0%로 설정
    - GameOver 씬으로 전환되는지 확인
    - 페이드 효과가 적용되는지 확인
    - GameOverText가 올바르게 표시되는지 확인

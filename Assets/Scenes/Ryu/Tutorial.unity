@@ -1683,6 +1683,7 @@ GameObject:
   - component: {fileID: 1067568060}
   - component: {fileID: 1067568063}
   - component: {fileID: 1067568064}
+  - component: {fileID: 1067568065}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1769,6 +1770,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneFadeManager
   fadeImage: {fileID: 1550901604}
   defaultFadeDuration: 1
+--- !u!114 &1067568065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067568059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30d720a0d34cc50418a1485fb45e16a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HumanityTestHelper
+  testHumanityValue: 50
 --- !u!21 &1127155043
 Material:
   serializedVersion: 8

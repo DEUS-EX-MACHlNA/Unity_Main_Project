@@ -106,3 +106,5 @@ public class SceneFadeManager : MonoBehaviour
         fadeImage.color = new Color(0, 0, 0, 0);
     }
 }
+
+
