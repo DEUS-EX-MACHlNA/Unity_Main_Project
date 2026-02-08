@@ -11,6 +11,9 @@ public class InputHandler : MonoBehaviour
     [Header("API")]
     [SerializeField] private ApiClient apiClient;
 
+    [Header("Turn Management")]
+    [SerializeField] private TurnManager turnManager;
+
     private bool needsDeselect = false;
     private int pendingCaretPos;
 
@@ -129,6 +132,17 @@ public class InputHandler : MonoBehaviour
     {
         Debug.Log($"[InputHandler] 응답 수신: {response}");
         resultText.text = response;
+
+        // 턴수 차감 (목업 데이터 포함)
+        if (turnManager != null)
+        {
+            turnManager.ConsumeTurn();
+        }
+        else
+        {
+            Debug.LogWarning("[InputHandler] TurnManager가 연결되지 않았습니다.");
+        }
+
         // ResultText 표시 상태 유지 → 클릭하면 다시 InputField로 전환
     }
 
@@ -152,7 +166,7 @@ public class InputHandler : MonoBehaviour
         }
 
         string blockText = $"@{blockName} ";
-        int caretPos = inputField.caretPosition;
+        int caretPos = Mathf.Clamp(inputField.caretPosition, 0, inputField.text.Length);
         inputField.text = inputField.text.Insert(caretPos, blockText);
         int newCaretPos = caretPos + blockText.Length;
         
