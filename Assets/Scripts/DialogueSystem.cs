@@ -74,3 +74,5 @@ public class DialogueSystem : MonoBehaviour
         if (nextIcon != null) nextIcon.SetActive(true);
     }
 }
+
+
