@@ -53,8 +53,7 @@ public enum ItemState
 public enum TimeOfDay
 {
     Day,            // 낮 (탐색 및 대화 가능)
-    Night,          // 밤 (NPC 회의 진행)
-    EveningMeal     // 저녁 식사 시간 (특수 이벤트)
+    Night           // 밤 (NPC 회의 진행)
 }
 ```
 
@@ -148,6 +147,7 @@ public class EventFlags
     public bool holeUnlocked;              // 개구멍 개방 상태
     public bool fireStarted;               // 화재 발생 상태
     public bool familyAsleep;              // 가족 수면 상태
+    public bool teaWithSleepingPill;       // 홍차에 수면제를 탔는지 여부 (StealthExit 엔딩 조건)
     public bool keyStolen;                 // 열쇠 탈취 상태
     public bool caughtByFather;            // 새아빠에게 발각됨
     public bool caughtByMother;            // 새엄마에게 발각됨

@@ -87,6 +87,7 @@ private void InitializeEventFlags()
         holeUnlocked = false,
         fireStarted = false,
         familyAsleep = false,
+        teaWithSleepingPill = false,
         keyStolen = false,
         caughtByFather = false,
         caughtByMother = false,
@@ -156,6 +157,19 @@ public bool ConsumeTurn(int amount = 1)
     if (currentTurn >= MAX_TURNS_PER_DAY)
     {
         OnTurnsExhausted?.Invoke();
+        
+        // 밤의 대화 전에 엔딩 조건 체크 (수면제 엔딩 등)
+        // 백엔드에서 엔딩 트리거를 받아오는 경우 이 체크는 폴백(fallback) 용도
+        EndingType preNightEnding = CheckEndingConditions();
+        if (preNightEnding != EndingType.None && 
+            preNightEnding != EndingType.EternalDinner &&
+            preNightEnding != EndingType.UnfinishedDoll)
+        {
+            // 엔딩 트리거 (밤의 대화 전에 엔딩으로 진입)
+            TriggerEnding(preNightEnding);
+            return true; // 턴 소모 성공, 엔딩으로 진입
+        }
+        
         SetTimeOfDay(TimeOfDay.Night);
     }
     
@@ -234,8 +248,8 @@ private bool CheckEndingItemCondition(EndingType ending)
     switch (ending)
     {
         case EndingType.StealthExit:
-            // 수면제 보유 필요
-            return HasItem(ItemType.SleepingPill);
+            // 수면제 보유 + 홍차에 수면제를 탔다는 조건 필요
+            return HasItem(ItemType.SleepingPill) && eventFlags.teaWithSleepingPill;
             
         case EndingType.ChaoticBreakout:
             // 기름병 + 라이터 보유 필요
@@ -300,9 +314,8 @@ private bool CheckEndingLocationCondition(EndingType ending)
     switch (ending)
     {
         case EndingType.StealthExit:
-            // 주방 (저녁 식사 시간)
-            return currentLocation == GameLocation.Kitchen && 
-                   currentTimeOfDay == TimeOfDay.EveningMeal;
+            // 위치 무관 (홍차에 수면제를 탔다는 조건으로 대체)
+            return true;
             
         case EndingType.ChaoticBreakout:
             // 거실 또는 지하실
@@ -332,8 +345,8 @@ private bool CheckEndingTimeCondition(EndingType ending)
     switch (ending)
     {
         case EndingType.StealthExit:
-            // 저녁 식사 시간
-            return currentTimeOfDay == TimeOfDay.EveningMeal;
+            // 시간대 무관 (홍차에 수면제를 탔다는 조건으로 대체)
+            return true;
             
         case EndingType.ChaoticBreakout:
             // 시간대 무관
@@ -503,6 +516,9 @@ public void SetEventFlag(string flagName, bool value)
         case "familyasleep":
             eventFlags.familyAsleep = value;
             break;
+        case "teawithsleepingpill":
+            eventFlags.teaWithSleepingPill = value;
+            break;
         case "keystolen":
             eventFlags.keyStolen = value;
             break;
@@ -540,6 +556,8 @@ public bool GetEventFlag(string flagName)
             return eventFlags.fireStarted;
         case "familyasleep":
             return eventFlags.familyAsleep;
+        case "teawithsleepingpill":
+            return eventFlags.teaWithSleepingPill;
         case "keystolen":
             return eventFlags.keyStolen;
         case "caughtbyfather":
@@ -842,6 +860,11 @@ private void ApplyEventFlags(EventFlags eventFlags)
         gameStateManager.SetEventFlag("familyAsleep", eventFlags.family_asleep.Value);
     }
     
+    if (eventFlags.tea_with_sleeping_pill.HasValue)
+    {
+        gameStateManager.SetEventFlag("teaWithSleepingPill", eventFlags.tea_with_sleeping_pill.Value);
+    }
+    
     if (eventFlags.key_stolen.HasValue)
     {
         gameStateManager.SetEventFlag("keyStolen", eventFlags.key_stolen.Value);
@@ -930,6 +953,7 @@ private EndingType ConvertEndingNameToType(string endingName)
     "grandmother_cooperation": false,
     "hole_unlocked": false,
     "family_asleep": false,
+    "tea_with_sleeping_pill": false,
     "key_stolen": false,
     "caught_by_father": false,
     "caught_by_mother": false,
@@ -946,6 +970,7 @@ private EndingType ConvertEndingNameToType(string endingName)
   "humanity_change": 0.0,
   "event_flags": {
     "family_asleep": true,
+    "tea_with_sleeping_pill": true,
     "key_stolen": true
   },
   "ending_trigger": "stealth_exit"
@@ -1023,7 +1048,7 @@ private EndingType ConvertEndingNameToType(string endingName)
 
 **백엔드에서 판정하는 경우:**
 1. **불완전한 박제 (UnfinishedDoll)**: 인간성 0% 도달 시 (프론트엔드에서도 체크 가능)
-2. **완벽한 기만 (StealthExit)**: 수면제 사용 + 저녁 식사 시간 + 새엄마 호감도 조건
+2. **완벽한 기만 (StealthExit)**: 수면제 보유 + 홍차에 수면제를 탔다는 조건 + 새엄마 호감도 조건 (밤의 대화 전에 트리거)
 3. **혼돈의 밤 (ChaoticBreakout)**: 화재 발생 + 할머니 협력 조건
 4. **조력자의 희생 (SiblingsHelp)**: 동생 각성 + 희생 이벤트
 5. **영원한 식사 시간 (EternalDinner)**: 5일차 종료 시 자동 (프론트엔드에서 처리)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using System;
 
 public class InputHandler : MonoBehaviour
 {
@@ -131,7 +132,13 @@ public class InputHandler : MonoBehaviour
         }
     }
 
-    private void OnApiSuccess(string response, float humanityChange)
+    private void OnApiSuccess(
+        string response, 
+        float humanityChange, 
+        NPCAffectionChanges npcAffectionChanges, 
+        NPCHumanityChanges npcHumanityChanges,
+        NPCDisabledStates npcDisabledStates,
+        NPCLocations npcLocations)
     {
         Debug.Log($"[InputHandler] 응답 수신: {response}");
         Debug.Log($"[InputHandler] 인간성 변화량: {humanityChange:F1}");
@@ -139,10 +146,50 @@ public class InputHandler : MonoBehaviour
         // 응답 텍스트 표시
         resultText.text = response;
 
-        // 인간성 변화량 적용
+        // 플레이어 인간성 변화량 적용
         if (gameStateManager != null)
         {
             gameStateManager.ModifyHumanity(humanityChange);
+            
+            // NPC 호감도 변화량 적용
+            if (npcAffectionChanges != null)
+            {
+                if (npcAffectionChanges.new_mother != 0f)
+                    gameStateManager.ModifyAffection(NPCType.NewMother, npcAffectionChanges.new_mother);
+                if (npcAffectionChanges.new_father != 0f)
+                    gameStateManager.ModifyAffection(NPCType.NewFather, npcAffectionChanges.new_father);
+                if (npcAffectionChanges.sibling != 0f)
+                    gameStateManager.ModifyAffection(NPCType.Sibling, npcAffectionChanges.sibling);
+                if (npcAffectionChanges.dog != 0f)
+                    gameStateManager.ModifyAffection(NPCType.Dog, npcAffectionChanges.dog);
+                if (npcAffectionChanges.grandmother != 0f)
+                    gameStateManager.ModifyAffection(NPCType.Grandmother, npcAffectionChanges.grandmother);
+            }
+            
+            // NPC 인간성 변화량 적용
+            if (npcHumanityChanges != null)
+            {
+                if (npcHumanityChanges.new_father != 0f)
+                    gameStateManager.ModifyNPCHumanity(NPCType.NewFather, npcHumanityChanges.new_father);
+                if (npcHumanityChanges.sibling != 0f)
+                    gameStateManager.ModifyNPCHumanity(NPCType.Sibling, npcHumanityChanges.sibling);
+                if (npcHumanityChanges.dog != 0f)
+                    gameStateManager.ModifyNPCHumanity(NPCType.Dog, npcHumanityChanges.dog);
+                if (npcHumanityChanges.grandmother != 0f)
+                    gameStateManager.ModifyNPCHumanity(NPCType.Grandmother, npcHumanityChanges.grandmother);
+            }
+            
+            // NPC 무력화 상태 적용 (백엔드에서 제공 시만)
+            if (npcDisabledStates != null)
+            {
+                ApplyNPCDisabledStates(npcDisabledStates);
+            }
+            
+            // NPC 위치 업데이트 (백엔드에서 제공 시만, 백엔드 응답이 항상 우선)
+            if (npcLocations != null)
+            {
+                ApplyNPCLocations(npcLocations);
+            }
         }
         else
         {
@@ -160,6 +207,110 @@ public class InputHandler : MonoBehaviour
         }
 
         // ResultText 표시 상태 유지 → 클릭하면 다시 InputField로 전환
+    }
+
+    // NPC 무력화 상태 적용 헬퍼 메서드
+    private void ApplyNPCDisabledStates(NPCDisabledStates disabledStates)
+    {
+        if (gameStateManager == null)
+            return;
+
+        if (disabledStates.new_father != null && disabledStates.new_father.is_disabled)
+        {
+            gameStateManager.SetNPCDisabled(
+                NPCType.NewFather, 
+                disabledStates.new_father.remaining_turns, 
+                disabledStates.new_father.reason
+            );
+        }
+        
+        if (disabledStates.sibling != null && disabledStates.sibling.is_disabled)
+        {
+            gameStateManager.SetNPCDisabled(
+                NPCType.Sibling, 
+                disabledStates.sibling.remaining_turns, 
+                disabledStates.sibling.reason
+            );
+        }
+        
+        if (disabledStates.dog != null && disabledStates.dog.is_disabled)
+        {
+            gameStateManager.SetNPCDisabled(
+                NPCType.Dog, 
+                disabledStates.dog.remaining_turns, 
+                disabledStates.dog.reason
+            );
+        }
+        
+        if (disabledStates.grandmother != null && disabledStates.grandmother.is_disabled)
+        {
+            gameStateManager.SetNPCDisabled(
+                NPCType.Grandmother, 
+                disabledStates.grandmother.remaining_turns, 
+                disabledStates.grandmother.reason
+            );
+        }
+        
+        // 새엄마는 무력화 불가 (최종보스)
+    }
+
+    // NPC 위치 적용 헬퍼 메서드 (위치 이름 매핑 사용)
+    private void ApplyNPCLocations(NPCLocations npcLocations)
+    {
+        if (gameStateManager == null)
+            return;
+
+        // 위치 이름 매핑 헬퍼 사용
+        if (!string.IsNullOrEmpty(npcLocations.new_mother))
+        {
+            GameLocation location = ConvertLocationNameToType(npcLocations.new_mother);
+            gameStateManager.SetNPCLocation(NPCType.NewMother, location);
+        }
+        
+        if (!string.IsNullOrEmpty(npcLocations.new_father))
+        {
+            GameLocation location = ConvertLocationNameToType(npcLocations.new_father);
+            gameStateManager.SetNPCLocation(NPCType.NewFather, location);
+        }
+        
+        if (!string.IsNullOrEmpty(npcLocations.sibling))
+        {
+            GameLocation location = ConvertLocationNameToType(npcLocations.sibling);
+            gameStateManager.SetNPCLocation(NPCType.Sibling, location);
+        }
+        
+        if (!string.IsNullOrEmpty(npcLocations.dog))
+        {
+            GameLocation location = ConvertLocationNameToType(npcLocations.dog);
+            gameStateManager.SetNPCLocation(NPCType.Dog, location);
+        }
+        
+        if (!string.IsNullOrEmpty(npcLocations.grandmother))
+        {
+            GameLocation location = ConvertLocationNameToType(npcLocations.grandmother);
+            gameStateManager.SetNPCLocation(NPCType.Grandmother, location);
+        }
+    }
+
+    // 위치 이름을 GameLocation enum으로 변환하는 헬퍼 메서드
+    private GameLocation ConvertLocationNameToType(string locationName)
+    {
+        if (string.IsNullOrEmpty(locationName))
+            return GameLocation.Hallway; // 기본값
+        
+        switch (locationName.ToLower())
+        {
+            case "players_room": return GameLocation.PlayersRoom;
+            case "hallway": return GameLocation.Hallway;
+            case "living_room": return GameLocation.LivingRoom;
+            case "kitchen": return GameLocation.Kitchen;
+            case "siblings_room": return GameLocation.SiblingsRoom;
+            case "basement": return GameLocation.Basement;
+            case "backyard": return GameLocation.Backyard;
+            default:
+                Debug.LogWarning($"[InputHandler] 알 수 없는 위치 이름: {locationName}");
+                return GameLocation.Hallway; // 기본값
+        }
     }
 
     private void OnApiError(string error)
