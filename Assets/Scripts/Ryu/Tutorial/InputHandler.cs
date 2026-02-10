@@ -209,7 +209,7 @@ public class InputHandler : MonoBehaviour
             // 엔딩 트리거 처리
             if (!string.IsNullOrEmpty(endingTrigger))
             {
-                EndingType endingType = ConvertEndingNameToType(endingTrigger);
+                EndingType endingType = ApiClient.ConvertEndingNameToType(endingTrigger);
                 if (endingType != EndingType.None)
                 {
                     // 백엔드에서 엔딩 트리거를 받았으므로 즉시 엔딩 진입
@@ -291,53 +291,32 @@ public class InputHandler : MonoBehaviour
         // 위치 이름 매핑 헬퍼 사용
         if (!string.IsNullOrEmpty(npcLocations.new_mother))
         {
-            GameLocation location = ConvertLocationNameToType(npcLocations.new_mother);
+            GameLocation location = ApiClient.ConvertLocationNameToType(npcLocations.new_mother);
             gameStateManager.SetNPCLocation(NPCType.NewMother, location);
         }
         
         if (!string.IsNullOrEmpty(npcLocations.new_father))
         {
-            GameLocation location = ConvertLocationNameToType(npcLocations.new_father);
+            GameLocation location = ApiClient.ConvertLocationNameToType(npcLocations.new_father);
             gameStateManager.SetNPCLocation(NPCType.NewFather, location);
         }
         
         if (!string.IsNullOrEmpty(npcLocations.sibling))
         {
-            GameLocation location = ConvertLocationNameToType(npcLocations.sibling);
+            GameLocation location = ApiClient.ConvertLocationNameToType(npcLocations.sibling);
             gameStateManager.SetNPCLocation(NPCType.Sibling, location);
         }
         
         if (!string.IsNullOrEmpty(npcLocations.dog))
         {
-            GameLocation location = ConvertLocationNameToType(npcLocations.dog);
+            GameLocation location = ApiClient.ConvertLocationNameToType(npcLocations.dog);
             gameStateManager.SetNPCLocation(NPCType.Dog, location);
         }
         
         if (!string.IsNullOrEmpty(npcLocations.grandmother))
         {
-            GameLocation location = ConvertLocationNameToType(npcLocations.grandmother);
+            GameLocation location = ApiClient.ConvertLocationNameToType(npcLocations.grandmother);
             gameStateManager.SetNPCLocation(NPCType.Grandmother, location);
-        }
-    }
-
-    // 위치 이름을 GameLocation enum으로 변환하는 헬퍼 메서드
-    private GameLocation ConvertLocationNameToType(string locationName)
-    {
-        if (string.IsNullOrEmpty(locationName))
-            return GameLocation.Hallway; // 기본값
-        
-        switch (locationName.ToLower())
-        {
-            case "players_room": return GameLocation.PlayersRoom;
-            case "hallway": return GameLocation.Hallway;
-            case "living_room": return GameLocation.LivingRoom;
-            case "kitchen": return GameLocation.Kitchen;
-            case "siblings_room": return GameLocation.SiblingsRoom;
-            case "basement": return GameLocation.Basement;
-            case "backyard": return GameLocation.Backyard;
-            default:
-                Debug.LogWarning($"[InputHandler] 알 수 없는 위치 이름: {locationName}");
-                return GameLocation.Hallway; // 기본값
         }
     }
 
@@ -352,7 +331,7 @@ public class InputHandler : MonoBehaviour
         {
             foreach (var acquisition in itemChanges.acquired_items)
             {
-                ItemType itemType = ConvertItemNameToType(acquisition.item_name);
+                ItemType itemType = ApiClient.ConvertItemNameToType(acquisition.item_name);
                 if (itemType != ItemType.None) // None이 아닌 경우만 처리
                 {
                     gameStateManager.AddItem(itemType, acquisition.count);
@@ -366,7 +345,7 @@ public class InputHandler : MonoBehaviour
         {
             foreach (var consumption in itemChanges.consumed_items)
             {
-                ItemType itemType = ConvertItemNameToType(consumption.item_name);
+                ItemType itemType = ApiClient.ConvertItemNameToType(consumption.item_name);
                 if (itemType != ItemType.None)
                 {
                     gameStateManager.RemoveItem(itemType, consumption.count);
@@ -380,71 +359,14 @@ public class InputHandler : MonoBehaviour
         {
             foreach (var stateChange in itemChanges.state_changes)
             {
-                ItemType itemType = ConvertItemNameToType(stateChange.item_name);
-                ItemState newState = ConvertItemStateNameToType(stateChange.new_state);
+                ItemType itemType = ApiClient.ConvertItemNameToType(stateChange.item_name);
+                ItemState newState = ApiClient.ConvertItemStateNameToType(stateChange.new_state);
                 if (itemType != ItemType.None)
                 {
                     gameStateManager.SetItemState(itemType, newState);
                     Debug.Log($"[InputHandler] 아이템 상태 변경: {itemType} → {newState}");
                 }
             }
-        }
-    }
-
-    // 아이템 이름을 ItemType으로 변환하는 헬퍼 메서드
-    private ItemType ConvertItemNameToType(string itemName)
-    {
-        if (string.IsNullOrEmpty(itemName))
-            return ItemType.None;
-        
-        switch (itemName.ToLower())
-        {
-            case "sleeping_pill":
-            case "sleepingpill":
-                return ItemType.SleepingPill;
-            case "earl_grey_tea":
-            case "earlgreytea":
-                return ItemType.EarlGreyTea;
-            case "real_family_photo":
-            case "realfamilyphoto":
-                return ItemType.RealFamilyPhoto;
-            case "oil_bottle":
-            case "oilbottle":
-                return ItemType.OilBottle;
-            case "silver_lighter":
-            case "silverlighter":
-                return ItemType.SilverLighter;
-            case "siblings_toy":
-            case "siblingstoy":
-                return ItemType.SiblingsToy;
-            case "brass_key":
-            case "brasskey":
-                return ItemType.BrassKey;
-            default:
-                Debug.LogWarning($"[InputHandler] 알 수 없는 아이템 이름: {itemName}");
-                return ItemType.None; // 또는 기본값
-        }
-    }
-
-    // 아이템 상태 이름을 ItemState enum으로 변환하는 헬퍼 메서드
-    private ItemState ConvertItemStateNameToType(string stateName)
-    {
-        if (string.IsNullOrEmpty(stateName))
-            return ItemState.InWorld; // 기본값
-        
-        switch (stateName.ToLower())
-        {
-            case "in_world":
-            case "inworld":
-                return ItemState.InWorld;
-            case "in_inventory":
-            case "ininventory":
-                return ItemState.InInventory;
-            case "used":
-                return ItemState.Used;
-            default:
-                Debug.LogWarning($"[InputHandler] 알 수 없는 아이템 상태 이름: {stateName}");
-                return ItemState.InWorld; // 기본값
         }
     }
 
@@ -474,39 +396,6 @@ public class InputHandler : MonoBehaviour
         }
         
         Debug.Log($"[InputHandler] 이벤트 플래그 적용 완료");
-    }
-
-    // 엔딩 이름을 EndingType으로 변환하는 헬퍼 메서드
-    private EndingType ConvertEndingNameToType(string endingName)
-    {
-        if (string.IsNullOrEmpty(endingName))
-            return EndingType.None;
-        
-        // ApiClient의 endingNameMapping 사용 또는 직접 매핑
-        switch (endingName.ToLower())
-        {
-            case "stealth_exit":
-            case "stealthexit":
-                return EndingType.StealthExit;
-            case "chaotic_breakout":
-            case "chaoticbreakout":
-                return EndingType.ChaoticBreakout;
-            case "siblings_help":
-            case "siblingshelp":
-                return EndingType.SiblingsHelp;
-            case "unfinished_doll":
-            case "unfinisheddoll":
-                return EndingType.UnfinishedDoll;
-            case "eternal_dinner":
-            case "eternaldinner":
-                return EndingType.EternalDinner;
-            case "none":
-            case "":
-                return EndingType.None;
-            default:
-                Debug.LogWarning($"[InputHandler] 알 수 없는 엔딩 이름: {endingName}");
-                return EndingType.None;
-        }
     }
 
     private void OnApiError(string error)
