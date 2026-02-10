@@ -12,7 +12,7 @@ public class ApiClient : MonoBehaviour
     [Header("Server Settings")]
     [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
     [SerializeField] private int gameId = 1;
-    [SerializeField] private int userId = 1;  // 사용자 ID
+    // userId 필드는 현재 사용되지 않으므로 제거됨
 
     [Header("Timeout Settings")]
     [SerializeField] private float timeoutSeconds = 3f;

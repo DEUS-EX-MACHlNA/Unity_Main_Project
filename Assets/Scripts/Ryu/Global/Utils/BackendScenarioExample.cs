@@ -33,7 +33,7 @@ public class BackendScenarioExample : MonoBehaviour
     private void EnsureGameStateManagerExists()
     {
         // 1. 씬에서 GameStateManager 찾기
-        GameStateManager existingManager = FindObjectOfType<GameStateManager>();
+        GameStateManager existingManager = FindFirstObjectByType<GameStateManager>();
         if (existingManager != null)
         {
             Debug.Log("[BackendScenarioExample] 씬에서 GameStateManager를 찾았습니다.");
@@ -115,6 +115,7 @@ public class BackendScenarioExample : MonoBehaviour
         ItemChanges itemChanges;
         EventFlags eventFlags;
         string endingTrigger;
+        Dictionary<string, bool> locks;
         
         converter.ConvertBackendResponseToCurrentFormat(
             backendResponse,
@@ -126,7 +127,8 @@ public class BackendScenarioExample : MonoBehaviour
             out npcLocations,
             out itemChanges,
             out eventFlags,
-            out endingTrigger
+            out endingTrigger,
+            out locks
         );
         
         Debug.Log($"[API/BackendResponseConverter] 변환 완료:");
@@ -250,6 +252,7 @@ public class BackendScenarioExample : MonoBehaviour
         ItemChanges itemChanges;
         EventFlags eventFlags;
         string endingTrigger;
+        Dictionary<string, bool> locks;
         
         converter.ConvertBackendResponseToCurrentFormat(
             backendResponse,
@@ -261,7 +264,8 @@ public class BackendScenarioExample : MonoBehaviour
             out npcLocations,
             out itemChanges,
             out eventFlags,
-            out endingTrigger
+            out endingTrigger,
+            out locks
         );
         
         Debug.Log($"[API/BackendResponseConverter] 변환 완료:");
@@ -344,6 +348,7 @@ public class BackendScenarioExample : MonoBehaviour
         ItemChanges itemChanges;
         EventFlags eventFlags;
         string endingTrigger;
+        Dictionary<string, bool> locks;
         
         converter.ConvertBackendResponseToCurrentFormat(
             backendResponse,
@@ -355,7 +360,8 @@ public class BackendScenarioExample : MonoBehaviour
             out npcLocations,
             out itemChanges,
             out eventFlags,
-            out endingTrigger
+            out endingTrigger,
+            out locks
         );
         
         Debug.Log($"[API/BackendResponseConverter] 변환 완료:");

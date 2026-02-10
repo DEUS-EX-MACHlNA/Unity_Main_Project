@@ -11,7 +11,7 @@ public class SceneFadeManager : MonoBehaviour
 {
     [Header("Fade Settings")]
     [SerializeField] private Image fadeImage;
-    [SerializeField] private float defaultFadeDuration = 1f;
+    // defaultFadeDuration 필드는 현재 사용되지 않으므로 제거됨
 
     private void Awake()
     {

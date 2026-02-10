@@ -40,7 +40,7 @@ public class GameOverManager : MonoBehaviour
 
         if (fadeManager == null)
         {
-            fadeManager = FindObjectOfType<SceneFadeManager>();
+            fadeManager = FindFirstObjectByType<SceneFadeManager>();
         }
     }
 

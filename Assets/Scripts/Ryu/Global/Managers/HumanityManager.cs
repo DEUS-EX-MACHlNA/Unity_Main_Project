@@ -84,7 +84,7 @@ public class HumanityManager
         Debug.LogWarning("[HumanityManager] 인간성이 0%에 도달했습니다. 게임 오버!");
         
         // SceneFadeManager를 찾아서 GameOver 씬으로 전환
-        SceneFadeManager fadeManager = Object.FindObjectOfType<SceneFadeManager>();
+        SceneFadeManager fadeManager = Object.FindFirstObjectByType<SceneFadeManager>();
         if (fadeManager != null)
         {
             fadeManager.LoadSceneWithFade(gameOverSceneName, gameOverFadeDuration);

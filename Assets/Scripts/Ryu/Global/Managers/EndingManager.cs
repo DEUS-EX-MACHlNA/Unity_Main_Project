@@ -281,7 +281,7 @@ public class EndingManager
         string endingSceneName = GetEndingSceneName(ending);
         if (!string.IsNullOrEmpty(endingSceneName))
         {
-            SceneFadeManager fadeManager = Object.FindObjectOfType<SceneFadeManager>();
+            SceneFadeManager fadeManager = Object.FindFirstObjectByType<SceneFadeManager>();
             if (fadeManager != null)
             {
                 fadeManager.LoadSceneWithFade(endingSceneName, gameOverFadeDuration);
