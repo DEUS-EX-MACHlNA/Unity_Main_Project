@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -49,6 +50,26 @@ public static class GameStateApplier
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 잠금 상태를 적용합니다.
+    /// </summary>
+    /// <param name="manager">GameStateManager 인스턴스</param>
+    /// <param name="locks">적용할 잠금 상태 Dictionary</param>
+    public static void ApplyLocks(GameStateManager manager, Dictionary<string, bool> locks)
+    {
+        if (manager == null)
+        {
+            Debug.LogWarning("[GameStateApplier] GameStateManager가 null입니다.");
+            return;
+        }
+
+        if (locks == null || locks.Count == 0)
+            return;
+
+        manager.ApplyLocks(locks);
+        Debug.Log($"[GameStateApplier] 잠금 상태 {locks.Count}개 적용 완료");
     }
 }
 

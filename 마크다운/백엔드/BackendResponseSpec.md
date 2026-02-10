@@ -23,7 +23,7 @@
     "npc_disabled_states": {...},  // 선택적: NPC 무력화 상태
     "npc_locations": {...},         // 선택적: NPC 위치 변경
     "locks": {...},                 // 선택적: 잠금 상태
-    "vars": {...}                   // 선택적: 변수 (인간성 변화 등)
+    "humanity_change": 0.0          // 선택적: 플레이어 인간성 변화량
   },
   "debug": {                       // 선택적: 디버그 정보
     "game_id": 0,
@@ -257,22 +257,18 @@ NPC 위치 변경
 - 잠금 상태 변경이 없으면 생략 가능
 - `true` = 잠금, `false` = 해제
 
-#### 2.3.9 vars (선택적)
-변수 (인간성 변화 등)
+#### 2.3.9 humanity_change (선택적)
+플레이어 인간성 변화량
 
 ```json
 {
-  "vars": {
-    "humanity_change": -5.0,    // 플레이어 인간성 변화량
-  }
+  "humanity_change": -5.0  // 플레이어 인간성 변화량 (양수/음수)
 }
 ```
 
-**표준 변수:**
-- `"humanity_change"` → 플레이어 인간성 변화량 (양수/음수)
-
 **주의사항:**
-- `humanity_change`가 0이면 생략 가능 (변화 없음)
+- 0이면 생략 가능 (변화 없음)
+- 양수면 인간성 증가, 음수면 감소
 
 ### 2.4 debug (선택적)
 디버그 정보
@@ -335,9 +331,7 @@ NPC 위치 변경
         "reason": "수면제 복용"
       }
     },
-    "vars": {
-      "humanity_change": -5.0
-    }
+    "humanity_change": -5.0
   },
   "debug": {
     "game_id": 12,
@@ -376,9 +370,7 @@ NPC 위치 변경
         "new_state": "used"
       }
     ],
-    "vars": {
-      "humanity_change": -15.0
-    }
+    "humanity_change": -15.0
   },
   "debug": {
     "game_id": 12,

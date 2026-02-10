@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -108,11 +109,11 @@ public class ApiClient : MonoBehaviour
     public Coroutine SendMessage(string chatInput, Action<string, float> onSuccess, Action<string> onError)
     {
         // 하위 호환성을 위해 기존 시그니처 유지
-        // Action<string, float>를 9개 매개변수를 받는 Action으로 래핑
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string> wrappedOnSuccess = null;
+        // Action<string, float>를 10개 매개변수를 받는 Action으로 래핑
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string, Dictionary<string, bool>> wrappedOnSuccess = null;
         if (onSuccess != null)
         {
-            wrappedOnSuccess = (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger) =>
+            wrappedOnSuccess = (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger, locks) =>
             {
                 onSuccess(response, humanityChange);
             };
@@ -125,11 +126,11 @@ public class ApiClient : MonoBehaviour
     /// 3초 타임아웃 시 목업 데이터를 반환합니다.
     /// </summary>
     /// <param name="chatInput">사용자 입력 텍스트</param>
-    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger)</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger, locks)</param>
     /// <param name="onError">에러 콜백</param>
     public Coroutine SendMessage(
         string chatInput,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
         Action<string> onError)
     {
         return SendMessage(chatInput, null, null, onSuccess, onError);
@@ -142,13 +143,13 @@ public class ApiClient : MonoBehaviour
     /// <param name="chatInput">사용자 입력 텍스트</param>
     /// <param name="npcName">NPC 이름 (선택적)</param>
     /// <param name="itemName">아이템 이름 (선택적)</param>
-    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger)</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger, locks)</param>
     /// <param name="onError">에러 콜백</param>
     public Coroutine SendMessage(
         string chatInput,
         string npcName,
         string itemName,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
         Action<string> onError)
     {
         if (gameStepApiClient == null)

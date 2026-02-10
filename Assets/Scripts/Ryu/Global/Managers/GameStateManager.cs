@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -21,6 +22,9 @@ public class GameStateManager : MonoBehaviour
     private LocationManager locationManager;
     private EventFlagManager eventFlagManager;
     private EndingManager endingManager;
+
+    // 잠금 상태 저장 (문, 상자 등)
+    private Dictionary<string, bool> locks;
 
     [Header("Game Over Settings")]
     [SerializeField] private string gameOverSceneName = "GameOver";
@@ -146,6 +150,9 @@ public class GameStateManager : MonoBehaviour
 
         eventFlagManager = new EventFlagManager();
         eventFlagManager.Initialize();
+
+        // 잠금 상태 초기화
+        locks = new Dictionary<string, bool>();
 
         // EndingManager는 다른 매니저들에 의존하므로 마지막에 초기화
         endingManager = new EndingManager();
@@ -503,6 +510,62 @@ public class GameStateManager : MonoBehaviour
     public bool GetCustomEvent(string eventName)
     {
         return eventFlagManager?.GetCustomEvent(eventName) ?? false;
+    }
+
+    // ============================================
+    // 잠금 상태 관리 메서드
+    // ============================================
+
+    /// <summary>
+    /// 잠금 상태를 설정합니다.
+    /// </summary>
+    /// <param name="lockName">잠금 이름 (예: "basement_door", "siblings_room_door")</param>
+    /// <param name="isLocked">잠금 여부 (true = 잠금, false = 해제)</param>
+    public void SetLock(string lockName, bool isLocked)
+    {
+        if (locks == null)
+        {
+            locks = new Dictionary<string, bool>();
+        }
+
+        locks[lockName] = isLocked;
+        Debug.Log($"[GameStateManager] 잠금 상태 변경: {lockName} = {isLocked}");
+    }
+
+    /// <summary>
+    /// 잠금 상태를 조회합니다.
+    /// </summary>
+    /// <param name="lockName">잠금 이름</param>
+    /// <returns>잠금 여부 (true = 잠금, false = 해제). 존재하지 않으면 false 반환</returns>
+    public bool IsLocked(string lockName)
+    {
+        if (locks == null || !locks.ContainsKey(lockName))
+        {
+            return false; // 기본값: 잠금 해제
+        }
+
+        return locks[lockName];
+    }
+
+    /// <summary>
+    /// 모든 잠금 상태를 일괄 적용합니다.
+    /// </summary>
+    /// <param name="locksToApply">적용할 잠금 상태 Dictionary</param>
+    public void ApplyLocks(Dictionary<string, bool> locksToApply)
+    {
+        if (locksToApply == null || locksToApply.Count == 0)
+            return;
+
+        if (locks == null)
+        {
+            locks = new Dictionary<string, bool>();
+        }
+
+        foreach (var kvp in locksToApply)
+        {
+            locks[kvp.Key] = kvp.Value;
+            Debug.Log($"[GameStateManager] 잠금 상태 적용: {kvp.Key} = {kvp.Value}");
+        }
     }
 
     // ============================================

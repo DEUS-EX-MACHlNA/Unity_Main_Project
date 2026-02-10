@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
@@ -53,6 +54,7 @@ public class ApiResponseHandler
     /// <param name="itemChanges">아이템 변화량</param>
     /// <param name="eventFlags">이벤트 플래그</param>
     /// <param name="endingTrigger">엔딩 트리거</param>
+    /// <param name="locks">잠금 상태</param>
     public void OnApiSuccess(
         string response,
         float humanityChange,
@@ -62,7 +64,8 @@ public class ApiResponseHandler
         NPCLocations npcLocations,
         ItemChanges itemChanges,
         EventFlags eventFlags,
-        string endingTrigger)
+        string endingTrigger,
+        Dictionary<string, bool> locks)
     {
         Debug.Log($"[ApiResponseHandler] 응답 수신: {response}");
         Debug.Log($"[ApiResponseHandler] 인간성 변화량: {humanityChange:F1}");
@@ -117,6 +120,12 @@ public class ApiResponseHandler
         if (eventFlags != null)
         {
             EventFlagApplier.ApplyEventFlags(gameStateManager, eventFlags);
+        }
+
+        // 잠금 상태 적용 (백엔드에서 제공 시만)
+        if (locks != null && locks.Count > 0)
+        {
+            GameStateApplier.ApplyLocks(gameStateManager, locks);
         }
 
         // 엔딩 트리거 처리

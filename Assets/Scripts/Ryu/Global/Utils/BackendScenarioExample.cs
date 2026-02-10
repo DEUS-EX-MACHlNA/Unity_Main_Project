@@ -93,10 +93,8 @@ public class BackendScenarioExample : MonoBehaviour
                 ""inventory_add"": [],
                 ""inventory_remove"": [""sleeping_pill""],
                 ""locks"": {},
-                ""vars"": {
-                    ""humanity_change"": -5.0
-                },
-                ""turn_increment"": 1
+                ""humanity_change"": -5.0,
+                ""vars"": {}
             }
         }";
         
@@ -231,8 +229,7 @@ public class BackendScenarioExample : MonoBehaviour
                 ""inventory_add"": [],
                 ""inventory_remove"": [],
                 ""locks"": {},
-                ""vars"": {},
-                ""turn_increment"": 1
+                ""vars"": {}
             }
         }";
         
@@ -326,8 +323,7 @@ public class BackendScenarioExample : MonoBehaviour
                 ""inventory_add"": [],
                 ""inventory_remove"": [],
                 ""locks"": {},
-                ""vars"": {},
-                ""turn_increment"": 1
+                ""vars"": {}
             }
         }";
         

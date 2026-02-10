@@ -221,8 +221,15 @@ public class BackendStateDelta
     public Dictionary<string, bool> locks;
     
     /// <summary>
-    /// 변수 (인간성 변화 등)
-    /// Key: 변수 이름 (예: "humanity_change")
+    /// 플레이어 인간성 변화량 (양수/음수)
+    /// 0이면 생략 가능
+    /// </summary>
+    [JsonProperty("humanity_change")]
+    public float? humanity_change;
+    
+    /// <summary>
+    /// 기타 커스텀 변수
+    /// Key: 변수 이름
     /// Value: 변수 값 (float)
     /// </summary>
     [JsonProperty("vars")]

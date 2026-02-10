@@ -32,7 +32,8 @@ public class BackendResponseConverter
         out NPCLocations npcLocations,
         out ItemChanges itemChanges,
         out EventFlags eventFlags,
-        out string endingTrigger)
+        out string endingTrigger,
+        out Dictionary<string, bool> locks)
     {
         // 1. narrative → response
         response = !string.IsNullOrEmpty(backendResponse.narrative)
@@ -42,14 +43,8 @@ public class BackendResponseConverter
         // 2. ending_info → ending_trigger
         endingTrigger = backendResponse.ending_info?.ending_type;
 
-        // 3. humanity_change는 백엔드 응답에 없으므로 0으로 설정
-        // (또는 state_delta.vars에서 가져올 수 있다면 그렇게 처리)
-        humanityChange = 0f;
-        if (backendResponse.state_delta?.vars != null
-            && backendResponse.state_delta.vars.ContainsKey("humanity_change"))
-        {
-            humanityChange = backendResponse.state_delta.vars["humanity_change"];
-        }
+        // 3. humanity_change 처리
+        humanityChange = backendResponse.state_delta?.humanity_change ?? 0f;
 
         // 4. state_delta.npc_stats → npc_affection_changes, npc_humanity_changes
         affectionChanges = new NPCAffectionChanges();
@@ -218,22 +213,104 @@ public class BackendResponseConverter
             itemChanges.consumed_items = consumptions.ToArray();
         }
 
-        // 7. npc_locations, disabled_states는 백엔드 응답에 없으므로 null
-        // (필요 시 state_delta에 추가 요청)
-        npcLocations = null;
-        disabledStates = null;
-
-        // 8. locks, vars 처리 (새로운 필드 - GameStateManager에 추가 필요)
-        if (backendResponse.state_delta?.locks != null)
+        // item_state_changes 처리
+        if (backendResponse.state_delta?.item_state_changes != null && backendResponse.state_delta.item_state_changes.Count > 0)
         {
-            Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(backendResponse.state_delta.locks)}");
-            // GameStateManager에 locks 필드 추가 후 처리
+            List<ItemStateChange> stateChanges = new List<ItemStateChange>();
+            foreach (var stateChange in backendResponse.state_delta.item_state_changes)
+            {
+                stateChanges.Add(new ItemStateChange
+                {
+                    item_name = stateChange.item_name,
+                    new_state = stateChange.new_state
+                });
+            }
+            itemChanges.state_changes = stateChanges.ToArray();
         }
 
-        if (backendResponse.state_delta?.vars != null)
+        // 7. npc_disabled_states 변환
+        disabledStates = new NPCDisabledStates();
+        if (backendResponse.state_delta?.npc_disabled_states != null)
         {
-            Debug.Log($"[BackendResponseConverter] 변수 변경: {JsonConvert.SerializeObject(backendResponse.state_delta.vars)}");
-            // GameStateManager에 vars 필드 추가 후 처리
+            foreach (var kvp in backendResponse.state_delta.npc_disabled_states)
+            {
+                string npcName = kvp.Key;
+                NPCDisabledState disabledState = kvp.Value;
+                
+                switch (npcName.ToLower())
+                {
+                    case "stepmother":
+                    case "new_mother":
+                        disabledStates.new_mother = disabledState;
+                        break;
+                    case "new_father":
+                    case "father":
+                        disabledStates.new_father = disabledState;
+                        break;
+                    case "sibling":
+                    case "brother":
+                        disabledStates.sibling = disabledState;
+                        break;
+                    case "dog":
+                    case "baron":
+                        disabledStates.dog = disabledState;
+                        break;
+                    case "grandmother":
+                        disabledStates.grandmother = disabledState;
+                        break;
+                    default:
+                        Debug.LogWarning($"[BackendResponseConverter] 알 수 없는 NPC 이름 (disabled_states): {npcName}");
+                        break;
+                }
+            }
+        }
+
+        // 8. npc_locations 변환
+        npcLocations = new NPCLocations();
+        if (backendResponse.state_delta?.npc_locations != null)
+        {
+            foreach (var kvp in backendResponse.state_delta.npc_locations)
+            {
+                string npcName = kvp.Key;
+                string locationName = kvp.Value;
+                
+                if (string.IsNullOrEmpty(locationName))
+                    continue;
+                
+                switch (npcName.ToLower())
+                {
+                    case "stepmother":
+                    case "new_mother":
+                        npcLocations.new_mother = locationName;
+                        break;
+                    case "new_father":
+                    case "father":
+                        npcLocations.new_father = locationName;
+                        break;
+                    case "sibling":
+                    case "brother":
+                        npcLocations.sibling = locationName;
+                        break;
+                    case "dog":
+                    case "baron":
+                        npcLocations.dog = locationName;
+                        break;
+                    case "grandmother":
+                        npcLocations.grandmother = locationName;
+                        break;
+                    default:
+                        Debug.LogWarning($"[BackendResponseConverter] 알 수 없는 NPC 이름 (locations): {npcName}");
+                        break;
+                }
+            }
+        }
+
+        // 9. locks 처리
+        locks = null;
+        if (backendResponse.state_delta?.locks != null && backendResponse.state_delta.locks.Count > 0)
+        {
+            locks = new Dictionary<string, bool>(backendResponse.state_delta.locks);
+            Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(locks)}");
         }
     }
 }
