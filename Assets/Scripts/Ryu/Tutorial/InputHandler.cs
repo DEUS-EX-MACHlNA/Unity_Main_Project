@@ -138,7 +138,10 @@ public class InputHandler : MonoBehaviour
         NPCAffectionChanges npcAffectionChanges, 
         NPCHumanityChanges npcHumanityChanges,
         NPCDisabledStates npcDisabledStates,
-        NPCLocations npcLocations)
+        NPCLocations npcLocations,
+        ItemChanges itemChanges,
+        EventFlags eventFlags,
+        string endingTrigger)
     {
         Debug.Log($"[InputHandler] 응답 수신: {response}");
         Debug.Log($"[InputHandler] 인간성 변화량: {humanityChange:F1}");
@@ -189,6 +192,31 @@ public class InputHandler : MonoBehaviour
             if (npcLocations != null)
             {
                 ApplyNPCLocations(npcLocations);
+            }
+            
+            // 아이템 변화량 적용 (백엔드에서 제공 시만)
+            if (itemChanges != null)
+            {
+                ApplyItemChanges(itemChanges);
+            }
+            
+            // 이벤트 플래그 적용 (백엔드에서 제공 시만)
+            if (eventFlags != null)
+            {
+                ApplyEventFlags(eventFlags);
+            }
+            
+            // 엔딩 트리거 처리
+            if (!string.IsNullOrEmpty(endingTrigger))
+            {
+                EndingType endingType = ConvertEndingNameToType(endingTrigger);
+                if (endingType != EndingType.None)
+                {
+                    // 백엔드에서 엔딩 트리거를 받았으므로 즉시 엔딩 진입
+                    gameStateManager.TriggerEnding(endingType);
+                    Debug.Log($"[InputHandler] 백엔드에서 엔딩 트리거 수신: {endingType}");
+                    return; // 엔딩 진입 시 더 이상 처리하지 않음
+                }
             }
         }
         else
@@ -310,6 +338,174 @@ public class InputHandler : MonoBehaviour
             default:
                 Debug.LogWarning($"[InputHandler] 알 수 없는 위치 이름: {locationName}");
                 return GameLocation.Hallway; // 기본값
+        }
+    }
+
+    // 아이템 변화량 적용 헬퍼 메서드
+    private void ApplyItemChanges(ItemChanges itemChanges)
+    {
+        if (gameStateManager == null)
+            return;
+
+        // 아이템 획득 처리
+        if (itemChanges.acquired_items != null)
+        {
+            foreach (var acquisition in itemChanges.acquired_items)
+            {
+                ItemType itemType = ConvertItemNameToType(acquisition.item_name);
+                if (itemType != ItemType.None) // None이 아닌 경우만 처리
+                {
+                    gameStateManager.AddItem(itemType, acquisition.count);
+                    Debug.Log($"[InputHandler] 아이템 획득: {itemType} x{acquisition.count}");
+                }
+            }
+        }
+        
+        // 아이템 사용/소모 처리
+        if (itemChanges.consumed_items != null)
+        {
+            foreach (var consumption in itemChanges.consumed_items)
+            {
+                ItemType itemType = ConvertItemNameToType(consumption.item_name);
+                if (itemType != ItemType.None)
+                {
+                    gameStateManager.RemoveItem(itemType, consumption.count);
+                    Debug.Log($"[InputHandler] 아이템 사용/소모: {itemType} x{consumption.count}");
+                }
+            }
+        }
+        
+        // 아이템 상태 변경 처리
+        if (itemChanges.state_changes != null)
+        {
+            foreach (var stateChange in itemChanges.state_changes)
+            {
+                ItemType itemType = ConvertItemNameToType(stateChange.item_name);
+                ItemState newState = ConvertItemStateNameToType(stateChange.new_state);
+                if (itemType != ItemType.None)
+                {
+                    gameStateManager.SetItemState(itemType, newState);
+                    Debug.Log($"[InputHandler] 아이템 상태 변경: {itemType} → {newState}");
+                }
+            }
+        }
+    }
+
+    // 아이템 이름을 ItemType으로 변환하는 헬퍼 메서드
+    private ItemType ConvertItemNameToType(string itemName)
+    {
+        if (string.IsNullOrEmpty(itemName))
+            return ItemType.None;
+        
+        switch (itemName.ToLower())
+        {
+            case "sleeping_pill":
+            case "sleepingpill":
+                return ItemType.SleepingPill;
+            case "earl_grey_tea":
+            case "earlgreytea":
+                return ItemType.EarlGreyTea;
+            case "real_family_photo":
+            case "realfamilyphoto":
+                return ItemType.RealFamilyPhoto;
+            case "oil_bottle":
+            case "oilbottle":
+                return ItemType.OilBottle;
+            case "silver_lighter":
+            case "silverlighter":
+                return ItemType.SilverLighter;
+            case "siblings_toy":
+            case "siblingstoy":
+                return ItemType.SiblingsToy;
+            case "brass_key":
+            case "brasskey":
+                return ItemType.BrassKey;
+            default:
+                Debug.LogWarning($"[InputHandler] 알 수 없는 아이템 이름: {itemName}");
+                return ItemType.None; // 또는 기본값
+        }
+    }
+
+    // 아이템 상태 이름을 ItemState enum으로 변환하는 헬퍼 메서드
+    private ItemState ConvertItemStateNameToType(string stateName)
+    {
+        if (string.IsNullOrEmpty(stateName))
+            return ItemState.InWorld; // 기본값
+        
+        switch (stateName.ToLower())
+        {
+            case "in_world":
+            case "inworld":
+                return ItemState.InWorld;
+            case "in_inventory":
+            case "ininventory":
+                return ItemState.InInventory;
+            case "used":
+                return ItemState.Used;
+            default:
+                Debug.LogWarning($"[InputHandler] 알 수 없는 아이템 상태 이름: {stateName}");
+                return ItemState.InWorld; // 기본값
+        }
+    }
+
+    // 이벤트 플래그 적용 헬퍼 메서드
+    private void ApplyEventFlags(EventFlags eventFlags)
+    {
+        if (gameStateManager == null)
+            return;
+
+        // 표준 이벤트 플래그 적용 (EventFlags 구조체는 bool 필드를 직접 가지고 있으므로 직접 사용)
+        gameStateManager.SetEventFlag("grandmotherCooperation", eventFlags.grandmotherCooperation);
+        gameStateManager.SetEventFlag("holeUnlocked", eventFlags.holeUnlocked);
+        gameStateManager.SetEventFlag("fireStarted", eventFlags.fireStarted);
+        gameStateManager.SetEventFlag("familyAsleep", eventFlags.familyAsleep);
+        gameStateManager.SetEventFlag("teaWithSleepingPill", eventFlags.teaWithSleepingPill);
+        gameStateManager.SetEventFlag("keyStolen", eventFlags.keyStolen);
+        gameStateManager.SetEventFlag("caughtByFather", eventFlags.caughtByFather);
+        gameStateManager.SetEventFlag("caughtByMother", eventFlags.caughtByMother);
+        
+        // 커스텀 이벤트 적용
+        if (eventFlags.customEvents != null)
+        {
+            foreach (var customEvent in eventFlags.customEvents)
+            {
+                gameStateManager.SetCustomEvent(customEvent.Key, customEvent.Value);
+            }
+        }
+        
+        Debug.Log($"[InputHandler] 이벤트 플래그 적용 완료");
+    }
+
+    // 엔딩 이름을 EndingType으로 변환하는 헬퍼 메서드
+    private EndingType ConvertEndingNameToType(string endingName)
+    {
+        if (string.IsNullOrEmpty(endingName))
+            return EndingType.None;
+        
+        // ApiClient의 endingNameMapping 사용 또는 직접 매핑
+        switch (endingName.ToLower())
+        {
+            case "stealth_exit":
+            case "stealthexit":
+                return EndingType.StealthExit;
+            case "chaotic_breakout":
+            case "chaoticbreakout":
+                return EndingType.ChaoticBreakout;
+            case "siblings_help":
+            case "siblingshelp":
+                return EndingType.SiblingsHelp;
+            case "unfinished_doll":
+            case "unfinisheddoll":
+                return EndingType.UnfinishedDoll;
+            case "eternal_dinner":
+            case "eternaldinner":
+                return EndingType.EternalDinner;
+            case "none":
+            case "":
+                return EndingType.None;
+            default:
+                Debug.LogWarning($"[InputHandler] 알 수 없는 엔딩 이름: {endingName}");
+                return EndingType.None;
         }
     }
 

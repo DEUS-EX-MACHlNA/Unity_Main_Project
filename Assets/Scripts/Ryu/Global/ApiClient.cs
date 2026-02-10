@@ -176,28 +176,28 @@ public class ApiClient : MonoBehaviour
     }
 
     [Serializable]
-    private class ItemAcquisition
+    public class ItemAcquisition
     {
         public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill")
         public int count;         // 획득 개수
     }
 
     [Serializable]
-    private class ItemConsumption
+    public class ItemConsumption
     {
         public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill")
         public int count;         // 소모 개수
     }
 
     [Serializable]
-    private class ItemStateChange
+    public class ItemStateChange
     {
         public string item_name;  // 백엔드에서 사용하는 아이템 이름
         public string new_state;  // 새로운 상태 (예: "used", "in_inventory")
     }
 
     [Serializable]
-    private class ItemChanges
+    public class ItemChanges
     {
         public ItemAcquisition[] acquired_items;   // 획득된 아이템 목록 (선택적)
         public ItemConsumption[] consumed_items;   // 사용/소모된 아이템 목록 (선택적)
@@ -241,7 +241,7 @@ public class ApiClient : MonoBehaviour
     {
         // 하위 호환성을 위해 기존 시그니처 유지
         return SendMessage(chatInput,
-            (response, humanity, aff, hum, disabled, locations) => onSuccess(response, humanity),
+            (response, humanity, aff, hum, disabled, locations, items, flags, ending) => onSuccess(response, humanity),
             onError);
     }
 
@@ -250,11 +250,11 @@ public class ApiClient : MonoBehaviour
     /// 3초 타임아웃 시 목업 데이터를 반환합니다.
     /// </summary>
     /// <param name="chatInput">사용자 입력 텍스트</param>
-    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations)</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, npcLocations, itemChanges, eventFlags, endingTrigger)</param>
     /// <param name="onError">에러 콜백</param>
     public Coroutine SendMessage(
         string chatInput, 
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations> onSuccess, 
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string> onSuccess, 
         Action<string> onError)
     {
         return StartCoroutine(SendMessageCoroutine(chatInput, onSuccess, onError));
@@ -262,7 +262,7 @@ public class ApiClient : MonoBehaviour
 
     private IEnumerator SendMessageCoroutine(
         string chatInput, 
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations> onSuccess, 
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, NPCLocations, ItemChanges, EventFlags, string> onSuccess, 
         Action<string> onError)
     {
         string url = $"{baseUrl}/api/v1/game/{gameId}/step";
@@ -293,8 +293,8 @@ public class ApiClient : MonoBehaviour
             {
                 Debug.LogWarning($"[ApiClient] 요청 실패 또는 타임아웃: {request.error}");
                 Debug.Log($"[ApiClient] 목업 데이터를 반환합니다.");
-                // 타임아웃 시 목업 데이터 반환 (NPC 변화량은 모두 0, 무력화 상태와 위치는 null)
-                onSuccess?.Invoke(MOCK_RESPONSE, 0f, new NPCAffectionChanges(), new NPCHumanityChanges(), null, null);
+                // 타임아웃 시 목업 데이터 반환 (NPC 변화량은 모두 0, 무력화 상태와 위치는 null, 아이템 변화량은 빈 인스턴스, 이벤트 플래그와 엔딩 트리거는 null)
+                onSuccess?.Invoke(MOCK_RESPONSE, 0f, new NPCAffectionChanges(), new NPCHumanityChanges(), null, null, new ItemChanges(), null, null);
                 yield break;
             }
 
@@ -322,7 +322,16 @@ public class ApiClient : MonoBehaviour
                 // NPC 위치 추출 (null 체크 포함, 없으면 null)
                 NPCLocations npcLocations = gameResponse.npc_locations;
                 
-                onSuccess?.Invoke(response, humanityChange, affectionChanges, humanityChanges, disabledStates, npcLocations);
+                // 아이템 변화량 추출 (null 체크 포함, 없으면 새 인스턴스 생성)
+                ItemChanges itemChanges = gameResponse.item_changes ?? new ItemChanges();
+                
+                // 이벤트 플래그 추출 (null 체크 포함, 없으면 null)
+                EventFlags eventFlags = gameResponse.event_flags;
+                
+                // 엔딩 트리거 추출 (null 체크 포함, 없으면 null)
+                string endingTrigger = gameResponse.ending_trigger;
+                
+                onSuccess?.Invoke(response, humanityChange, affectionChanges, humanityChanges, disabledStates, npcLocations, itemChanges, eventFlags, endingTrigger);
             }
             catch (Exception e)
             {
