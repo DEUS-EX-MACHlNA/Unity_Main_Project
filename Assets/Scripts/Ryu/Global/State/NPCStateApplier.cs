@@ -94,7 +94,14 @@ public static class NPCStateApplier
             );
         }
 
-        // 새엄마는 무력화 불가 (최종보스)
+        if (states.new_mother != null && states.new_mother.is_disabled)
+        {
+            manager.SetNPCDisabled(
+                NPCType.NewMother,
+                states.new_mother.remaining_turns,
+                states.new_mother.reason
+            );
+        }
     }
 
     /// <summary>

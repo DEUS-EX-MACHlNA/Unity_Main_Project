@@ -23,8 +23,6 @@ public static class EventFlagApplier
         manager.SetEventFlag("familyAsleep", flags.familyAsleep);
         manager.SetEventFlag("teaWithSleepingPill", flags.teaWithSleepingPill);
         manager.SetEventFlag("keyStolen", flags.keyStolen);
-        manager.SetEventFlag("caughtByFather", flags.caughtByFather);
-        manager.SetEventFlag("caughtByMother", flags.caughtByMother);
 
         // 커스텀 이벤트 적용
         if (flags.customEvents != null)

@@ -10,14 +10,41 @@ public class BackendScenarioExample : MonoBehaviour
 {
     [Header("시나리오 설정")]
     [SerializeField] private bool autoRunScenario = false;
+    [SerializeField] private bool autoCreateGameStateManager = true;
     
     private void Start()
     {
+        // GameStateManager가 없으면 자동으로 찾거나 생성
+        if (GameStateManager.Instance == null && autoCreateGameStateManager)
+        {
+            EnsureGameStateManagerExists();
+        }
+        
         if (autoRunScenario)
         {
             // 시나리오 자동 실행
             RunCompleteScenario();
         }
+    }
+    
+    /// <summary>
+    /// GameStateManager가 존재하는지 확인하고, 없으면 찾거나 생성합니다.
+    /// </summary>
+    private void EnsureGameStateManagerExists()
+    {
+        // 1. 씬에서 GameStateManager 찾기
+        GameStateManager existingManager = FindObjectOfType<GameStateManager>();
+        if (existingManager != null)
+        {
+            Debug.Log("[BackendScenarioExample] 씬에서 GameStateManager를 찾았습니다.");
+            return;
+        }
+        
+        // 2. 없으면 새로 생성
+        Debug.LogWarning("[BackendScenarioExample] GameStateManager가 없어서 자동으로 생성합니다.");
+        GameObject gameStateManagerObj = new GameObject("GameStateManager");
+        gameStateManagerObj.AddComponent<GameStateManager>();
+        Debug.Log("[BackendScenarioExample] GameStateManager 생성 완료!");
     }
     
     /// <summary>
@@ -125,31 +152,38 @@ public class BackendScenarioExample : MonoBehaviour
         // ============================================
         // [State/] 각 Applier가 상태를 게임에 적용
         // ============================================
-        if (GameStateManager.Instance != null)
+        if (GameStateManager.Instance == null)
         {
-            // 1. [State/GameStateApplier] 인간성 변화 적용
-            GameStateApplier.ApplyHumanityChange(GameStateManager.Instance, humanityChange);
-            
-            // 2. [State/ItemStateApplier] 아이템 소모 적용
-            if (itemChanges != null)
-            {
-                ItemStateApplier.ApplyItemChanges(GameStateManager.Instance, itemChanges);
-            }
-            
-            // 3. [State/EventFlagApplier] 이벤트 플래그 적용
-            if (eventFlags != null)
-            {
-                EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
-            }
+            Debug.LogWarning("[BackendScenarioExample] GameStateManager.Instance가 null입니다!");
+            Debug.LogWarning("해결 방법:");
+            Debug.LogWarning("1. Hierarchy에 'GameStateManager' GameObject가 있는지 확인");
+            Debug.LogWarning("2. Play 모드에서 실행 중인지 확인 (에디터 모드에서는 Awake가 실행되지 않음)");
+            Debug.LogWarning("3. GameStateManager 컴포넌트가 GameObject에 추가되어 있는지 확인");
+            return;
+        }
+        
+        // 1. [State/GameStateApplier] 인간성 변화 적용
+        GameStateApplier.ApplyHumanityChange(GameStateManager.Instance, humanityChange);
+        
+        // 2. [State/ItemStateApplier] 아이템 소모 적용
+        if (itemChanges != null)
+        {
+            ItemStateApplier.ApplyItemChanges(GameStateManager.Instance, itemChanges);
+        }
+        
+        // 3. [State/EventFlagApplier] 이벤트 플래그 적용
+        if (eventFlags != null)
+        {
+            EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
         }
         
         // ============================================
         // [Managers/] 각 매니저가 상태를 관리
         // ============================================
         Debug.Log("\n[Managers/] 상태 확인:");
-        Debug.Log($"  - EventFlagManager: teaWithSleepingPill = {GameStateManager.Instance?.GetEventFlag("teaWithSleepingPill")}");
-        Debug.Log($"  - GameStateManager: 현재 인간성 = {GameStateManager.Instance?.GetHumanity()}");
-        Debug.Log($"  - InventoryManager: 수면제 보유 여부 = {GameStateManager.Instance?.HasItem(ItemType.SleepingPill)}");
+        Debug.Log($"  - EventFlagManager: teaWithSleepingPill = {GameStateManager.Instance.GetEventFlag("teaWithSleepingPill")}");
+        Debug.Log($"  - GameStateManager: 현재 인간성 = {GameStateManager.Instance.GetHumanity()}");
+        Debug.Log($"  - InventoryManager: 수면제 보유 여부 = {GameStateManager.Instance.HasItem(ItemType.SleepingPill)}");
         
         Debug.Log("\n[1단계 완료] 홍차에 수면제를 넣었습니다.\n");
     }
@@ -239,21 +273,24 @@ public class BackendScenarioExample : MonoBehaviour
         // ============================================
         // [State/] 상태 적용
         // ============================================
-        if (GameStateManager.Instance != null)
+        if (GameStateManager.Instance == null)
         {
-            // [State/EventFlagApplier] 이벤트 플래그 적용
-            if (eventFlags != null)
-            {
-                EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
-            }
+            Debug.LogWarning("[BackendScenarioExample] GameStateManager.Instance가 null입니다!");
+            return;
+        }
+        
+        // [State/EventFlagApplier] 이벤트 플래그 적용
+        if (eventFlags != null)
+        {
+            EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
         }
         
         // ============================================
         // [Managers/] 상태 확인
         // ============================================
         Debug.Log("\n[Managers/] 상태 확인:");
-        Debug.Log($"  - EventFlagManager: familyAsleep = {GameStateManager.Instance?.GetEventFlag("familyAsleep")}");
-        Debug.Log($"  - EventFlagManager: teaWithSleepingPill = {GameStateManager.Instance?.GetEventFlag("teaWithSleepingPill")}");
+        Debug.Log($"  - EventFlagManager: familyAsleep = {GameStateManager.Instance.GetEventFlag("familyAsleep")}");
+        Debug.Log($"  - EventFlagManager: teaWithSleepingPill = {GameStateManager.Instance.GetEventFlag("teaWithSleepingPill")}");
         
         Debug.Log("\n[2단계 완료] 가족이 잠들었습니다.\n");
     }
@@ -337,29 +374,32 @@ public class BackendScenarioExample : MonoBehaviour
         // ============================================
         // [State/] 상태 적용
         // ============================================
-        if (GameStateManager.Instance != null)
+        if (GameStateManager.Instance == null)
         {
-            // [State/EventFlagApplier] 이벤트 플래그 적용
-            if (eventFlags != null)
-            {
-                EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
-            }
-            
-            // [State/GameStateApplier] 엔딩 트리거 적용
-            if (!string.IsNullOrEmpty(endingTrigger))
-            {
-                bool endingTriggered = GameStateApplier.ApplyEndingTrigger(GameStateManager.Instance, endingTrigger);
-                Debug.Log($"[State/GameStateApplier] 엔딩 트리거 결과: {endingTriggered}");
-            }
+            Debug.LogWarning("[BackendScenarioExample] GameStateManager.Instance가 null입니다!");
+            return;
+        }
+        
+        // [State/EventFlagApplier] 이벤트 플래그 적용
+        if (eventFlags != null)
+        {
+            EventFlagApplier.ApplyEventFlags(GameStateManager.Instance, eventFlags);
+        }
+        
+        // [State/GameStateApplier] 엔딩 트리거 적용
+        if (!string.IsNullOrEmpty(endingTrigger))
+        {
+            bool endingTriggered = GameStateApplier.ApplyEndingTrigger(GameStateManager.Instance, endingTrigger);
+            Debug.Log($"[State/GameStateApplier] 엔딩 트리거 결과: {endingTriggered}");
         }
         
         // ============================================
         // [Managers/EndingManager] 엔딩 조건 체크 및 처리
         // ============================================
         Debug.Log("\n[Managers/EndingManager] 엔딩 조건 체크:");
-        Debug.Log($"  - teaWithSleepingPill: {GameStateManager.Instance?.GetEventFlag("teaWithSleepingPill")}");
-        Debug.Log($"  - familyAsleep: {GameStateManager.Instance?.GetEventFlag("familyAsleep")}");
-        Debug.Log($"  - keyStolen: {GameStateManager.Instance?.GetEventFlag("keyStolen")}");
+        Debug.Log($"  - teaWithSleepingPill: {GameStateManager.Instance.GetEventFlag("teaWithSleepingPill")}");
+        Debug.Log($"  - familyAsleep: {GameStateManager.Instance.GetEventFlag("familyAsleep")}");
+        Debug.Log($"  - keyStolen: {GameStateManager.Instance.GetEventFlag("keyStolen")}");
         Debug.Log($"  - 현재 위치: Backyard (가정)");
         Debug.Log($"  → StealthExit 엔딩 조건 달성!");
         

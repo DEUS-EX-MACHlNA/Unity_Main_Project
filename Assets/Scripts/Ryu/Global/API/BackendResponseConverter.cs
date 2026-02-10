@@ -176,16 +176,6 @@ public class BackendResponseConverter
                         eventFlags.keyStolen = flagValue;
                         break;
 
-                    case "caught_by_father":
-                    case "caughtbyfather":
-                        eventFlags.caughtByFather = flagValue;
-                        break;
-
-                    case "caught_by_mother":
-                    case "caughtbymother":
-                        eventFlags.caughtByMother = flagValue;
-                        break;
-
                     default:
                         // 커스텀 플래그는 customEvents Dictionary에 저장
                         if (eventFlags.customEvents == null)

@@ -21,9 +21,6 @@ public class EventFlagManager
             familyAsleep = false,
             teaWithSleepingPill = false,
             keyStolen = false,
-            caughtByFather = false,
-            caughtByMother = false,
-            imprisonmentDay = -1,
             customEvents = new Dictionary<string, bool>()
         };
     }
@@ -53,12 +50,6 @@ public class EventFlagManager
             case "keystolen":
                 eventFlags.keyStolen = value;
                 break;
-            case "caughtbyfather":
-                eventFlags.caughtByFather = value;
-                break;
-            case "caughtbymother":
-                eventFlags.caughtByMother = value;
-                break;
             default:
                 Debug.LogWarning($"[EventFlagManager] 알 수 없는 플래그 이름: {flagName}");
                 return;
@@ -86,10 +77,6 @@ public class EventFlagManager
                 return eventFlags.teaWithSleepingPill;
             case "keystolen":
                 return eventFlags.keyStolen;
-            case "caughtbyfather":
-                return eventFlags.caughtByFather;
-            case "caughtbymother":
-                return eventFlags.caughtByMother;
             default:
                 Debug.LogWarning($"[EventFlagManager] 알 수 없는 플래그 이름: {flagName}");
                 return false;

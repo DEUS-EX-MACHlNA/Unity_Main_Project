@@ -131,44 +131,109 @@ public class BackendNPCStats
 }
 
 /// <summary>
-/// 백엔드 응답의 엔딩 정보
+/// 백엔드 응답의 엔딩 정보 (선택적)
+/// null이면 엔딩 트리거 없음
 /// </summary>
 [Serializable]
 public class BackendEndingInfo
 {
+    /// <summary>
+    /// 엔딩 타입 이름
+    /// 가능한 값: "stealth_exit", "chaotic_breakout", "siblings_help", 
+    ///           "unfinished_doll", "eternal_dinner", null
+    /// </summary>
     [JsonProperty("ending_type")]
-    public string ending_type;  // 예: "stealth_exit"
+    public string ending_type;
     
+    /// <summary>
+    /// 엔딩 설명 (선택적)
+    /// </summary>
     [JsonProperty("description")]
-    public string description;  // 선택적
+    public string description;
 }
 
 /// <summary>
 /// 백엔드 응답의 상태 변화량 (State Delta)
+/// 모든 필드는 선택적(optional)이며, 변화가 없으면 생략 가능합니다.
 /// </summary>
 [Serializable]
 public class BackendStateDelta
 {
+    /// <summary>
+    /// NPC 통계 변화량 (호감도, 의심도, 공포도)
+    /// Key: NPC 이름 (예: "new_mother", "grandmother")
+    /// Value: 통계 변화량 (trust, suspicion, fear)
+    /// </summary>
     [JsonProperty("npc_stats")]
-    public Dictionary<string, BackendNPCStats> npc_stats;  // Dictionary 지원!
+    public Dictionary<string, BackendNPCStats> npc_stats;
     
+    /// <summary>
+    /// 이벤트 플래그 (게임 이벤트 발생 여부)
+    /// Key: 플래그 이름 (예: "tea_with_sleeping_pill", "fire_started")
+    /// Value: 플래그 값 (bool)
+    /// </summary>
     [JsonProperty("flags")]
-    public Dictionary<string, bool> flags;  // Dictionary 지원!
+    public Dictionary<string, bool> flags;
     
+    /// <summary>
+    /// 획득한 아이템 목록
+    /// 예: ["sleeping_pill", "earl_grey_tea"]
+    /// </summary>
     [JsonProperty("inventory_add")]
-    public List<string> inventory_add;  // string[] 대신 List 사용 권장
+    public List<string> inventory_add;
     
+    /// <summary>
+    /// 소모/사용한 아이템 목록
+    /// 예: ["sleeping_pill", "earl_grey_tea"]
+    /// </summary>
     [JsonProperty("inventory_remove")]
     public List<string> inventory_remove;
     
+    /// <summary>
+    /// 아이템 상태 변경 목록
+    /// 예: [{"item_name": "earl_grey_tea", "new_state": "used"}]
+    /// </summary>
+    [JsonProperty("item_state_changes")]
+    public List<ItemStateChange> item_state_changes;
+    
+    /// <summary>
+    /// NPC 무력화 상태
+    /// Key: NPC 이름 (예: "grandmother", "new_father")
+    /// Value: 무력화 상태 정보 (is_disabled, remaining_turns, reason)
+    /// </summary>
+    [JsonProperty("npc_disabled_states")]
+    public Dictionary<string, NPCDisabledState> npc_disabled_states;
+    
+    /// <summary>
+    /// NPC 위치 변경
+    /// Key: NPC 이름 (예: "grandmother", "new_father")
+    /// Value: 위치 이름 (예: "basement", "kitchen")
+    /// </summary>
+    [JsonProperty("npc_locations")]
+    public Dictionary<string, string> npc_locations;
+    
+    /// <summary>
+    /// 잠금 상태 (문, 상자 등)
+    /// Key: 잠금 이름 (예: "basement_door", "siblings_room_door")
+    /// Value: 잠금 여부 (true = 잠금, false = 해제)
+    /// </summary>
     [JsonProperty("locks")]
-    public Dictionary<string, bool> locks;  // 새로운 필드
+    public Dictionary<string, bool> locks;
     
+    /// <summary>
+    /// 변수 (인간성 변화 등)
+    /// Key: 변수 이름 (예: "humanity_change")
+    /// Value: 변수 값 (float)
+    /// </summary>
     [JsonProperty("vars")]
-    public Dictionary<string, float> vars;  // 새로운 필드
+    public Dictionary<string, float> vars;
     
+    /// <summary>
+    /// 턴 소모량 (기본값 1)
+    /// 0이면 생략 가능 (턴 소모 없음)
+    /// </summary>
     [JsonProperty("turn_increment")]
-    public int turn_increment;  // 새로운 필드
+    public int turn_increment;
 }
 
 /// <summary>
@@ -191,13 +256,20 @@ public class BackendStepInfo
 }
 
 /// <summary>
-/// 백엔드 응답의 디버그 정보
+/// 백엔드 응답의 디버그 정보 (선택적)
 /// </summary>
 [Serializable]
 public class BackendDebugInfo
 {
     [JsonProperty("game_id")]
     public int game_id;
+    
+    /// <summary>
+    /// 백엔드가 판단한 근거 (디버깅용)
+    /// 예: "플레이어가 할머니에게 수면제를 탄 홍차를 제공했습니다..."
+    /// </summary>
+    [JsonProperty("reasoning")]
+    public string reasoning;
     
     [JsonProperty("steps")]
     public List<BackendStepInfo> steps;
