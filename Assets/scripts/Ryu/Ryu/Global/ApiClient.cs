@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public class ApiClient : MonoBehaviour
 {
     [Header("Server Settings")]
-    [SerializeField] private string baseUrl = "https://7783-115-95-186-2.ngrok-free.app";
+    [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
     [SerializeField] private int gameId = 1;
     [SerializeField] private int userId = 1;  // 사용자 ID
 
@@ -137,20 +137,6 @@ public class ApiClient : MonoBehaviour
     // 백엔드 API 응답 구조체는 GameDataTypes.cs로 이동됨
     // ============================================
 
-    [Serializable]
-    private class GameResponse
-    {
-        public string response;                           // 응답 텍스트
-        public float humanity_change;                      // 플레이어 인간성 변화량
-        public NPCAffectionChanges npc_affection_changes;    // NPC 호감도 변화량 (선택적)
-        public NPCHumanityChanges npc_humanity_changes;     // NPC 인간성 변화량 (선택적)
-        public NPCDisabledStates npc_disabled_states;        // NPC 무력화 상태 (선택적)
-        public ItemChanges item_changes;                   // 아이템 변화량 (선택적)
-        public EventFlags event_flags;                      // 이벤트 플래그 (선택적)
-        public NPCLocations npc_locations;                  // NPC 위치 (선택적)
-        public string ending_trigger;                       // 엔딩 트리거 (선택적, null 가능)
-    }
-
     // ============================================
     // Scenario API
     // ============================================
@@ -174,6 +160,7 @@ public class ApiClient : MonoBehaviour
 
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
+            request.SetRequestHeader("ngrok-skip-browser-warning", "true");  // ngrok 브라우저 경고 스킵
             request.timeout = Mathf.CeilToInt(timeoutSeconds);
 
             yield return request.SendWebRequest();
@@ -188,12 +175,20 @@ public class ApiClient : MonoBehaviour
             }
 
             string responseText = request.downloadHandler.text;
-            Debug.Log($"[ApiClient] 시나리오 시작 응답: {responseText}");
+            Debug.Log($"[ApiClient] ========== 시나리오 시작 원본 응답 ==========");
+            Debug.Log($"[ApiClient] {responseText}");
+            Debug.Log($"[ApiClient] ============================================");
 
             try
             {
                 // Json.NET을 사용하여 응답 파싱
                 ScenarioStartResponse response = JsonConvert.DeserializeObject<ScenarioStartResponse>(responseText);
+                
+                // 파싱된 응답을 콘솔에 출력 (JSON 형식으로 포맷팅)
+                string formattedResponse = JsonConvert.SerializeObject(response, Formatting.Indented);
+                Debug.Log($"[ApiClient] ========== 시나리오 시작 응답 (파싱됨) ==========");
+                Debug.Log($"[ApiClient] {formattedResponse}");
+                Debug.Log($"[ApiClient] ================================================");
                 
                 if (response != null && response.game_id > 0)
                 {
@@ -291,9 +286,9 @@ public class ApiClient : MonoBehaviour
 
         StepRequest requestData = new StepRequest
         {
-            chat_input = chatInput,
-            npc_name = npcName,
-            item_name = itemName
+            chat_input = chatInput ?? "",
+            npc_name = npcName ?? "",
+            item_name = itemName ?? ""
         };
 
         string jsonBody = JsonUtility.ToJson(requestData);
@@ -305,6 +300,7 @@ public class ApiClient : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("ngrok-skip-browser-warning", "true");  // ngrok 브라우저 경고 스킵
             request.timeout = Mathf.CeilToInt(timeoutSeconds);
 
             yield return request.SendWebRequest();
@@ -321,12 +317,20 @@ public class ApiClient : MonoBehaviour
             }
 
             string responseText = request.downloadHandler.text;
-            Debug.Log($"[ApiClient] 응답 수신: {responseText}");
+            Debug.Log($"[ApiClient] ========== 백엔드 원본 응답 ==========");
+            Debug.Log($"[ApiClient] {responseText}");
+            Debug.Log($"[ApiClient] ======================================");
 
             try
             {
                 // Json.NET을 사용하여 백엔드 응답 파싱
                 BackendGameResponse backendResponse = JsonConvert.DeserializeObject<BackendGameResponse>(responseText);
+                
+                // 백엔드 응답을 콘솔에 출력 (JSON 형식으로 포맷팅)
+                string formattedResponse = JsonConvert.SerializeObject(backendResponse, Formatting.Indented);
+                Debug.Log($"[ApiClient] ========== 백엔드 응답 (파싱됨) ==========");
+                Debug.Log($"[ApiClient] {formattedResponse}");
+                Debug.Log($"[ApiClient] ==========================================");
                 
                 // 백엔드 응답을 현재 구조로 변환
                 ConvertBackendResponseToCurrentFormat(
