@@ -227,13 +227,6 @@ public class BackendStateDelta
     /// </summary>
     [JsonProperty("vars")]
     public Dictionary<string, float> vars;
-    
-    /// <summary>
-    /// 턴 소모량 (기본값 1)
-    /// 0이면 생략 가능 (턴 소모 없음)
-    /// </summary>
-    [JsonProperty("turn_increment")]
-    public int turn_increment;
 }
 
 /// <summary>

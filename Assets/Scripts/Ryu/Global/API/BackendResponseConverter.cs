@@ -223,14 +223,7 @@ public class BackendResponseConverter
         npcLocations = null;
         disabledStates = null;
 
-        // 8. turn_increment 처리 (필요 시 TurnManager에 전달)
-        if (backendResponse.state_delta?.turn_increment > 0)
-        {
-            Debug.Log($"[BackendResponseConverter] 턴 증가량: {backendResponse.state_delta.turn_increment}");
-            // TurnManager에 전달하는 로직 추가 필요
-        }
-
-        // 9. locks, vars 처리 (새로운 필드 - GameStateManager에 추가 필요)
+        // 8. locks, vars 처리 (새로운 필드 - GameStateManager에 추가 필요)
         if (backendResponse.state_delta?.locks != null)
         {
             Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(backendResponse.state_delta.locks)}");

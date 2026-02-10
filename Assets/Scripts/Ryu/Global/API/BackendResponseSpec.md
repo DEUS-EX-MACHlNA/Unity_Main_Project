@@ -23,8 +23,7 @@
     "npc_disabled_states": {...},  // 선택적: NPC 무력화 상태
     "npc_locations": {...},         // 선택적: NPC 위치 변경
     "locks": {...},                 // 선택적: 잠금 상태
-    "vars": {...},                 // 선택적: 변수 (인간성 변화 등)
-    "turn_increment": 0            // 선택적: 턴 소모량 (기본값 1)
+    "vars": {...}                   // 선택적: 변수 (인간성 변화 등)
   },
   "debug": {                       // 선택적: 디버그 정보
     "game_id": 0,
@@ -250,8 +249,6 @@ NPC 위치 변경
 {
   "locks": {
     "basement_door": false,      // 잠금 해제
-    "siblings_room_door": true,  // 잠금
-    "backyard_gate": false
   }
 }
 ```
@@ -267,7 +264,6 @@ NPC 위치 변경
 {
   "vars": {
     "humanity_change": -5.0,    // 플레이어 인간성 변화량
-    "custom_var_1": 10.0        // 커스텀 변수
   }
 }
 ```
@@ -277,20 +273,6 @@ NPC 위치 변경
 
 **주의사항:**
 - `humanity_change`가 0이면 생략 가능 (변화 없음)
-
-#### 2.3.10 turn_increment (선택적)
-턴 소모량
-
-```json
-{
-  "turn_increment": 1  // 기본값 1
-}
-```
-
-**주의사항:**
-- 기본값은 1 (턴 1개 소모)
-- 0이면 생략 가능 (턴 소모 없음)
-- 2 이상이면 여러 턴 소모
 
 ### 2.4 debug (선택적)
 디버그 정보
@@ -355,8 +337,7 @@ NPC 위치 변경
     },
     "vars": {
       "humanity_change": -5.0
-    },
-    "turn_increment": 1
+    }
   },
   "debug": {
     "game_id": 12,
@@ -397,8 +378,7 @@ NPC 위치 변경
     ],
     "vars": {
       "humanity_change": -15.0
-    },
-    "turn_increment": 1
+    }
   },
   "debug": {
     "game_id": 12,
@@ -413,29 +393,51 @@ NPC 위치 변경
 **요청:**
 ```json
 {
-  "chat_input": "할머니의 도움으로 조용히 탈출한다",
-  "npc_name": "grandmother",
-  "item_name": ""
+  "chat_input": "저녁 식사 전 홍차에 수면제를 타서 가족들에게 대접한다",
+  "npc_name": "",
+  "item_name": "sleeping_pill"
 }
 ```
 
 **응답:**
 ```json
 {
-  "narrative": "할머니의 도움으로 조용히 집을 빠져나왔습니다. 아무도 당신이 사라진 것을 눈치채지 못했습니다.",
+  "narrative": "홍차의 진한 향이 수면제의 냄새를 가려줍니다. 평소처럼 순종적인 태도로 가족들에게 차를 대접하자, 모두가 기꺼이 마셔줍니다. 곧 수면제가 효과를 발휘해 온 가족이 식탁에서 잠들기 시작합니다. 조용히 새엄마에게 다가가 목걸이에서 열쇠를 훔쳐냅니다. 아무도 눈치채지 못한 채, 당신은 인형 속 세계에서 달아납니다.",
   "ending_info": {
     "ending_type": "stealth_exit",
     "description": "완벽한 기만 엔딩"
   },
   "state_delta": {
     "flags": {
-      "grandmother_cooperation": true
+      "tea_with_sleeping_pill": true,
+      "key_stolen": true,
+      "family_asleep": true
     },
-    "turn_increment": 1
+    "inventory_remove": [
+      "sleeping_pill",
+      "earl_grey_tea"
+    ],
+    "npc_disabled_states": {
+      "new_mother": {
+        "is_disabled": true,
+        "remaining_turns": 10,
+        "reason": "수면제 복용"
+      },
+      "new_father": {
+        "is_disabled": true,
+        "remaining_turns": 10,
+        "reason": "수면제 복용"
+      },
+      "sibling": {
+        "is_disabled": true,
+        "remaining_turns": 10,
+        "reason": "수면제 복용"
+      }
+    }
   },
   "debug": {
     "game_id": 12,
-    "reasoning": "StealthExit 엔딩 조건 충족: 할머니 협력 + tea_with_sleeping_pill 플래그 + 조용한 탈출",
+    "reasoning": "StealthExit 엔딩 조건 충족: 수면제 보유 + 홍차에 수면제 투입 + 가족들에게 대접 + 열쇠 탈취 성공",
     "turn_after": 8
   }
 }
@@ -462,8 +464,7 @@ NPC 위치 변경
       "new_father": {
         "trust": 1.0
       }
-    },
-    "turn_increment": 1
+    }
   }
 }
 ```
@@ -483,8 +484,7 @@ NPC 위치 변경
 {
   "narrative": "대화 텍스트",
   "state_delta": {
-    "turn_increment": 1
-    // 다른 필드는 모두 생략 가능 (변화 없음)
+    // 모든 필드는 생략 가능 (변화 없음)
   }
 }
 ```
