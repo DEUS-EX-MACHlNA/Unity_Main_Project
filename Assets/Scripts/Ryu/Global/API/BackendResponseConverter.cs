@@ -1,0 +1,257 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Newtonsoft.Json;
+
+/// <summary>
+/// 백엔드 응답을 Unity 구조로 변환하는 클래스입니다.
+/// </summary>
+public class BackendResponseConverter
+{
+    private string mockResponse;
+
+    /// <summary>
+    /// BackendResponseConverter 생성자
+    /// </summary>
+    /// <param name="mockResponse">목업 응답 텍스트</param>
+    public BackendResponseConverter(string mockResponse)
+    {
+        this.mockResponse = mockResponse;
+    }
+
+    /// <summary>
+    /// 백엔드 응답을 현재 구조로 변환합니다.
+    /// </summary>
+    public void ConvertBackendResponseToCurrentFormat(
+        BackendGameResponse backendResponse,
+        out string response,
+        out float humanityChange,
+        out NPCAffectionChanges affectionChanges,
+        out NPCHumanityChanges humanityChanges,
+        out NPCDisabledStates disabledStates,
+        out NPCLocations npcLocations,
+        out ItemChanges itemChanges,
+        out EventFlags eventFlags,
+        out string endingTrigger)
+    {
+        // 1. narrative → response
+        response = !string.IsNullOrEmpty(backendResponse.narrative)
+            ? backendResponse.narrative
+            : mockResponse;
+
+        // 2. ending_info → ending_trigger
+        endingTrigger = backendResponse.ending_info?.ending_type;
+
+        // 3. humanity_change는 백엔드 응답에 없으므로 0으로 설정
+        // (또는 state_delta.vars에서 가져올 수 있다면 그렇게 처리)
+        humanityChange = 0f;
+        if (backendResponse.state_delta?.vars != null
+            && backendResponse.state_delta.vars.ContainsKey("humanity_change"))
+        {
+            humanityChange = backendResponse.state_delta.vars["humanity_change"];
+        }
+
+        // 4. state_delta.npc_stats → npc_affection_changes, npc_humanity_changes
+        affectionChanges = new NPCAffectionChanges();
+        humanityChanges = new NPCHumanityChanges();
+
+        if (backendResponse.state_delta?.npc_stats != null)
+        {
+            foreach (var kvp in backendResponse.state_delta.npc_stats)
+            {
+                string npcName = kvp.Key;
+                BackendNPCStats stats = kvp.Value;
+
+                // NPC 이름 매핑 (백엔드 이름 → Unity enum)
+                switch (npcName.ToLower())
+                {
+                    case "stepmother":
+                    case "new_mother":
+                        // trust를 affection으로 매핑 (값이 0이 아닐 때만 적용)
+                        if (stats.trust != 0f)
+                            affectionChanges.new_mother = stats.trust;
+                        // suspicion은 현재 구조에 없으므로 무시하거나 로깅
+                        if (stats.suspicion != 0f)
+                            Debug.Log($"[BackendResponseConverter] stepmother suspicion: {stats.suspicion} (현재 구조에 없어 무시됨)");
+                        break;
+
+                    case "new_father":
+                    case "father":
+                        if (stats.trust != 0f)
+                            affectionChanges.new_father = stats.trust;
+                        if (stats.fear != 0f)
+                            humanityChanges.new_father = stats.fear;  // fear를 humanity로 매핑 (임시)
+                        break;
+
+                    case "sibling":
+                    case "brother":
+                        // 백엔드 예시: brother는 fear만 있음
+                        if (stats.trust != 0f)
+                            affectionChanges.sibling = stats.trust;
+                        if (stats.fear != 0f)
+                            humanityChanges.sibling = stats.fear;
+                        break;
+
+                    case "dog":
+                    case "baron":
+                        if (stats.trust != 0f)
+                            affectionChanges.dog = stats.trust;
+                        if (stats.fear != 0f)
+                            humanityChanges.dog = stats.fear;
+                        break;
+
+                    case "grandmother":
+                        if (stats.trust != 0f)
+                            affectionChanges.grandmother = stats.trust;
+                        if (stats.fear != 0f)
+                            humanityChanges.grandmother = stats.fear;
+                        break;
+
+                    default:
+                        Debug.LogWarning($"[BackendResponseConverter] 알 수 없는 NPC 이름: {npcName}");
+                        break;
+                }
+            }
+        }
+
+        // 5. state_delta.flags → eventFlags
+        eventFlags = null;
+        if (backendResponse.state_delta?.flags != null && backendResponse.state_delta.flags.Count > 0)
+        {
+            eventFlags = new EventFlags();
+
+            // Dictionary의 각 플래그를 EventFlags의 고정 필드에 매핑
+            foreach (var kvp in backendResponse.state_delta.flags)
+            {
+                string flagName = kvp.Key;
+                bool flagValue = kvp.Value;
+
+                switch (flagName.ToLower())
+                {
+                    case "met_mother":
+                    case "metmother":
+                        // 새로운 플래그 - customEvents에 저장
+                        if (eventFlags.customEvents == null)
+                            eventFlags.customEvents = new Dictionary<string, bool>();
+                        eventFlags.customEvents["met_mother"] = flagValue;
+                        Debug.Log($"[BackendResponseConverter] 플래그 설정: met_mother = {flagValue}");
+                        break;
+
+                    case "heard_rumor":
+                    case "heardrumor":
+                        // 새로운 플래그 - customEvents에 저장
+                        if (eventFlags.customEvents == null)
+                            eventFlags.customEvents = new Dictionary<string, bool>();
+                        eventFlags.customEvents["heard_rumor"] = flagValue;
+                        Debug.Log($"[BackendResponseConverter] 플래그 설정: heard_rumor = {flagValue}");
+                        break;
+
+                    case "grandmother_cooperation":
+                    case "grandmothercooperation":
+                        eventFlags.grandmotherCooperation = flagValue;
+                        break;
+
+                    case "hole_unlocked":
+                    case "holeunlocked":
+                        eventFlags.holeUnlocked = flagValue;
+                        break;
+
+                    case "fire_started":
+                    case "firestarted":
+                        eventFlags.fireStarted = flagValue;
+                        break;
+
+                    case "family_asleep":
+                    case "familyasleep":
+                        eventFlags.familyAsleep = flagValue;
+                        break;
+
+                    case "tea_with_sleeping_pill":
+                    case "teawithsleepingpill":
+                        eventFlags.teaWithSleepingPill = flagValue;
+                        break;
+
+                    case "key_stolen":
+                    case "keystolen":
+                        eventFlags.keyStolen = flagValue;
+                        break;
+
+                    case "caught_by_father":
+                    case "caughtbyfather":
+                        eventFlags.caughtByFather = flagValue;
+                        break;
+
+                    case "caught_by_mother":
+                    case "caughtbymother":
+                        eventFlags.caughtByMother = flagValue;
+                        break;
+
+                    default:
+                        // 커스텀 플래그는 customEvents Dictionary에 저장
+                        if (eventFlags.customEvents == null)
+                            eventFlags.customEvents = new Dictionary<string, bool>();
+                        eventFlags.customEvents[flagName] = flagValue;
+                        Debug.Log($"[BackendResponseConverter] 커스텀 플래그 설정: {flagName} = {flagValue}");
+                        break;
+                }
+            }
+        }
+
+        // 6. state_delta.inventory_add/remove → itemChanges
+        itemChanges = new ItemChanges();
+
+        if (backendResponse.state_delta?.inventory_add != null && backendResponse.state_delta.inventory_add.Count > 0)
+        {
+            List<ItemAcquisition> acquisitions = new List<ItemAcquisition>();
+            foreach (string itemName in backendResponse.state_delta.inventory_add)
+            {
+                acquisitions.Add(new ItemAcquisition
+                {
+                    item_name = itemName,
+                    count = 1  // 기본값 1 (백엔드에서 개수 제공 시 수정)
+                });
+            }
+            itemChanges.acquired_items = acquisitions.ToArray();
+        }
+
+        if (backendResponse.state_delta?.inventory_remove != null && backendResponse.state_delta.inventory_remove.Count > 0)
+        {
+            List<ItemConsumption> consumptions = new List<ItemConsumption>();
+            foreach (string itemName in backendResponse.state_delta.inventory_remove)
+            {
+                consumptions.Add(new ItemConsumption
+                {
+                    item_name = itemName,
+                    count = 1  // 기본값 1
+                });
+            }
+            itemChanges.consumed_items = consumptions.ToArray();
+        }
+
+        // 7. npc_locations, disabled_states는 백엔드 응답에 없으므로 null
+        // (필요 시 state_delta에 추가 요청)
+        npcLocations = null;
+        disabledStates = null;
+
+        // 8. turn_increment 처리 (필요 시 TurnManager에 전달)
+        if (backendResponse.state_delta?.turn_increment > 0)
+        {
+            Debug.Log($"[BackendResponseConverter] 턴 증가량: {backendResponse.state_delta.turn_increment}");
+            // TurnManager에 전달하는 로직 추가 필요
+        }
+
+        // 9. locks, vars 처리 (새로운 필드 - GameStateManager에 추가 필요)
+        if (backendResponse.state_delta?.locks != null)
+        {
+            Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(backendResponse.state_delta.locks)}");
+            // GameStateManager에 locks 필드 추가 후 처리
+        }
+
+        if (backendResponse.state_delta?.vars != null)
+        {
+            Debug.Log($"[BackendResponseConverter] 변수 변경: {JsonConvert.SerializeObject(backendResponse.state_delta.vars)}");
+            // GameStateManager에 vars 필드 추가 후 처리
+        }
+    }
+}
+

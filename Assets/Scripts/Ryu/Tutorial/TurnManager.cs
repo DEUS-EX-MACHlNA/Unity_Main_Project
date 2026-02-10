@@ -4,7 +4,7 @@ using TMPro;
 /// <summary>
 /// 남은 턴수를 관리하고 HUD_TopLeft의 TurnsText에 표시합니다.
 /// </summary>
-public class TurnManager : MonoBehaviour
+public class TutorialTurnManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TextMeshProUGUI turnsText;
