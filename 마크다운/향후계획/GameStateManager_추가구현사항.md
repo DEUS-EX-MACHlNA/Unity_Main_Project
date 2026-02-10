@@ -181,7 +181,6 @@ public event Action<TimeOfDay> OnTimeOfDayChanged;
 - 기름병 & 라이터
 - 윤활유
 - 엄마의 열쇠
-- 신비한 지도
 - 동생의 장난감
 - 인간의 증표(소지품)
 
@@ -199,7 +198,6 @@ public enum ItemType
     Lighter,
     Lubricant,
     MothersKey,
-    MysteriousMap,
     SiblingsToy,
     HumanToken
 }
@@ -254,7 +252,7 @@ public event Action<ItemType, ItemState> OnItemStateChanged;
 
 #### Good/Normal Endings:
 1. **완벽한 기만 (The Stealth Exit)**
-   - 조건: 수면제 보유, 지도 보유, 전 NPC 호감도 중간 이상
+   - 조건: 수면제 보유, 전 NPC 호감도 중간 이상
 
 2. **혼돈의 밤 (The Chaotic Breakout)**
    - 조건: 기름병 보유, 할머니와 협력 상태
