@@ -11,7 +11,7 @@ public class ApiResponseHandler
 {
     private GameStateManager gameStateManager;
     private TurnManager turnManager;
-    private TutorialTurnManager tutorialTurnManager;
+    private RoomTurnManager roomTurnManager;
     private TextMeshProUGUI resultText;
 
     /// <summary>
@@ -24,21 +24,21 @@ public class ApiResponseHandler
     {
         this.gameStateManager = gameStateManager;
         this.turnManager = turnManager;
-        this.tutorialTurnManager = null;
+        this.roomTurnManager = null;
         this.resultText = resultText;
     }
 
     /// <summary>
-    /// ApiResponseHandler 생성자 (TutorialTurnManager 사용)
+    /// ApiResponseHandler 생성자 (RoomTurnManager 사용)
     /// </summary>
     /// <param name="gameStateManager">GameStateManager 인스턴스</param>
-    /// <param name="tutorialTurnManager">TutorialTurnManager 인스턴스</param>
+    /// <param name="roomTurnManager">RoomTurnManager 인스턴스</param>
     /// <param name="resultText">결과 텍스트 UI</param>
-    public ApiResponseHandler(GameStateManager gameStateManager, TutorialTurnManager tutorialTurnManager, TextMeshProUGUI resultText)
+    public ApiResponseHandler(GameStateManager gameStateManager, RoomTurnManager roomTurnManager, TextMeshProUGUI resultText)
     {
         this.gameStateManager = gameStateManager;
         this.turnManager = null;
-        this.tutorialTurnManager = tutorialTurnManager;
+        this.roomTurnManager = roomTurnManager;
         this.resultText = resultText;
     }
 
@@ -144,9 +144,9 @@ public class ApiResponseHandler
         {
             turnManager.ConsumeTurn();
         }
-        else if (tutorialTurnManager != null)
+        else if (roomTurnManager != null)
         {
-            tutorialTurnManager.ConsumeTurn();
+            roomTurnManager.ConsumeTurn();
         }
         else
         {

@@ -15,7 +15,7 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private ApiClient apiClient;
 
     [Header("Turn Management")]
-    [SerializeField] private TutorialTurnManager turnManager;
+    [SerializeField] private RoomTurnManager turnManager;
 
     [Header("Game State")]
     [SerializeField] private GameStateManager gameStateManager;

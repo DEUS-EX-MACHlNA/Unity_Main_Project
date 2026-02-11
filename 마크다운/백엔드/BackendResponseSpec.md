@@ -14,16 +14,14 @@
     "ending_type": "string",        // null이면 엔딩 없음
     "description": "string"          // 선택적: 엔딩 설명
   },
-  "state_delta": {                 // 필수: 상태 변화량 (Delta 형식)
-    "npc_stats": {...},            // 선택적: NPC 통계 변화
-    "flags": {...},                 // 선택적: 이벤트 플래그
+  "state_result": {                // 필수: 상태 결과값 (Result 형식)
+    "npc_stats": {...},            // 선택적: NPC 통계 현재 값
+    "flags": {...},                 // 선택적: 이벤트 플래그 현재 상태
     "inventory_add": [...],         // 선택적: 아이템 획득
     "inventory_remove": [...],     // 선택적: 아이템 소모
-    "item_state_changes": [...],    // 선택적: 아이템 상태 변경
     "npc_disabled_states": {...},  // 선택적: NPC 무력화 상태
-    "npc_locations": {...},         // 선택적: NPC 위치 변경
     "locks": {...},                 // 선택적: 잠금 상태
-    "humanity_change": 0.0          // 선택적: 플레이어 인간성 변화량
+    "humanity": 0.0                 // 선택적: 플레이어 인간성 현재 값
   },
   "debug": {                       // 선택적: 디버그 정보
     "game_id": 0,
@@ -62,22 +60,22 @@
 - `"eternal_dinner"` → `EndingType.EternalDinner`
 - `null` 또는 `"none"` → 엔딩 없음
 
-### 2.3 state_delta (필수)
-상태 변화량을 Delta 형식으로 전달합니다. **변화가 없는 필드는 생략 가능**합니다.
+### 2.3 state_result (필수)
+상태 결과값을 Result 형식으로 전달합니다. 백엔드에서 델타 값을 처리한 최종 상태를 반환합니다. **변경되지 않은 필드는 생략 가능**합니다.
 
 #### 2.3.1 npc_stats (선택적)
-NPC 통계 변화량 (호감도, 의심도, 공포도)
+NPC 통계 현재 값 (호감도, 의심도, 공포도)
 
 ```json
 {
   "npc_stats": {
     "new_mother": {
-      "trust": 5.0,        // 호감도 변화량 (양수/음수)
-      "suspicion": -2.0,   // 의심도 변화량 (현재 미사용)
-      "fear": 0.0          // 공포도 변화량 (현재 미사용)
+      "trust": 50.0,        // 호감도 현재 값 (0~100)
+      "suspicion": 10.0,    // 의심도 현재 값 (현재 미사용)
+      "fear": 0.0           // 공포도 현재 값 (현재 미사용)
     },
     "grandmother": {
-      "trust": 10.0,
+      "trust": 60.0,
       "suspicion": 0.0,
       "fear": 0.0
     }
@@ -93,7 +91,7 @@ NPC 통계 변화량 (호감도, 의심도, 공포도)
 - `"grandmother"` → `NPCType.Grandmother`
 
 **주의사항:**
-- `trust` 값이 0이면 생략 가능 (변화 없음)
+- 변경되지 않은 NPC는 생략 가능
 - 새엄마는 `humanity` 변경 불가 (최종보스)
 
 #### 2.3.2 flags (선택적)
@@ -123,7 +121,7 @@ NPC 통계 변화량 (호감도, 의심도, 공포도)
 - 기타 → `EventFlags.customEvents`에 저장
 
 **주의사항:**
-- 플래그가 `false`이면 생략 가능 (변화 없음)
+- 플래그가 `false`이면 생략 가능 (변경 없음)
 
 #### 2.3.3 inventory_add (선택적)
 획득한 아이템 목록
@@ -166,30 +164,7 @@ NPC 통계 변화량 (호감도, 의심도, 공포도)
 - 빈 배열이면 생략 가능
 - 백엔드가 판단: "수면제를 탄 홍차를 드렸다" → 두 아이템 모두 제거
 
-#### 2.3.5 item_state_changes (선택적)
-아이템 상태 변경 (월드 → 인벤토리, 인벤토리 → 사용 등)
-
-```json
-{
-  "item_state_changes": [
-    {
-      "item_name": "earl_grey_tea",
-      "new_state": "used"  // "in_world", "in_inventory", "used"
-    },
-    {
-      "item_name": "brass_key",
-      "new_state": "in_inventory"
-    }
-  ]
-}
-```
-
-**상태 값:**
-- `"in_world"` → `ItemState.InWorld` (월드에 존재)
-- `"in_inventory"` → `ItemState.InInventory` (인벤토리에 있음)
-- `"used"` → `ItemState.Used` (사용됨)
-
-#### 2.3.6 npc_disabled_states (선택적)
+#### 2.3.5 npc_disabled_states (선택적)
 NPC 무력화 상태 (수면제 등으로 무력화)
 
 ```json
@@ -218,31 +193,7 @@ NPC 무력화 상태 (수면제 등으로 무력화)
 - `is_disabled: false`이면 생략 가능 (무력화 해제)
 - `remaining_turns: 0`이면 무력화 해제
 
-#### 2.3.7 npc_locations (선택적)
-NPC 위치 변경
-
-```json
-{
-  "npc_locations": {
-    "grandmother": "basement",
-    "new_father": "kitchen"
-  }
-}
-```
-
-**위치 이름 매핑:**
-- `"players_room"` → `GameLocation.PlayersRoom`
-- `"hallway"` → `GameLocation.Hallway`
-- `"living_room"` → `GameLocation.LivingRoom`
-- `"kitchen"` → `GameLocation.Kitchen`
-- `"siblings_room"` → `GameLocation.SiblingsRoom`
-- `"basement"` → `GameLocation.Basement`
-- `"backyard"` → `GameLocation.Backyard`
-
-**주의사항:**
-- 위치 변경이 없으면 생략 가능
-
-#### 2.3.8 locks (선택적)
+#### 2.3.6 locks (선택적)
 잠금 상태 (문, 상자 등)
 
 ```json
@@ -257,18 +208,18 @@ NPC 위치 변경
 - 잠금 상태 변경이 없으면 생략 가능
 - `true` = 잠금, `false` = 해제
 
-#### 2.3.9 humanity_change (선택적)
-플레이어 인간성 변화량
+#### 2.3.7 humanity (선택적)
+플레이어 인간성 현재 값
 
 ```json
 {
-  "humanity_change": -5.0  // 플레이어 인간성 변화량 (양수/음수)
+  "humanity": 75.0  // 플레이어 인간성 현재 값 (0~100)
 }
 ```
 
 **주의사항:**
-- 0이면 생략 가능 (변화 없음)
-- 양수면 인간성 증가, 음수면 감소
+- 변경되지 않았으면 생략 가능
+- 0~100 범위의 값
 
 ### 2.4 debug (선택적)
 디버그 정보
@@ -293,55 +244,7 @@ NPC 위치 변경
 
 ## 3. 실제 사용 예시
 
-### 예시 1: 수면제를 탄 홍차를 할머니에게 제공
-
-**요청:**
-```json
-{
-  "chat_input": "할머니에게 수면제를 탄 홍차를 드리겠습니다",
-  "npc_name": "grandmother",
-  "item_name": "earl_grey_tea"
-}
-```
-
-**응답:**
-```json
-{
-  "narrative": "할머니가 홍차를 마시고 곧 잠에 빠졌습니다. 이제 안전하게 지하실을 탐색할 수 있습니다.",
-  "ending_info": null,
-  "state_delta": {
-    "flags": {
-      "tea_with_sleeping_pill": true,
-      "grandmother_cooperation": true
-    },
-    "inventory_remove": [
-      "earl_grey_tea",
-      "sleeping_pill"
-    ],
-    "item_state_changes": [
-      {
-        "item_name": "earl_grey_tea",
-        "new_state": "used"
-      }
-    ],
-    "npc_disabled_states": {
-      "grandmother": {
-        "is_disabled": true,
-        "remaining_turns": 3,
-        "reason": "수면제 복용"
-      }
-    },
-    "humanity_change": -5.0
-  },
-  "debug": {
-    "game_id": 12,
-    "reasoning": "플레이어가 할머니에게 수면제를 탄 홍차를 제공했습니다. 이는 tea_with_sleeping_pill 플래그를 true로 설정하고, 할머니를 3턴간 무력화시킵니다. 인간성은 -5 감소합니다.",
-    "turn_after": 6
-  }
-}
-```
-
-### 예시 2: 라이터로 불 지르기
+### 예시 1: 라이터로 불 지르기
 
 **요청:**
 ```json
@@ -357,85 +260,60 @@ NPC 위치 변경
 {
   "narrative": "라이터의 불꽃이 기름에 닿자 순식간에 화재가 발생했습니다. 집안이 연기로 가득 차기 시작합니다.",
   "ending_info": null,
-  "state_delta": {
+  "state_result": {
     "flags": {
       "fire_started": true
     },
     "inventory_remove": [
       "silver_lighter"
     ],
-    "item_state_changes": [
-      {
-        "item_name": "silver_lighter",
-        "new_state": "used"
-      }
-    ],
-    "humanity_change": -15.0
+    "humanity": 60.0
   },
   "debug": {
     "game_id": 12,
-    "reasoning": "플레이어가 라이터로 불을 질렀습니다. fire_started 플래그를 true로 설정하고, 인간성은 -15 감소합니다.",
+    "reasoning": "플레이어가 라이터로 불을 질렀습니다. fire_started 플래그를 true로 설정하고, 인간성은 75에서 60으로 감소합니다.",
     "turn_after": 7
   }
 }
 ```
 
-### 예시 3: 엔딩 트리거 (StealthExit)
+### 예시 2: 동생에게 장난감 주기
 
 **요청:**
 ```json
 {
-  "chat_input": "저녁 식사 전 홍차에 수면제를 타서 가족들에게 대접한다",
-  "npc_name": "",
-  "item_name": "sleeping_pill"
+  "chat_input": "동생에게 장난감을 준다",
+  "npc_name": "sibling",
+  "item_name": "siblings_toy"
 }
 ```
 
 **응답:**
 ```json
 {
-  "narrative": "홍차의 진한 향이 수면제의 냄새를 가려줍니다. 평소처럼 순종적인 태도로 가족들에게 차를 대접하자, 모두가 기꺼이 마셔줍니다. 곧 수면제가 효과를 발휘해 온 가족이 식탁에서 잠들기 시작합니다. 조용히 새엄마에게 다가가 목걸이에서 열쇠를 훔쳐냅니다. 아무도 눈치채지 못한 채, 당신은 인형 속 세계에서 달아납니다.",
-  "ending_info": {
-    "ending_type": "stealth_exit",
-    "description": "완벽한 기만 엔딩"
-  },
-  "state_delta": {
-    "flags": {
-      "tea_with_sleeping_pill": true,
-      "key_stolen": true,
-      "family_asleep": true
+  "narrative": "동생은 낡은 태엽 로봇을 받아들고 잠시 멍하니 바라봅니다. 그 순간, 그의 눈에 뭔가 반짝이는 것이 보입니다. \"이거... 나한테 있었던 거 맞지?\" 작은 목소리로 물어보는 동생의 목소리에는 잊혀진 기억의 파편이 섞여 있습니다.",
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": {
+      "sibling": {
+        "trust": 85.0,
+        "suspicion": 0.0,
+        "fear": 0.0
+      }
     },
     "inventory_remove": [
-      "sleeping_pill",
-      "earl_grey_tea"
-    ],
-    "npc_disabled_states": {
-      "new_mother": {
-        "is_disabled": true,
-        "remaining_turns": 10,
-        "reason": "수면제 복용"
-      },
-      "new_father": {
-        "is_disabled": true,
-        "remaining_turns": 10,
-        "reason": "수면제 복용"
-      },
-      "sibling": {
-        "is_disabled": true,
-        "remaining_turns": 10,
-        "reason": "수면제 복용"
-      }
-    }
+      "siblings_toy"
+    ]
   },
   "debug": {
     "game_id": 12,
-    "reasoning": "StealthExit 엔딩 조건 충족: 수면제 보유 + 홍차에 수면제 투입 + 가족들에게 대접 + 열쇠 탈취 성공",
-    "turn_after": 8
+    "reasoning": "플레이어가 동생에게 장난감을 제공했습니다. 동생의 호감도가 크게 상승하여 85.0이 되었습니다.",
+    "turn_after": 5
   }
 }
 ```
 
-### 예시 4: 변화 없음 (단순 대화)
+### 예시 3: 변화 없음 (단순 대화)
 
 **요청:**
 ```json
@@ -451,10 +329,10 @@ NPC 위치 변경
 {
   "narrative": "새아빠가 무표정하게 당신을 바라봅니다.",
   "ending_info": null,
-  "state_delta": {
+  "state_result": {
     "npc_stats": {
       "new_father": {
-        "trust": 1.0
+        "trust": 51.0
       }
     }
   }
@@ -468,15 +346,15 @@ NPC 위치 변경
 **다음 경우 필드를 생략할 수 있습니다:**
 
 1. **빈 배열/객체**: `[]`, `{}`
-2. **변화 없음**: 값이 0이거나 기본값인 경우
+2. **변경 없음**: 값이 변경되지 않은 경우
 3. **선택적 필드**: `ending_info`, `debug` 등
 
 **예시:**
 ```json
 {
   "narrative": "대화 텍스트",
-  "state_delta": {
-    // 모든 필드는 생략 가능 (변화 없음)
+  "state_result": {
+    // 모든 필드는 생략 가능 (변경 없음)
   }
 }
 ```
@@ -497,14 +375,14 @@ NPC 위치 변경
 }
 ```
 
-게임은 에러 응답을 받으면 `narrative`에 에러 메시지를 표시하고, `state_delta`는 적용하지 않습니다.
+게임은 에러 응답을 받으면 `narrative`에 에러 메시지를 표시하고, `state_result`는 적용하지 않습니다.
 
 ---
 
 ## 6. 구현 참고사항
 
 ### 6.1 Unity C# 구조체
-현재 `GameDataTypes.cs`의 `BackendStateDelta` 구조체를 확장하여 위 형식을 지원합니다.
+현재 `GameDataTypes.cs`의 `BackendStateResult` 구조체를 확장하여 위 형식을 지원합니다.
 
 ### 6.2 변환 로직
 `BackendResponseConverter.cs`에서 백엔드 응답을 게임 내부 형식으로 변환합니다.
