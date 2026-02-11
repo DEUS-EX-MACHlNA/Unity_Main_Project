@@ -114,16 +114,16 @@ public class EndingManager
         switch (ending)
         {
             case EndingType.StealthExit:
-                return inventoryManager.HasItem(ItemType.SleepingPill) && 
+                return inventoryManager.HasItem(ItemType.SleepingPills) && 
                        eventFlagManager.GetEventFlag("teawithsleepingpill");
                 
             case EndingType.ChaoticBreakout:
-                return inventoryManager.HasItem(ItemType.OilBottle) && 
+                return inventoryManager.HasItem(ItemType.WhaleOilCan) && 
                        inventoryManager.HasItem(ItemType.SilverLighter);
                 
             case EndingType.SiblingsHelp:
                 return inventoryManager.HasItem(ItemType.RealFamilyPhoto) && 
-                       inventoryManager.HasItem(ItemType.SiblingsToy);
+                       inventoryManager.HasItem(ItemType.OldRobotToy);
                 
             case EndingType.UnfinishedDoll:
                 return humanityManager.IsHumanityZero();

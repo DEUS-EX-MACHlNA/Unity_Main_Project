@@ -9,12 +9,12 @@ public static class NameMapper
     // 아이템 이름 매핑
     private static Dictionary<string, ItemType> itemNameMapping = new Dictionary<string, ItemType>
     {
-        { "sleeping_pill", ItemType.SleepingPill },
+        { "sleeping_pills", ItemType.SleepingPills },
         { "earl_grey_tea", ItemType.EarlGreyTea },
         { "real_family_photo", ItemType.RealFamilyPhoto },
-        { "oil_bottle", ItemType.OilBottle },
+        { "whale_oil_can", ItemType.WhaleOilCan },
         { "silver_lighter", ItemType.SilverLighter },
-        { "siblings_toy", ItemType.SiblingsToy },
+        { "old_robot_toy", ItemType.OldRobotToy },
         { "brass_key", ItemType.BrassKey }
     };
 

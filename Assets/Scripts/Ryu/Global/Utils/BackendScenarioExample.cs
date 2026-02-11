@@ -183,7 +183,7 @@ public class BackendScenarioExample : MonoBehaviour
         Debug.Log("\n[Managers/] 상태 확인:");
         Debug.Log($"  - EventFlagManager: teaWithSleepingPill = {GameStateManager.Instance.GetEventFlag("teaWithSleepingPill")}");
         Debug.Log($"  - GameStateManager: 현재 인간성 = {GameStateManager.Instance.GetHumanity()}");
-        Debug.Log($"  - InventoryManager: 수면제 보유 여부 = {GameStateManager.Instance.HasItem(ItemType.SleepingPill)}");
+        Debug.Log($"  - InventoryManager: 수면제 보유 여부 = {GameStateManager.Instance.HasItem(ItemType.SleepingPills)}");
         
         Debug.Log("\n[1단계 완료] 홍차에 수면제를 넣었습니다.\n");
     }

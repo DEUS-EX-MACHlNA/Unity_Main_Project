@@ -30,9 +30,9 @@ public class ItemStateManager
     private void InitializeWorldItemStates()
     {
         // 수면제 - 주방 찬장
-        worldItemStates[ItemType.SleepingPill] = new WorldItemState
+        worldItemStates[ItemType.SleepingPills] = new WorldItemState
         {
-            itemType = ItemType.SleepingPill,
+            itemType = ItemType.SleepingPills,
             state = ItemState.InWorld,
             location = new ItemLocation
             {
@@ -72,9 +72,9 @@ public class ItemStateManager
         };
         
         // 고래기름 통 - 지하실 수술대 아래
-        worldItemStates[ItemType.OilBottle] = new WorldItemState
+        worldItemStates[ItemType.WhaleOilCan] = new WorldItemState
         {
-            itemType = ItemType.OilBottle,
+            itemType = ItemType.WhaleOilCan,
             state = ItemState.InWorld,
             location = new ItemLocation
             {
@@ -100,9 +100,9 @@ public class ItemStateManager
         };
         
         // 동생의 장난감 - 동생의 방 인형의 집 모형
-        worldItemStates[ItemType.SiblingsToy] = new WorldItemState
+        worldItemStates[ItemType.OldRobotToy] = new WorldItemState
         {
-            itemType = ItemType.SiblingsToy,
+            itemType = ItemType.OldRobotToy,
             state = ItemState.InWorld,
             location = new ItemLocation
             {

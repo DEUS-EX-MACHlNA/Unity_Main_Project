@@ -428,7 +428,7 @@ public class GameStateManager : MonoBehaviour
             {
                 // 밤의 대화 전에 엔딩 조건 체크 (수면제 엔딩 등)
                 if (eventFlagManager?.GetEventFlag("teawithsleepingpill") == true && 
-                    inventoryManager?.HasItem(ItemType.SleepingPill) == true)
+                    inventoryManager?.HasItem(ItemType.SleepingPills) == true)
                 {
                     EndingType preNightEnding = endingManager?.CheckEndingConditions() ?? EndingType.None;
                     if (preNightEnding != EndingType.None && 
