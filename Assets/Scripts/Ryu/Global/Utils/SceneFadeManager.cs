@@ -27,19 +27,17 @@ public class SceneFadeManager : MonoBehaviour
 
         if (fadeImage != null)
         {
-            // 현재 씬 이름 확인
-            string currentSceneName = SceneManager.GetActiveScene().name;
-            
-            // Tutorial 씬과 Night 씬에서는 완전 투명(alpha=0)으로 시작
-            if (currentSceneName == "Tutorial" || currentSceneName == "Night")
-            {
-                fadeImage.color = new Color(0, 0, 0, 0);
-            }
-            else
-            {
-                // 다른 씬에서는 검은색 배경으로 유지
-                fadeImage.color = new Color(0, 0, 0, 1);
-            }
+            // 모든 씬에서 기본적으로 투명하게 시작
+            fadeImage.color = new Color(0, 0, 0, 0);
+        }
+    }
+
+    private void Start()
+    {
+        // 씬 로드 후 페이드 인 효과 자동 실행
+        if (fadeImage != null && fadeImage.color.a > 0)
+        {
+            StartCoroutine(FadeIn(1f));
         }
     }
 
@@ -60,7 +58,7 @@ public class SceneFadeManager : MonoBehaviour
         
         Debug.Log($"[SceneFadeManager] {sceneName} 씬 로드 중...");
         
-        // 씬 로드 (새 씬은 검은색 배경으로 시작)
+        // 씬 로드 (새 씬은 검은색 배경으로 시작하지만 Start()에서 자동으로 페이드 인됨)
         SceneManager.LoadScene(sceneName);
     }
 

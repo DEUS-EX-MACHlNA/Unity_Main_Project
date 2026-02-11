@@ -14,13 +14,37 @@ public class HoverGlow : MonoBehaviour
     [SerializeField] private float glowMultiplier = 1.5f;
 
     private SpriteRenderer spriteRenderer;
+    private BoxCollider2D boxCollider;
     private Color originalColor;
     private bool isHovered = false;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        boxCollider = GetComponent<BoxCollider2D>();
         originalColor = spriteRenderer.color;
+        
+        // Box Collider 2D 크기를 Sprite 크기에 자동으로 맞춤
+        AutoSizeCollider();
+    }
+
+    /// <summary>
+    /// Box Collider 2D 크기를 Sprite 크기에 자동으로 맞춥니다.
+    /// </summary>
+    private void AutoSizeCollider()
+    {
+        if (spriteRenderer == null || boxCollider == null) return;
+        if (spriteRenderer.sprite == null)
+        {
+            Debug.LogWarning($"[HoverGlow] {gameObject.name}: Sprite가 할당되지 않아 Collider 크기를 설정할 수 없습니다.");
+            return;
+        }
+
+        // Sprite의 bounds를 가져와서 크기 설정
+        Bounds spriteBounds = spriteRenderer.sprite.bounds;
+        boxCollider.size = spriteBounds.size;
+        
+        Debug.Log($"[HoverGlow] {gameObject.name} Collider 크기 자동 설정: {boxCollider.size}");
     }
 
     private void OnMouseEnter()
