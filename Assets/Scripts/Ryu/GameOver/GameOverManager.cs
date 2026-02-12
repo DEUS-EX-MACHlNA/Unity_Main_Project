@@ -2,50 +2,50 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 /// <summary>
 /// Game Over 씬을 관리하고 재시작 기능을 제공합니다.
+/// 모든 엔딩 타입에 대해 적절한 메시지를 표시합니다.
+/// 모든 설정은 스크립트를 통해서만 처리됩니다.
 /// </summary>
 public class GameOverManager : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI gameOverText;
-    [SerializeField] private Button restartButton;
+    // Inspector에서 설정 불가능 - 스크립트를 통해서만 찾아짐
+    private TextMeshProUGUI gameOverText;
+    private Button restartButton;
+    private SceneFadeManager fadeManager;
+    
+    // 상수로 정의 (Inspector에서 수정 불가능)
+    private const string TUTORIAL_SCENE_NAME = "Tutorial";
+    private const float FADE_DURATION = 1f;
 
-    [Header("Scene Settings")]
-    [SerializeField] private string tutorialSceneName = "Tutorial";
-    [SerializeField] private SceneFadeManager fadeManager;
-    [SerializeField] private float fadeDuration = 1f;
+    // 엔딩 타입별 메시지 딕셔너리
+    private Dictionary<EndingType, string> endingMessages;
 
     private void Awake()
     {
-        // Inspector에서 설정되지 않은 경우 자동으로 찾기
-        if (gameOverText == null)
+        // 모든 참조를 스크립트를 통해서만 찾기
+        GameObject textObj = GameObject.Find("GameOverText");
+        if (textObj != null)
         {
-            GameObject textObj = GameObject.Find("GameOverText");
-            if (textObj != null)
-            {
-                gameOverText = textObj.GetComponent<TextMeshProUGUI>();
-            }
+            gameOverText = textObj.GetComponent<TextMeshProUGUI>();
         }
 
-        if (restartButton == null)
+        GameObject buttonObj = GameObject.Find("RestartButton");
+        if (buttonObj != null)
         {
-            GameObject buttonObj = GameObject.Find("RestartButton");
-            if (buttonObj != null)
-            {
-                restartButton = buttonObj.GetComponent<Button>();
-            }
+            restartButton = buttonObj.GetComponent<Button>();
         }
 
-        if (fadeManager == null)
-        {
-            fadeManager = FindFirstObjectByType<SceneFadeManager>();
-        }
+        fadeManager = FindFirstObjectByType<SceneFadeManager>();
     }
 
     private void Start()
     {
+        // 엔딩 메시지 초기화
+        InitializeEndingMessages();
+        
         // UI 초기화
         InitializeUI();
         
@@ -61,13 +61,45 @@ public class GameOverManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 엔딩 타입별 메시지를 초기화합니다.
+    /// </summary>
+    private void InitializeEndingMessages()
+    {
+        endingMessages = new Dictionary<EndingType, string>
+        {
+            { EndingType.StealthExit, "완벽한 기만\n\n당신은 아무도 눈치채지 못하게 탈출했습니다." },
+            { EndingType.ChaoticBreakout, "혼돈의 밤\n\n폭력과 혼란 속에서 탈출했습니다." },
+            { EndingType.SiblingsHelp, "조력자의 희생\n\n동생의 도움으로 탈출했습니다." },
+            { EndingType.UnfinishedDoll, "불완전한 박제\n\n인간성이 0%에 도달했습니다." },
+            { EndingType.EternalDinner, "영원한 식사 시간\n\n5일차가 끝났습니다." }
+        };
+    }
+
+    /// <summary>
     /// UI를 초기화합니다.
     /// </summary>
     private void InitializeUI()
     {
         if (gameOverText != null)
         {
-            gameOverText.text = "게임 오버\n\n인간성이 0%에 도달했습니다.";
+            // GameStateManager에서 현재 엔딩 타입 읽기
+            EndingType currentEnding = EndingType.None;
+            if (GameStateManager.Instance != null)
+            {
+                currentEnding = GameStateManager.Instance.CurrentEnding;
+            }
+
+            // 엔딩 타입에 따른 메시지 표시
+            if (endingMessages != null && endingMessages.ContainsKey(currentEnding))
+            {
+                gameOverText.text = endingMessages[currentEnding];
+            }
+            else
+            {
+                // 기본 메시지 (엔딩 타입이 없거나 알 수 없는 경우)
+                gameOverText.text = "게임 오버\n\n인간성이 0%에 도달했습니다.";
+                Debug.LogWarning($"[GameOverManager] 알 수 없는 엔딩 타입: {currentEnding}. 기본 메시지를 표시합니다.");
+            }
         }
     }
 
@@ -84,12 +116,12 @@ public class GameOverManager : MonoBehaviour
         // Tutorial 씬으로 전환
         if (fadeManager != null)
         {
-            fadeManager.LoadSceneWithFade(tutorialSceneName, fadeDuration);
+            fadeManager.LoadSceneWithFade(TUTORIAL_SCENE_NAME, FADE_DURATION);
         }
         else
         {
             Debug.LogWarning("[GameOverManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
-            SceneManager.LoadScene(tutorialSceneName);
+            SceneManager.LoadScene(TUTORIAL_SCENE_NAME);
         }
     }
 

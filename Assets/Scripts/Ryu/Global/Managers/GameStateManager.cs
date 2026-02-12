@@ -26,6 +26,9 @@ public class GameStateManager : MonoBehaviour
     // 잠금 상태 저장 (문, 상자 등)
     private Dictionary<string, bool> locks;
 
+    // 현재 엔딩 타입 저장
+    private EndingType currentEnding = EndingType.None;
+
     [Header("Game Over Settings")]
     [SerializeField] private string gameOverSceneName = "GameOver";
     [SerializeField] private float gameOverFadeDuration = 1f;
@@ -95,6 +98,14 @@ public class GameStateManager : MonoBehaviour
     public int CurrentDay 
     { 
         get { return dayManager?.GetCurrentDay() ?? 1; }
+    }
+
+    /// <summary>
+    /// 현재 엔딩 타입을 반환합니다.
+    /// </summary>
+    public EndingType CurrentEnding 
+    { 
+        get { return currentEnding; }
     }
 
     /// <summary>
@@ -215,7 +226,11 @@ public class GameStateManager : MonoBehaviour
 
         if (endingManager != null)
         {
-            endingManager.OnEndingTriggered += (ending) => OnEndingTriggered?.Invoke(ending);
+            endingManager.OnEndingTriggered += (ending) => 
+            {
+                currentEnding = ending;
+                OnEndingTriggered?.Invoke(ending);
+            };
         }
     }
 
@@ -454,6 +469,16 @@ public class GameStateManager : MonoBehaviour
     public void TriggerEnding(EndingType ending)
     {
         endingManager?.TriggerEnding(ending);
+    }
+
+    /// <summary>
+    /// 현재 엔딩 타입을 설정합니다.
+    /// </summary>
+    /// <param name="ending">설정할 엔딩 타입</param>
+    public void SetCurrentEnding(EndingType ending)
+    {
+        currentEnding = ending;
+        Debug.Log($"[GameStateManager] 현재 엔딩 타입 설정: {ending}");
     }
 
     // ============================================

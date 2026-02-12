@@ -11,7 +11,7 @@ public class ApiClient : MonoBehaviour
 {
     [Header("Server Settings")]
     [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
-    [SerializeField] private int gameId = 17;
+    private int gameId = 26;
     // 시나리오 시작 API를 제거했으므로, userId는 gameId 생성에만 사용됩니다.
 
     [Header("Timeout Settings")]

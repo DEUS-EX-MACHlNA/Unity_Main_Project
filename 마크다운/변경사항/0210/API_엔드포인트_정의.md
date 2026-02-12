@@ -60,7 +60,7 @@ GET /api/v1/scenario/start/1?user_id=1
 - Path: `/api/v1/game/{game_id}/step`
 - Path Parameters:
   - `game_id` (integer, required): 게임 ID
-    - 예시: `12`
+    - 예시: `24`
 - Request Body (application/json, required):
   ```json
   {
@@ -75,7 +75,7 @@ GET /api/v1/scenario/start/1?user_id=1
 
 **요청 예시:**
 ```json
-POST /api/v1/game/12/step
+POST /api/v1/game/24/step
 Content-Type: application/json
 
 {

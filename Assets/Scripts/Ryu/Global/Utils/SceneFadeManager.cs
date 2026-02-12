@@ -6,30 +6,42 @@ using UnityEngine.UI;
 /// <summary>
 /// 씬 전환 시 페이드 인/아웃 효과를 담당합니다.
 /// Canvas에 검은색 Image 오브젝트가 필요합니다.
+/// 모든 설정은 스크립트를 통해서만 처리됩니다.
 /// </summary>
 public class SceneFadeManager : MonoBehaviour
 {
-    [Header("Fade Settings")]
-    [SerializeField] private Image fadeImage;
-    // defaultFadeDuration 필드는 현재 사용되지 않으므로 제거됨
+    // Inspector에서 설정 불가능 - 스크립트를 통해서만 찾아짐
+    private Image fadeImage;
+    
+    // 페이드 기본 지속 시간 (초)
+    private const float DEFAULT_FADE_DURATION = 1f;
 
     private void Awake()
     {
-        // Inspector에서 설정되지 않은 경우 자동으로 찾기
-        if (fadeImage == null)
+        // FadeImage 자동 찾기 (스크립트를 통해서만 처리)
+        GameObject imageObj = GameObject.Find("FadeImage");
+        if (imageObj == null)
         {
-            // 프로젝트에서 FadeImage / FadePanel 등의 이름을 혼용할 수 있어 둘 다 시도
-            GameObject imageObj = GameObject.Find("FadeImage");
-            if (imageObj == null)
+            imageObj = GameObject.Find("FadePanel");
+        }
+        
+        if (imageObj != null)
+        {
+            fadeImage = imageObj.GetComponent<Image>();
+            if (fadeImage != null)
             {
-                imageObj = GameObject.Find("FadePanel");
-            }
-            if (imageObj != null)
-            {
-                fadeImage = imageObj.GetComponent<Image>();
+                // FadeImage의 초기 색상 확인 및 검은색으로 강제 설정
+                Debug.Log($"[SceneFadeManager] FadeImage 찾음: {imageObj.name}, 초기 색상: {fadeImage.color}");
+                
+                // 초기 색상이 검은색이 아니면 강제로 검은색으로 설정 (노란색 문제 해결)
+                if (fadeImage.color.r != 0 || fadeImage.color.g != 0 || fadeImage.color.b != 0)
+                {
+                    Debug.LogWarning($"[SceneFadeManager] FadeImage의 초기 색상이 검은색이 아닙니다 (R:{fadeImage.color.r}, G:{fadeImage.color.g}, B:{fadeImage.color.b}). 검은색으로 강제 설정합니다.");
+                    fadeImage.color = new Color(0, 0, 0, fadeImage.color.a);
+                }
             }
         }
-
+        
         if (fadeImage == null)
         {
             Debug.LogWarning("[SceneFadeManager] fadeImage를 찾지 못했습니다. (FadeImage/FadePanel) 페이드 효과가 동작하지 않을 수 있습니다.");
@@ -41,7 +53,7 @@ public class SceneFadeManager : MonoBehaviour
         // 씬 로드 후 페이드 인 효과 자동 실행
         if (fadeImage != null && fadeImage.color.a > 0)
         {
-            StartCoroutine(FadeIn(1f));
+            StartCoroutine(FadeIn(DEFAULT_FADE_DURATION));
         }
     }
 
@@ -90,44 +102,52 @@ public class SceneFadeManager : MonoBehaviour
 
     /// <summary>
     /// 페이드 아웃 효과 (투명 → 검은색)
+    /// RGB는 항상 검은색(0,0,0)으로 강제 설정하여 노란색 문제 해결
     /// </summary>
     private IEnumerator FadeOut(float duration)
     {
         if (fadeImage == null) yield break;
 
         float elapsed = 0f;
-        Color startColor = fadeImage.color;
+        float startAlpha = fadeImage.color.a;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float alpha = Mathf.Clamp01(elapsed / duration);
+            float alpha = Mathf.Lerp(startAlpha, 1f, elapsed / duration);
+            // RGB를 명시적으로 검은색(0,0,0)으로 설정
             fadeImage.color = new Color(0, 0, 0, alpha);
             yield return null;
         }
         
+        // 최종 색상을 검은색으로 확실히 설정
         fadeImage.color = new Color(0, 0, 0, 1);
+        Debug.Log($"[SceneFadeManager] 페이드 아웃 완료. FadeImage 색상: {fadeImage.color}");
     }
 
     /// <summary>
     /// 페이드 인 효과 (검은색 → 투명)
+    /// RGB는 항상 검은색(0,0,0)으로 강제 설정하여 노란색 문제 해결
     /// </summary>
     private IEnumerator FadeIn(float duration)
     {
         if (fadeImage == null) yield break;
 
         float elapsed = 0f;
-        Color startColor = fadeImage.color;
+        float startAlpha = fadeImage.color.a;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float alpha = 1f - Mathf.Clamp01(elapsed / duration);
+            float alpha = Mathf.Lerp(startAlpha, 0f, elapsed / duration);
+            // RGB를 명시적으로 검은색(0,0,0)으로 설정
             fadeImage.color = new Color(0, 0, 0, alpha);
             yield return null;
         }
         
+        // 최종 색상을 투명하게 설정
         fadeImage.color = new Color(0, 0, 0, 0);
+        Debug.Log($"[SceneFadeManager] 페이드 인 완료. FadeImage 색상: {fadeImage.color}");
     }
 }
 

@@ -42,7 +42,7 @@
 
 | 이름 | 타입 | 위치 | 필수 | 설명 | 예시 값 |
 |------|------|------|------|------|---------|
-| `game_id` | integer | path | ✅ 필수 | 게임 ID | `12` |
+| `game_id` | integer | path | ✅ 필수 | 게임 ID | `24` |
 
 **Request Body:**
 
@@ -64,7 +64,7 @@
 
 **요청 예시:**
 ```
-POST /api/v1/game/12/step
+POST /api/v1/game/24/step
 Content-Type: application/json
 
 {

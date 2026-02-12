@@ -57,7 +57,13 @@ public class EndingManager
         
         Debug.Log($"[EndingManager] 엔딩 트리거: {ending}");
         
-        // 엔딩별 씬 전환
+        // GameStateManager에 현재 엔딩 타입 저장
+        if (GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.SetCurrentEnding(ending);
+        }
+        
+        // 모든 엔딩이 GameOver 씬으로 통합됨
         string endingSceneName = GetEndingSceneName(ending);
         if (!string.IsNullOrEmpty(endingSceneName))
         {
@@ -75,24 +81,12 @@ public class EndingManager
 
     /// <summary>
     /// 엔딩 타입에 따른 씬 이름을 반환합니다.
+    /// 모든 엔딩이 GameOver 씬으로 통합되었습니다.
     /// </summary>
     private string GetEndingSceneName(EndingType ending)
     {
-        switch (ending)
-        {
-            case EndingType.StealthExit:
-                return "Ending_StealthExit";
-            case EndingType.ChaoticBreakout:
-                return "Ending_ChaoticBreakout";
-            case EndingType.SiblingsHelp:
-                return "Ending_SiblingsHelp";
-            case EndingType.UnfinishedDoll:
-                return "GameOver";
-            case EndingType.EternalDinner:
-                return "Ending_EternalDinner";
-            default:
-                return "";
-        }
+        // 모든 엔딩이 GameOver 씬으로 통합됨
+        return "GameOver";
     }
 
     /// <summary>

@@ -24,7 +24,7 @@
     "humanity": 0.0                 // 선택적: 플레이어 인간성 현재 값
   },
   "debug": {                       // 선택적: 디버그 정보
-    "game_id": 0,
+    "game_id": 24,
     "reasoning": "string",          // 백엔드 판단 근거
     "steps": [...],
     "turn_after": 0
@@ -227,7 +227,7 @@ NPC 무력화 상태 (수면제 등으로 무력화)
 ```json
 {
   "debug": {
-    "game_id": 12,
+    "game_id": 24,
     "reasoning": "플레이어가 할머니에게 수면제를 탄 홍차를 제공했습니다. 이는 tea_with_sleeping_pill 플래그를 true로 설정하고, 할머니를 3턴간 무력화시킵니다.",
     "steps": [],
     "turn_after": 6
@@ -270,7 +270,7 @@ NPC 무력화 상태 (수면제 등으로 무력화)
     "humanity": 60.0
   },
   "debug": {
-    "game_id": 12,
+    "game_id": 24,
     "reasoning": "플레이어가 라이터로 불을 질렀습니다. fire_started 플래그를 true로 설정하고, 인간성은 75에서 60으로 감소합니다.",
     "turn_after": 7
   }
@@ -306,7 +306,7 @@ NPC 무력화 상태 (수면제 등으로 무력화)
     ]
   },
   "debug": {
-    "game_id": 12,
+    "game_id": 24,
     "reasoning": "플레이어가 동생에게 장난감을 제공했습니다. 동생의 호감도가 크게 상승하여 85.0이 되었습니다.",
     "turn_after": 5
   }

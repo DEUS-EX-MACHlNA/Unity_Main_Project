@@ -710,8 +710,8 @@ Camera:
   m_GameObject: {fileID: 761699955}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 4
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -811,7 +811,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca6f632cb25d27d41b1a1c0db5cd0910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneFadeManager
-  fadeImage: {fileID: 0}
 --- !u!1 &1629972661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1055,11 +1054,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c32d0e9a48dc54b47b2a9027b805b870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverManager
-  gameOverText: {fileID: 0}
-  restartButton: {fileID: 0}
-  tutorialSceneName: Tutorial
-  fadeManager: {fileID: 1394207287}
-  fadeDuration: 1
 --- !u!4 &1895665665
 Transform:
   m_ObjectHideFlags: 0
