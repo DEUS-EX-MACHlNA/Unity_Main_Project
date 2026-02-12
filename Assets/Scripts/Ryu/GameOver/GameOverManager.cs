@@ -17,7 +17,7 @@ public class GameOverManager : MonoBehaviour
     private SceneFadeManager fadeManager;
     
     // 상수로 정의 (Inspector에서 수정 불가능)
-    private const string TUTORIAL_SCENE_NAME = "Tutorial";
+    private const string PLAYERS_ROOM_SCENE_NAME = "PlayersRoom";
     private const float FADE_DURATION = 1f;
 
     // 엔딩 타입별 메시지 딕셔너리
@@ -113,15 +113,15 @@ public class GameOverManager : MonoBehaviour
         // GameStateManager 재생성 (싱글톤 재초기화)
         ResetGameState();
 
-        // Tutorial 씬으로 전환
+        // PlayersRoom 씬으로 전환
         if (fadeManager != null)
         {
-            fadeManager.LoadSceneWithFade(TUTORIAL_SCENE_NAME, FADE_DURATION);
+            fadeManager.LoadSceneWithFade(PLAYERS_ROOM_SCENE_NAME, FADE_DURATION);
         }
         else
         {
             Debug.LogWarning("[GameOverManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
-            SceneManager.LoadScene(TUTORIAL_SCENE_NAME);
+            SceneManager.LoadScene(PLAYERS_ROOM_SCENE_NAME);
         }
     }
 

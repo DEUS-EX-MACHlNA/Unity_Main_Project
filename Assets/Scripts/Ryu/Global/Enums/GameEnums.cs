@@ -20,12 +20,12 @@ public enum NPCType
 public enum ItemType
 {
     None = 0,           // 없음 (기본값)
-    SleepingPills,      // 보라색 라벨의 약병 (수면제) - sleeping_pills
+    SleepingPills,      // 보라색 라벨의 약병 (수면제) - sleeping_pill (문서 기준)
     EarlGreyTea,       // 홍차 - earl_grey_tea
     RealFamilyPhoto,   // 훼손된 가족 사진 (진짜 가족 사진) - real_family_photo
-    WhaleOilCan,       // 고래기름 통 (기름병) - whale_oil_can
+    WhaleOilCan,       // 고래기름 통 (기름병) - oil_bottle (문서 기준)
     SilverLighter,     // 은색 지포 라이터 - silver_lighter
-    OldRobotToy,       // 낡은 태엽 로봇 (동생의 장난감) - old_robot_toy
+    OldRobotToy,       // 낡은 태엽 로봇 (동생의 장난감) - siblings_toy (문서 기준)
     BrassKey           // 황동 열쇠 (마스터 키) - brass_key
 }
 

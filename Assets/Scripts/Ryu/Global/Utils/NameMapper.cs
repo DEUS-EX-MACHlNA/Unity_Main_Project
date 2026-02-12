@@ -6,15 +6,18 @@ using UnityEngine;
 /// </summary>
 public static class NameMapper
 {
-    // 아이템 이름 매핑
+    // 아이템 이름 매핑 (문서 기준: BackendResponseSpec.md)
     private static Dictionary<string, ItemType> itemNameMapping = new Dictionary<string, ItemType>
     {
-        { "sleeping_pills", ItemType.SleepingPills },
+        { "sleeping_pill", ItemType.SleepingPills },      // 문서: 단수형
+        { "sleeping_pills", ItemType.SleepingPills },     // 하위 호환성 유지
         { "earl_grey_tea", ItemType.EarlGreyTea },
         { "real_family_photo", ItemType.RealFamilyPhoto },
-        { "whale_oil_can", ItemType.WhaleOilCan },
+        { "oil_bottle", ItemType.WhaleOilCan },           // 문서: oil_bottle
+        { "whale_oil_can", ItemType.WhaleOilCan },        // 하위 호환성 유지
         { "silver_lighter", ItemType.SilverLighter },
-        { "old_robot_toy", ItemType.OldRobotToy },
+        { "siblings_toy", ItemType.OldRobotToy },        // 문서: siblings_toy
+        { "old_robot_toy", ItemType.OldRobotToy },       // 하위 호환성 유지
         { "brass_key", ItemType.BrassKey }
     };
 
@@ -34,6 +37,7 @@ public static class NameMapper
     private static Dictionary<string, EndingType> endingNameMapping = new Dictionary<string, EndingType>
     {
         { "stealth_exit", EndingType.StealthExit },
+        { "stealth_exit_test", EndingType.StealthExit },
         { "chaotic_breakout", EndingType.ChaoticBreakout },
         { "siblings_help", EndingType.SiblingsHelp },
         { "unfinished_doll", EndingType.UnfinishedDoll },

@@ -65,7 +65,7 @@ public class NPCDisabledStates
 [Serializable]
 public class ItemAcquisition
 {
-    public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill")
+    public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill", "oil_bottle", "siblings_toy")
     public int count;         // 획득 개수
 }
 
@@ -75,7 +75,7 @@ public class ItemAcquisition
 [Serializable]
 public class ItemConsumption
 {
-    public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill")
+    public string item_name;  // 백엔드에서 사용하는 아이템 이름 (예: "sleeping_pill", "oil_bottle", "siblings_toy")
     public int count;         // 소모 개수
 }
 
@@ -138,18 +138,23 @@ public class BackendNPCStats
 public class BackendEndingInfo
 {
     /// <summary>
-    /// 엔딩 타입 이름
-    /// 가능한 값: "stealth_exit", "chaotic_breakout", "siblings_help", 
-    ///           "unfinished_doll", "eternal_dinner", null
+    /// 엔딩 ID (백엔드가 실제로 보내는 필드)
+    /// 예: "stealth_exit_test", "stealth_exit", "chaotic_breakout" 등
     /// </summary>
-    [JsonProperty("ending_type")]
-    public string ending_type;
+    [JsonProperty("ending_id")]
+    public string ending_id;
     
     /// <summary>
-    /// 엔딩 설명 (선택적)
+    /// 엔딩 이름 (백엔드가 실제로 보내는 필드)
     /// </summary>
-    [JsonProperty("description")]
-    public string description;
+    [JsonProperty("name")]
+    public string name;
+    
+    /// <summary>
+    /// 엔딩 에필로그 프롬프트 (백엔드가 실제로 보내는 필드)
+    /// </summary>
+    [JsonProperty("epilogue_prompt")]
+    public string epilogue_prompt;
 }
 
 /// <summary>
@@ -289,4 +294,15 @@ public class BackendGameResponse
     public BackendDebugInfo debug;  // 선택적 (로깅용)
 }
 
-// Scenario 시작 API 제거됨 (로컬에서 gameId 생성)
+/// <summary>
+/// 시나리오 시작 API 응답 구조
+/// </summary>
+[Serializable]
+public class ScenarioStartResponse
+{
+    [JsonProperty("game_id")]
+    public int game_id;
+    
+    [JsonProperty("user_id")]
+    public int user_id;
+}

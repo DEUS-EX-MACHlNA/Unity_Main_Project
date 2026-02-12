@@ -11,8 +11,9 @@
 {
   "narrative": "string",           // 필수: 게임 내 표시할 대화/서술 텍스트
   "ending_info": {                 // 선택적: 엔딩 트리거 정보
-    "ending_type": "string",        // null이면 엔딩 없음
-    "description": "string"          // 선택적: 엔딩 설명
+    "ending_id": "string",          // 엔딩 ID (null이면 엔딩 없음)
+    "name": "string",               // 엔딩 이름
+    "epilogue_prompt": "string"     // 엔딩 에필로그 프롬프트 (선택적)
   },
   "state_result": {                // 필수: 상태 결과값 (Result 형식)
     "npc_stats": {...},            // 선택적: NPC 통계 현재 값
@@ -47,13 +48,14 @@
 
 ```json
 {
-  "ending_type": "stealth_exit",  // null이면 엔딩 없음
-  "description": "완벽한 기만 엔딩"  // 선택적
+  "ending_id": "stealth_exit_test",  // 엔딩 ID (null이면 엔딩 없음)
+  "name": "존1시나 깔@롱하고 완벽한 기만 (The Sugoi Stealth Exit)",  // 엔딩 이름
+  "epilogue_prompt": "이것은 테스트임다"  // 엔딩 에필로그 프롬프트 (선택적)
 }
 ```
 
-**엔딩 타입 값:**
-- `"stealth_exit"` → `EndingType.StealthExit`
+**엔딩 ID 값:**
+- `"stealth_exit"`, `"stealth_exit_test"` → `EndingType.StealthExit`
 - `"chaotic_breakout"` → `EndingType.ChaoticBreakout`
 - `"siblings_help"` → `EndingType.SiblingsHelp`
 - `"unfinished_doll"` → `EndingType.UnfinishedDoll`
@@ -106,6 +108,7 @@ NPC 통계 현재 값 (호감도, 의심도, 공포도)
     "fire_started": false,
     "key_stolen": false,
     "hole_unlocked": false,
+    "escaped_via_doghole": true,
     "custom_event_1": true  // 커스텀 이벤트
   }
 }
@@ -118,6 +121,7 @@ NPC 통계 현재 값 (호감도, 의심도, 공포도)
 - `"family_asleep"` → `EventFlags.familyAsleep`
 - `"tea_with_sleeping_pill"` → `EventFlags.teaWithSleepingPill`
 - `"key_stolen"` → `EventFlags.keyStolen`
+- `"escaped_via_doghole"` → `EventFlags.customEvents`에 저장 (개구멍을 통한 탈출)
 - 기타 → `EventFlags.customEvents`에 저장
 
 **주의사항:**

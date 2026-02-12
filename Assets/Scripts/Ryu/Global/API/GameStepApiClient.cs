@@ -92,9 +92,6 @@ public class GameStepApiClient
             }
 
             string responseText = request.downloadHandler.text;
-            Debug.Log($"[GameStepApiClient] ========== 백엔드 원본 응답 ==========");
-            Debug.Log($"[GameStepApiClient] {responseText}");
-            Debug.Log($"[GameStepApiClient] ======================================");
 
             try
             {
@@ -106,30 +103,6 @@ public class GameStepApiClient
                 Debug.Log($"[GameStepApiClient] ========== 백엔드 응답 (파싱됨) ==========");
                 Debug.Log($"[GameStepApiClient] {formattedResponse}");
                 Debug.Log($"[GameStepApiClient] ==========================================");
-                
-                // 백엔드 응답 객체의 각 필드를 개별적으로 로그 출력
-                Debug.Log($"[GameStepApiClient] 백엔드 응답 상세 정보:");
-                Debug.Log($"  - narrative: {backendResponse?.narrative ?? "null"}");
-                Debug.Log($"  - ending_info: {(backendResponse?.ending_info != null ? $"ending_type={backendResponse.ending_info.ending_type}, description={backendResponse.ending_info.description}" : "null")}");
-
-                // state_result 확인
-                BackendStateDelta stateResult = backendResponse?.state_result;
-                if (stateResult != null)
-                {
-                    Debug.Log($"  - state_result.humanity: {(stateResult.humanity.HasValue ? stateResult.humanity.Value.ToString() : "null")}");
-                    Debug.Log($"  - state_result.flags: {(stateResult.flags != null ? JsonConvert.SerializeObject(stateResult.flags) : "null")}");
-                    Debug.Log($"  - state_result.npc_stats: {(stateResult.npc_stats != null ? JsonConvert.SerializeObject(stateResult.npc_stats) : "null")}");
-                    Debug.Log($"  - state_result.inventory_add: {(stateResult.inventory_add != null ? string.Join(", ", stateResult.inventory_add) : "null")}");
-                    Debug.Log($"  - state_result.inventory_remove: {(stateResult.inventory_remove != null ? string.Join(", ", stateResult.inventory_remove) : "null")}");
-                    Debug.Log($"  - state_result.locks: {(stateResult.locks != null ? JsonConvert.SerializeObject(stateResult.locks) : "null")}");
-                    Debug.Log($"  - state_result.vars: {(stateResult.vars != null ? JsonConvert.SerializeObject(stateResult.vars) : "null")}");
-                }
-                else
-                {
-                    Debug.LogWarning("  - state_result가 null입니다!");
-                }
-
-                Debug.Log($"  - debug: {(backendResponse?.debug != null ? $"game_id={backendResponse.debug.game_id}, reasoning={backendResponse.debug.reasoning}" : "null")}");
 
                 // 백엔드 응답을 현재 구조로 변환
                 responseConverter.ConvertBackendResponseToCurrentFormat(

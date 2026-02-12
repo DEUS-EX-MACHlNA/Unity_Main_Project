@@ -59,8 +59,6 @@ public class HoverGlow : MonoBehaviour
             originalColor.a
         );
         spriteRenderer.color = glowColor;
-
-        Debug.Log($"[HoverGlow] {gameObject.name} Hover 시작");
     }
 
     private void OnMouseExit()
@@ -69,8 +67,6 @@ public class HoverGlow : MonoBehaviour
         isHovered = false;
 
         spriteRenderer.color = originalColor;
-
-        Debug.Log($"[HoverGlow] {gameObject.name} Hover 종료");
     }
 
     private void OnDisable()

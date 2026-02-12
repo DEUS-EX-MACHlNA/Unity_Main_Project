@@ -11,8 +11,7 @@ public class ApiClient : MonoBehaviour
 {
     [Header("Server Settings")]
     [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
-    private int gameId = 26;
-    // 시나리오 시작 API를 제거했으므로, userId는 gameId 생성에만 사용됩니다.
+    private int gameId = 38;
 
     [Header("Timeout Settings")]
     [SerializeField] private float timeoutSeconds = 3f;
@@ -21,11 +20,13 @@ public class ApiClient : MonoBehaviour
 
     // API 클라이언트 인스턴스
     private GameStepApiClient gameStepApiClient;
+    private ScenarioStartApiClient scenarioStartApiClient;
 
     private void Awake()
     {
         // API 클라이언트 초기화
         gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
+        scenarioStartApiClient = new ScenarioStartApiClient(baseUrl, timeoutSeconds);
     }
 
     private void SetGameId(int newGameId)
@@ -71,27 +72,34 @@ public class ApiClient : MonoBehaviour
     }
 
     // ============================================
-    // Scenario (로컬)
+    // Scenario Start API
     // ============================================
 
     /// <summary>
-    /// 시나리오를 시작합니다. (시작 API 호출 없이 로컬에서 gameId를 생성)
+    /// 시나리오를 시작합니다. 백엔드 API를 호출하여 game_id를 받아옵니다.
     /// </summary>
     /// <param name="scenarioId">시나리오 ID</param>
     /// <param name="userId">사용자 ID</param>
-    /// <returns>생성된 gameId</returns>
-    public int StartScenario(int scenarioId, int userId)
+    /// <param name="onSuccess">성공 콜백 (gameId)</param>
+    /// <param name="onError">에러 콜백</param>
+    /// <returns>Coroutine</returns>
+    public Coroutine StartScenario(int scenarioId, int userId, Action<int> onSuccess, Action<string> onError)
     {
-        // 최대한 단순하게: 서버에 "시나리오 시작"을 요청하지 않고, 클라이언트가 gameId를 만든다.
-        // 충돌 가능성을 줄이기 위해 userId, scenarioId, 시간 기반 값을 섞는다.
-        int seed = Environment.TickCount;
-        int generated = unchecked((userId * 1000003) ^ (scenarioId * 9176) ^ seed);
-        generated = Mathf.Abs(generated);
-        if (generated == 0) generated = 1;
-
-        SetGameId(generated);
-        Debug.Log($"[ApiClient] 시나리오 시작(로컬): scenarioId={scenarioId}, userId={userId}, gameId={gameId}");
-        return gameId;
+        if (scenarioStartApiClient == null)
+        {
+            scenarioStartApiClient = new ScenarioStartApiClient(baseUrl, timeoutSeconds);
+        }
+        return StartCoroutine(scenarioStartApiClient.StartScenarioCoroutine(
+            scenarioId,
+            userId,
+            (response) => {
+                SetGameId(response.game_id);
+                // GameStepApiClient도 새로운 gameId로 재초기화
+                gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
+                onSuccess?.Invoke(response.game_id);
+            },
+            onError
+        ));
     }
 
     // ============================================

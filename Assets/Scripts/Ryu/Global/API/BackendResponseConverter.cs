@@ -41,7 +41,7 @@ public class BackendResponseConverter
             : mockResponse;
 
         // 2. ending_info → ending_trigger
-        endingTrigger = backendResponse.ending_info?.ending_type;
+        endingTrigger = backendResponse.ending_info?.ending_id;
 
         // 3. state_result 가져오기
         BackendStateDelta stateResult = backendResponse.state_result;
