@@ -812,7 +812,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneFadeManager
   fadeImage: {fileID: 0}
-  defaultFadeDuration: 1
 --- !u!1 &1629972661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1059,7 +1058,7 @@ MonoBehaviour:
   gameOverText: {fileID: 0}
   restartButton: {fileID: 0}
   tutorialSceneName: Tutorial
-  fadeManager: {fileID: 0}
+  fadeManager: {fileID: 1394207287}
   fadeDuration: 1
 --- !u!4 &1895665665
 Transform:

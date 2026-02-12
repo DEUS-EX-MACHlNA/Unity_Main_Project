@@ -153,16 +153,16 @@ public class BackendEndingInfo
 }
 
 /// <summary>
-/// 백엔드 응답의 상태 변화량 (State Delta)
-/// 모든 필드는 선택적(optional)이며, 변화가 없으면 생략 가능합니다.
+/// 백엔드 응답의 상태 결과값 (State Result)
+/// 스펙 문서 기준: 모든 필드는 선택적(optional)이며, 변화가 없으면 생략 가능합니다.
 /// </summary>
 [Serializable]
 public class BackendStateDelta
 {
     /// <summary>
-    /// NPC 통계 변화량 (호감도, 의심도, 공포도)
+    /// NPC 통계 현재 값 (호감도, 의심도, 공포도)
     /// Key: NPC 이름 (예: "new_mother", "grandmother")
-    /// Value: 통계 변화량 (trust, suspicion, fear)
+    /// Value: 통계 현재 값 (trust, suspicion, fear)
     /// </summary>
     [JsonProperty("npc_stats")]
     public Dictionary<string, BackendNPCStats> npc_stats;
@@ -221,11 +221,11 @@ public class BackendStateDelta
     public Dictionary<string, bool> locks;
     
     /// <summary>
-    /// 플레이어 인간성 변화량 (양수/음수)
-    /// 0이면 생략 가능
+    /// 플레이어 인간성 현재 값 (스펙 문서 기준)
+    /// 0~100 범위의 값
     /// </summary>
-    [JsonProperty("humanity_change")]
-    public float? humanity_change;
+    [JsonProperty("humanity")]
+    public float? humanity;
     
     /// <summary>
     /// 기타 커스텀 변수
@@ -279,7 +279,7 @@ public class BackendDebugInfo
 }
 
 /// <summary>
-/// 백엔드 전체 응답 구조
+/// 백엔드 전체 응답 구조 (스펙 문서 기준)
 /// </summary>
 [Serializable]
 public class BackendGameResponse
@@ -290,8 +290,8 @@ public class BackendGameResponse
     [JsonProperty("ending_info")]
     public BackendEndingInfo ending_info;  // → ending_trigger로 변환
     
-    [JsonProperty("state_delta")]
-    public BackendStateDelta state_delta;
+    [JsonProperty("state_result")]
+    public BackendStateDelta state_result;  // 스펙 문서 기준: state_result (필수)
     
     [JsonProperty("debug")]
     public BackendDebugInfo debug;  // 선택적 (로깅용)

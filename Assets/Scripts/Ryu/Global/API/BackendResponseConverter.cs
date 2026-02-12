@@ -24,6 +24,7 @@ public class BackendResponseConverter
     /// </summary>
     public void ConvertBackendResponseToCurrentFormat(
         BackendGameResponse backendResponse,
+        GameStateManager gameStateManager,
         out string response,
         out float humanityChange,
         out NPCAffectionChanges affectionChanges,
@@ -43,16 +44,48 @@ public class BackendResponseConverter
         // 2. ending_info → ending_trigger
         endingTrigger = backendResponse.ending_info?.ending_type;
 
-        // 3. humanity_change 처리
-        humanityChange = backendResponse.state_delta?.humanity_change ?? 0f;
+        // 3. state_result 가져오기
+        BackendStateDelta stateResult = backendResponse.state_result;
+        
+        if (stateResult == null)
+        {
+            Debug.LogWarning("[BackendResponseConverter] state_result가 null입니다!");
+            humanityChange = 0f;
+            affectionChanges = new NPCAffectionChanges();
+            humanityChanges = new NPCHumanityChanges();
+            disabledStates = new NPCDisabledStates();
+            npcLocations = new NPCLocations();
+            itemChanges = new ItemChanges();
+            eventFlags = null;
+            locks = null;
+            return;
+        }
 
-        // 4. state_delta.npc_stats → npc_affection_changes, npc_humanity_changes
+        // 4. humanity 처리 (현재 값 → 변화량 변환)
+        if (stateResult.humanity.HasValue && gameStateManager != null)
+        {
+            float currentHumanity = gameStateManager.GetHumanity();
+            float newHumanity = stateResult.humanity.Value;
+            humanityChange = newHumanity - currentHumanity;
+            Debug.Log($"[BackendResponseConverter] humanity 변화량 계산: {currentHumanity} → {newHumanity} (변화량: {humanityChange})");
+        }
+        else if (stateResult.humanity.HasValue)
+        {
+            Debug.LogWarning("[BackendResponseConverter] humanity (현재 값)는 GameStateManager가 없어 변화량을 계산할 수 없습니다. 변화량을 0으로 설정합니다.");
+            humanityChange = 0f;
+        }
+        else
+        {
+            humanityChange = 0f;
+        }
+
+        // 5. state_result.npc_stats → npc_affection_changes, npc_humanity_changes
         affectionChanges = new NPCAffectionChanges();
         humanityChanges = new NPCHumanityChanges();
 
-        if (backendResponse.state_delta?.npc_stats != null)
+        if (stateResult.npc_stats != null)
         {
-            foreach (var kvp in backendResponse.state_delta.npc_stats)
+            foreach (var kvp in stateResult.npc_stats)
             {
                 string npcName = kvp.Key;
                 BackendNPCStats stats = kvp.Value;
@@ -109,14 +142,14 @@ public class BackendResponseConverter
             }
         }
 
-        // 5. state_delta.flags → eventFlags
+        // 6. state_result.flags → eventFlags
         eventFlags = null;
-        if (backendResponse.state_delta?.flags != null && backendResponse.state_delta.flags.Count > 0)
+        if (stateResult.flags != null && stateResult.flags.Count > 0)
         {
             eventFlags = new EventFlags();
 
             // Dictionary의 각 플래그를 EventFlags의 고정 필드에 매핑
-            foreach (var kvp in backendResponse.state_delta.flags)
+            foreach (var kvp in stateResult.flags)
             {
                 string flagName = kvp.Key;
                 bool flagValue = kvp.Value;
@@ -182,42 +215,42 @@ public class BackendResponseConverter
             }
         }
 
-        // 6. state_delta.inventory_add/remove → itemChanges
+        // 7. state_result.inventory_add/remove → itemChanges
         itemChanges = new ItemChanges();
 
-        if (backendResponse.state_delta?.inventory_add != null && backendResponse.state_delta.inventory_add.Count > 0)
+        if (stateResult.inventory_add != null && stateResult.inventory_add.Count > 0)
         {
             List<ItemAcquisition> acquisitions = new List<ItemAcquisition>();
-            foreach (string itemName in backendResponse.state_delta.inventory_add)
+            foreach (string itemName in stateResult.inventory_add)
             {
                 acquisitions.Add(new ItemAcquisition
                 {
                     item_name = itemName,
-                    count = 1  // 기본값 1 (백엔드에서 개수 제공 시 수정)
+                    count = 1
                 });
             }
             itemChanges.acquired_items = acquisitions.ToArray();
         }
 
-        if (backendResponse.state_delta?.inventory_remove != null && backendResponse.state_delta.inventory_remove.Count > 0)
+        if (stateResult.inventory_remove != null && stateResult.inventory_remove.Count > 0)
         {
             List<ItemConsumption> consumptions = new List<ItemConsumption>();
-            foreach (string itemName in backendResponse.state_delta.inventory_remove)
+            foreach (string itemName in stateResult.inventory_remove)
             {
                 consumptions.Add(new ItemConsumption
                 {
                     item_name = itemName,
-                    count = 1  // 기본값 1
+                    count = 1
                 });
             }
             itemChanges.consumed_items = consumptions.ToArray();
         }
 
         // item_state_changes 처리
-        if (backendResponse.state_delta?.item_state_changes != null && backendResponse.state_delta.item_state_changes.Count > 0)
+        if (stateResult.item_state_changes != null && stateResult.item_state_changes.Count > 0)
         {
             List<ItemStateChange> stateChanges = new List<ItemStateChange>();
-            foreach (var stateChange in backendResponse.state_delta.item_state_changes)
+            foreach (var stateChange in stateResult.item_state_changes)
             {
                 stateChanges.Add(new ItemStateChange
                 {
@@ -228,11 +261,11 @@ public class BackendResponseConverter
             itemChanges.state_changes = stateChanges.ToArray();
         }
 
-        // 7. npc_disabled_states 변환
+        // 8. npc_disabled_states 변환
         disabledStates = new NPCDisabledStates();
-        if (backendResponse.state_delta?.npc_disabled_states != null)
+        if (stateResult.npc_disabled_states != null)
         {
-            foreach (var kvp in backendResponse.state_delta.npc_disabled_states)
+            foreach (var kvp in stateResult.npc_disabled_states)
             {
                 string npcName = kvp.Key;
                 NPCDisabledState disabledState = kvp.Value;
@@ -265,11 +298,11 @@ public class BackendResponseConverter
             }
         }
 
-        // 8. npc_locations 변환
+        // 9. npc_locations 변환
         npcLocations = new NPCLocations();
-        if (backendResponse.state_delta?.npc_locations != null)
+        if (stateResult.npc_locations != null)
         {
-            foreach (var kvp in backendResponse.state_delta.npc_locations)
+            foreach (var kvp in stateResult.npc_locations)
             {
                 string npcName = kvp.Key;
                 string locationName = kvp.Value;
@@ -305,11 +338,11 @@ public class BackendResponseConverter
             }
         }
 
-        // 9. locks 처리
+        // 10. locks 처리
         locks = null;
-        if (backendResponse.state_delta?.locks != null && backendResponse.state_delta.locks.Count > 0)
+        if (stateResult.locks != null && stateResult.locks.Count > 0)
         {
-            locks = new Dictionary<string, bool>(backendResponse.state_delta.locks);
+            locks = new Dictionary<string, bool>(stateResult.locks);
             Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(locks)}");
         }
     }
