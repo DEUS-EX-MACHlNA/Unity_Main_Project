@@ -165,6 +165,9 @@ public class GameStateManager : MonoBehaviour
             turnManager,
             eventFlagManager);
         endingManager.SetGameOverSettings(gameOverSceneName, gameOverFadeDuration);
+        
+        // HumanityManager에 EndingManager 설정 (UnfinishedDoll 엔딩 트리거용)
+        humanityManager.SetEndingManager(endingManager);
     }
 
     /// <summary>
@@ -280,20 +283,10 @@ public class GameStateManager : MonoBehaviour
         }
         else
         {
-            // 5일차 종료 시 엔딩 체크
-            EndingType achievableEnding = endingManager?.CheckEndingConditions() ?? EndingType.None;
-            
-            if (achievableEnding != EndingType.None && 
-                achievableEnding != EndingType.EternalDinner)
-            {
-                endingManager?.TriggerEnding(achievableEnding);
+            // 5일차 종료 시: 백엔드가 별도로 처리하므로 엔딩을 트리거하지 않음
+            // 백엔드 응답의 ending_info를 통해 엔딩이 트리거됨
+            Debug.Log("[GameStateManager] 5일차 종료: 백엔드가 엔딩을 처리합니다.");
                 return false;
-            }
-            else
-            {
-                endingManager?.TriggerEnding(EndingType.EternalDinner);
-                return false;
-            }
         }
     }
 
@@ -423,23 +416,8 @@ public class GameStateManager : MonoBehaviour
             // NPC 무력화 상태 업데이트
             npcManager?.UpdateNPCDisabledStates();
             
-            // 턴 소진 시 엔딩 체크
-            if (!turnManager.HasRemainingTurns())
-            {
-                // 밤의 대화 전에 엔딩 조건 체크 (수면제 엔딩 등)
-                if (eventFlagManager?.GetEventFlag("teawithsleepingpill") == true && 
-                    inventoryManager?.HasItem(ItemType.SleepingPills) == true)
-                {
-                    EndingType preNightEnding = endingManager?.CheckEndingConditions() ?? EndingType.None;
-                    if (preNightEnding != EndingType.None && 
-                        preNightEnding != EndingType.EternalDinner &&
-                        preNightEnding != EndingType.UnfinishedDoll)
-                    {
-                        endingManager?.TriggerEnding(preNightEnding);
-                        return true;
-                    }
-                }
-            }
+            // 턴 소진 시: 백엔드 응답의 ending_info를 통해 엔딩이 트리거됨
+            // 프론트엔드에서 엔딩 조건을 판단하지 않음
         }
         
         return success;
@@ -472,16 +450,6 @@ public class GameStateManager : MonoBehaviour
     // ============================================
     // 엔딩 관리 메서드 (위임)
     // ============================================
-
-    public bool CanAchieveEnding(EndingType ending)
-    {
-        return endingManager?.CanAchieveEnding(ending) ?? false;
-    }
-
-    public EndingType CheckEndingConditions()
-    {
-        return endingManager?.CheckEndingConditions() ?? EndingType.None;
-    }
 
     public void TriggerEnding(EndingType ending)
     {

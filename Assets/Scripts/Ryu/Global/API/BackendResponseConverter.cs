@@ -30,7 +30,6 @@ public class BackendResponseConverter
         out NPCAffectionChanges affectionChanges,
         out NPCHumanityChanges humanityChanges,
         out NPCDisabledStates disabledStates,
-        out NPCLocations npcLocations,
         out ItemChanges itemChanges,
         out EventFlags eventFlags,
         out string endingTrigger,
@@ -54,7 +53,6 @@ public class BackendResponseConverter
             affectionChanges = new NPCAffectionChanges();
             humanityChanges = new NPCHumanityChanges();
             disabledStates = new NPCDisabledStates();
-            npcLocations = new NPCLocations();
             itemChanges = new ItemChanges();
             eventFlags = null;
             locks = null;
@@ -298,47 +296,7 @@ public class BackendResponseConverter
             }
         }
 
-        // 9. npc_locations 변환
-        npcLocations = new NPCLocations();
-        if (stateResult.npc_locations != null)
-        {
-            foreach (var kvp in stateResult.npc_locations)
-            {
-                string npcName = kvp.Key;
-                string locationName = kvp.Value;
-                
-                if (string.IsNullOrEmpty(locationName))
-                    continue;
-                
-                switch (npcName.ToLower())
-                {
-                    case "stepmother":
-                    case "new_mother":
-                        npcLocations.new_mother = locationName;
-                        break;
-                    case "new_father":
-                    case "father":
-                        npcLocations.new_father = locationName;
-                        break;
-                    case "sibling":
-                    case "brother":
-                        npcLocations.sibling = locationName;
-                        break;
-                    case "dog":
-                    case "baron":
-                        npcLocations.dog = locationName;
-                        break;
-                    case "grandmother":
-                        npcLocations.grandmother = locationName;
-                        break;
-                    default:
-                        Debug.LogWarning($"[BackendResponseConverter] 알 수 없는 NPC 이름 (locations): {npcName}");
-                        break;
-                }
-            }
-        }
-
-        // 10. locks 처리
+        // 9. locks 처리
         locks = null;
         if (stateResult.locks != null && stateResult.locks.Count > 0)
         {

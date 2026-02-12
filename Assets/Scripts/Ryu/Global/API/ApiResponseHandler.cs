@@ -50,7 +50,6 @@ public class ApiResponseHandler
     /// <param name="npcAffectionChanges">NPC 호감도 변화량</param>
     /// <param name="npcHumanityChanges">NPC 인간성 변화량</param>
     /// <param name="npcDisabledStates">NPC 무력화 상태</param>
-    /// <param name="npcLocations">NPC 위치 정보</param>
     /// <param name="itemChanges">아이템 변화량</param>
     /// <param name="eventFlags">이벤트 플래그</param>
     /// <param name="endingTrigger">엔딩 트리거</param>
@@ -61,7 +60,6 @@ public class ApiResponseHandler
         NPCAffectionChanges npcAffectionChanges,
         NPCHumanityChanges npcHumanityChanges,
         NPCDisabledStates npcDisabledStates,
-        NPCLocations npcLocations,
         ItemChanges itemChanges,
         EventFlags eventFlags,
         string endingTrigger,
@@ -102,12 +100,6 @@ public class ApiResponseHandler
         if (npcDisabledStates != null)
         {
             NPCStateApplier.ApplyDisabledStates(gameStateManager, npcDisabledStates);
-        }
-
-        // NPC 위치 업데이트 (백엔드에서 제공 시만, 백엔드 응답이 항상 우선)
-        if (npcLocations != null)
-        {
-            NPCStateApplier.ApplyLocations(gameStateManager, npcLocations);
         }
 
         // 아이템 변화량 적용 (백엔드에서 제공 시만)
@@ -165,6 +157,38 @@ public class ApiResponseHandler
         {
             resultText.text = $"에러: {error}";
         }
+        
+        // 백엔드 응답 실패 시 기본 엔딩만 폴백으로 체크
+        if (gameStateManager != null)
+        {
+            CheckFallbackEndings();
+        }
+    }
+
+    /// <summary>
+    /// 백엔드 응답이 없을 때 기본 엔딩만 폴백으로 체크합니다.
+    /// UnfinishedDoll과 EternalDinner만 체크합니다.
+    /// </summary>
+    private void CheckFallbackEndings()
+    {
+        // UnfinishedDoll 체크 (인간성 0%)
+        if (gameStateManager.GetHumanity() <= 0f)
+        {
+            Debug.Log("[ApiResponseHandler] 폴백: UnfinishedDoll 엔딩 트리거");
+            gameStateManager.TriggerEnding(EndingType.UnfinishedDoll);
+            return;
+        }
+        
+        // EternalDinner 체크 (5일차 종료 시)
+        if (gameStateManager.GetCurrentDay() >= 5)
+        {
+            Debug.Log("[ApiResponseHandler] 폴백: EternalDinner 엔딩 트리거");
+            gameStateManager.TriggerEnding(EndingType.EternalDinner);
+            return;
+        }
+        
+        // 그 외 엔딩은 백엔드에서만 처리
+        Debug.Log("[ApiResponseHandler] 폴백: 기본 엔딩 조건 미충족");
     }
 }
 

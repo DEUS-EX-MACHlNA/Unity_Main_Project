@@ -205,14 +205,6 @@ public class BackendStateDelta
     public Dictionary<string, NPCDisabledState> npc_disabled_states;
     
     /// <summary>
-    /// NPC 위치 변경
-    /// Key: NPC 이름 (예: "grandmother", "new_father")
-    /// Value: 위치 이름 (예: "basement", "kitchen")
-    /// </summary>
-    [JsonProperty("npc_locations")]
-    public Dictionary<string, string> npc_locations;
-    
-    /// <summary>
     /// 잠금 상태 (문, 상자 등)
     /// Key: 잠금 이름 (예: "basement_door", "siblings_room_door")
     /// Value: 잠금 여부 (true = 잠금, false = 해제)
@@ -297,18 +289,4 @@ public class BackendGameResponse
     public BackendDebugInfo debug;  // 선택적 (로깅용)
 }
 
-// ============================================
-// Scenario API 응답 구조체
-// ============================================
-
-/// <summary>
-/// 시나리오 시작 응답
-/// </summary>
-[Serializable]
-public class ScenarioStartResponse
-{
-    [JsonProperty("game_id")]
-    public int game_id;  // 시작된 게임 ID
-    
-    // 백엔드 응답에 따라 추가 필드 가능
-}
+// Scenario 시작 API 제거됨 (로컬에서 gameId 생성)

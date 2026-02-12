@@ -12,6 +12,7 @@ public class HumanityManager
     
     private string gameOverSceneName = "GameOver";
     private float gameOverFadeDuration = 1f;
+    private EndingManager endingManager;
 
     /// <summary>
     /// 인간성 변경 시 호출되는 이벤트입니다.
@@ -77,22 +78,30 @@ public class HumanityManager
     }
 
     /// <summary>
-    /// 인간성 0% 도달 시 배드 엔딩을 트리거합니다.
+    /// 인간성 0% 도달 시 UnfinishedDoll 엔딩을 트리거합니다.
     /// </summary>
     private void TriggerGameOver()
     {
-        Debug.LogWarning("[HumanityManager] 인간성이 0%에 도달했습니다. 게임 오버!");
+        Debug.LogWarning("[HumanityManager] 인간성이 0%에 도달했습니다. UnfinishedDoll 엔딩 트리거!");
         
-        // SceneFadeManager를 찾아서 GameOver 씬으로 전환
-        SceneFadeManager fadeManager = Object.FindFirstObjectByType<SceneFadeManager>();
-        if (fadeManager != null)
+        // EndingManager를 통해 UnfinishedDoll 엔딩 트리거
+        if (endingManager != null)
         {
-            fadeManager.LoadSceneWithFade(gameOverSceneName, gameOverFadeDuration);
+            endingManager.TriggerEnding(EndingType.UnfinishedDoll);
         }
         else
         {
-            Debug.LogWarning("[HumanityManager] SceneFadeManager를 찾을 수 없습니다. 페이드 없이 씬을 전환합니다.");
-            SceneManager.LoadScene(gameOverSceneName);
+            // EndingManager가 없으면 기존 방식으로 GameOver 씬으로 전환
+            SceneFadeManager fadeManager = Object.FindFirstObjectByType<SceneFadeManager>();
+            if (fadeManager != null)
+            {
+                fadeManager.LoadSceneWithFade(gameOverSceneName, gameOverFadeDuration);
+            }
+            else
+            {
+                Debug.LogWarning("[HumanityManager] SceneFadeManager를 찾을 수 없습니다. 페이드 없이 씬을 전환합니다.");
+                SceneManager.LoadScene(gameOverSceneName);
+            }
         }
     }
 
@@ -111,6 +120,14 @@ public class HumanityManager
     {
         gameOverSceneName = sceneName;
         gameOverFadeDuration = fadeDuration;
+    }
+
+    /// <summary>
+    /// EndingManager를 설정합니다. (UnfinishedDoll 엔딩 트리거용)
+    /// </summary>
+    public void SetEndingManager(EndingManager endingMgr)
+    {
+        endingManager = endingMgr;
     }
 
     /// <summary>
