@@ -1,0 +1,15 @@
+{
+  "narrative": "찬장 깊숙한 곳에서 보라색 라벨이 붙은 작은 약병을 발견했습니다. '착한 아이에게는 달콤한 꿈을'이라는 문구가 흐릿하게 적혀 있습니다.",
+  "ending_info": null,
+  "state_result": {
+    "inventory_add": [
+      "sleeping_pill"
+    ]
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 주방 찬장에서 수면제를 발견했습니다.",
+    "turn_after": 3
+  }
+}
+

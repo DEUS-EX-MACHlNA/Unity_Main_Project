@@ -11,6 +11,7 @@ public class DialogueLine
 
 /// <summary>
 /// Night 씬에서 가족들의 대화를 엿듣는 대화 시스템을 관리합니다.
+/// 백엔드 API를 통해 동적으로 대화를 가져오고 상태를 적용합니다.
 /// </summary>
 public class NightDialogueManager : MonoBehaviour
 {
@@ -28,11 +29,17 @@ public class NightDialogueManager : MonoBehaviour
     [Header("Dialogue Settings")]
     [SerializeField] private float typingSpeed = 0.05f; // 타이핑 효과 속도 (초)
 
+    [Header("API Settings")]
+    [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
+    [SerializeField] private float timeoutSeconds = 30f;
+
     private DialogueLine[] dialogues;
     private int currentDialogueIndex = 0;
     private bool isTyping = false;
     private Coroutine typingCoroutine;
     private string accumulatedText = ""; // 누적된 대사 텍스트
+    private NightDialogueApiClient apiClient;
+    private bool isApiRequestInProgress = false;
 
     private void Awake()
     {
@@ -68,7 +75,6 @@ public class NightDialogueManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeDialogues();
         SetupUILayout();
         
         // 누적 텍스트 초기화
@@ -79,7 +85,9 @@ public class NightDialogueManager : MonoBehaviour
             dialoguePanel.SetActive(true);
         }
 
-        ShowDialogue(0);
+        // API 클라이언트 초기화 및 밤의 대화 요청
+        InitializeApiClient();
+        RequestNightDialogue();
     }
 
     /// <summary>
@@ -104,7 +112,186 @@ public class NightDialogueManager : MonoBehaviour
         }
     }
 
-    private void InitializeDialogues()
+    /// <summary>
+    /// API 클라이언트를 초기화합니다.
+    /// </summary>
+    private void InitializeApiClient()
+    {
+        // ApiClient에서 baseUrl과 gameId 가져오기 시도
+        ApiClient apiClientComponent = FindFirstObjectByType<ApiClient>();
+        if (apiClientComponent != null)
+        {
+            // ApiClient의 baseUrl을 가져오기 위해 리플렉션 사용 (또는 public 필드로 변경 필요)
+            // 일단 Inspector에서 설정한 baseUrl 사용
+        }
+
+        // gameId를 가져오는 함수
+        System.Func<int> getGameId = () =>
+        {
+            // ApiClient에서 gameId 가져오기 시도
+            ApiClient client = FindFirstObjectByType<ApiClient>();
+            if (client != null)
+            {
+                // ApiClient에 public getter가 있다면 사용
+                // 일단 기본값 사용 (실제로는 ApiClient에서 가져와야 함)
+            }
+            return 24; // 기본값 (실제로는 ApiClient에서 가져와야 함)
+        };
+
+        apiClient = new NightDialogueApiClient(
+            baseUrl,
+            getGameId,
+            timeoutSeconds,
+            ApiClient.MOCK_RESPONSE
+        );
+    }
+
+    /// <summary>
+    /// 밤의 대화를 백엔드 API에서 요청합니다.
+    /// </summary>
+    private void RequestNightDialogue()
+    {
+        if (isApiRequestInProgress)
+        {
+            Debug.LogWarning("[NightDialogueManager] API 요청이 이미 진행 중입니다.");
+            return;
+        }
+
+        if (apiClient == null)
+        {
+            Debug.LogError("[NightDialogueManager] API 클라이언트가 초기화되지 않았습니다. 기본 대화를 사용합니다.");
+            InitializeDefaultDialogues();
+            ShowDialogue(0);
+            return;
+        }
+
+        isApiRequestInProgress = true;
+        StartCoroutine(apiClient.RequestNightDialogueCoroutine(
+            onSuccess: (backendDialogues, narrative, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks) =>
+            {
+                isApiRequestInProgress = false;
+                
+                // 대화 배열 변환 (BackendDialogueLine[] → DialogueLine[])
+                if (backendDialogues != null && backendDialogues.Length > 0)
+                {
+                    dialogues = new DialogueLine[backendDialogues.Length];
+                    for (int i = 0; i < backendDialogues.Length; i++)
+                    {
+                        dialogues[i] = new DialogueLine
+                        {
+                            speakerName = backendDialogues[i].speaker_name,
+                            dialogue = backendDialogues[i].dialogue
+                        };
+                    }
+                }
+                else
+                {
+                    // 대화가 없으면 기본 대화 사용
+                    Debug.LogWarning("[NightDialogueManager] API 응답에 대화가 없습니다. 기본 대화를 사용합니다.");
+                    InitializeDefaultDialogues();
+                }
+
+                // 상태 변화 적용
+                ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks);
+
+                // 첫 번째 대화 표시
+                if (dialogues != null && dialogues.Length > 0)
+                {
+                    ShowDialogue(0);
+                }
+            },
+            onError: (error) =>
+            {
+                isApiRequestInProgress = false;
+                Debug.LogError($"[NightDialogueManager] 밤의 대화 요청 실패: {error}");
+                Debug.Log("[NightDialogueManager] 기본 대화를 사용합니다.");
+                
+                // 에러 시 기본 대화 사용 (fallback)
+                InitializeDefaultDialogues();
+                ShowDialogue(0);
+            }
+        ));
+    }
+
+    /// <summary>
+    /// 상태 변화를 적용합니다.
+    /// </summary>
+    private void ApplyStateChanges(
+        float humanityChange,
+        NPCAffectionChanges affectionChanges,
+        NPCHumanityChanges humanityChanges,
+        NPCDisabledStates disabledStates,
+        ItemChanges itemChanges,
+        EventFlags eventFlags,
+        string endingTrigger,
+        System.Collections.Generic.Dictionary<string, bool> locks)
+    {
+        GameStateManager manager = GameStateManager.Instance;
+        if (manager == null)
+        {
+            Debug.LogWarning("[NightDialogueManager] GameStateManager.Instance를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 인간성 변화량 적용
+        if (humanityChange != 0f)
+        {
+            GameStateApplier.ApplyHumanityChange(manager, humanityChange);
+        }
+
+        // NPC 호감도 변화량 적용
+        if (affectionChanges != null)
+        {
+            NPCStateApplier.ApplyAffectionChanges(manager, affectionChanges);
+        }
+
+        // NPC 인간성 변화량 적용
+        if (humanityChanges != null)
+        {
+            NPCStateApplier.ApplyHumanityChanges(manager, humanityChanges);
+        }
+
+        // NPC 무력화 상태 적용
+        if (disabledStates != null)
+        {
+            NPCStateApplier.ApplyDisabledStates(manager, disabledStates);
+        }
+
+        // 아이템 변화량 적용
+        if (itemChanges != null)
+        {
+            ItemStateApplier.ApplyItemChanges(manager, itemChanges);
+        }
+
+        // 이벤트 플래그 적용
+        if (eventFlags != null)
+        {
+            EventFlagApplier.ApplyEventFlags(manager, eventFlags);
+        }
+
+        // 잠금 상태 적용
+        if (locks != null && locks.Count > 0)
+        {
+            GameStateApplier.ApplyLocks(manager, locks);
+        }
+
+        // 엔딩 트리거 처리
+        if (!string.IsNullOrEmpty(endingTrigger))
+        {
+            bool endingTriggered = GameStateApplier.ApplyEndingTrigger(manager, endingTrigger);
+            if (endingTriggered)
+            {
+                Debug.Log("[NightDialogueManager] 엔딩이 트리거되었습니다.");
+                // 엔딩 진입 시 더 이상 처리하지 않음 (씬 전환됨)
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 기본 대화를 초기화합니다 (fallback용).
+    /// </summary>
+    private void InitializeDefaultDialogues()
     {
         dialogues = new DialogueLine[]
         {

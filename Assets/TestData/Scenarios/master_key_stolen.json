@@ -1,0 +1,18 @@
+{
+  "narrative": "엘리노어는 깊은 잠에 빠져있습니다. 조심스럽게 목걸이에서 황동 열쇠를 빼냈습니다. 열쇠 손잡이 부분의 두개골 조각이 차갑게 손바닥에 닿습니다.",
+  "ending_info": null,
+  "state_result": {
+    "flags": {
+      "key_stolen": true
+    },
+    "inventory_add": [
+      "master_key"
+    ]
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 잠든 새엄마에게서 황동 열쇠를 획득했습니다. 이제 탈출할 수 있습니다.",
+    "turn_after": 2
+  }
+}
+

@@ -21,23 +21,10 @@
 - Path Parameters:
   - `game_id` (integer, required): 게임 ID
     - 예시: `24`
-- Request Body (application/json, required):
-  ```json
-  {
-    "day": 1
-  }
-  ```
-  - `day` (integer, required): 현재 날짜 (1~5)
-    - 예시: `1`
 
 **요청 예시:**
-```json
+```
 POST /api/v1/game/24/night_dialogue
-Content-Type: application/json
-
-{
-  "day": 1
-}
 ```
 
 **응답:**
@@ -98,7 +85,7 @@ Content-Type: application/json
 | **플레이어 입력** | ✅ `chat_input` 필수 | ❌ 없음 (엿듣기) |
 | **NPC 이름** | ✅ `npc_name` 필수 | ❌ 없음 (여러 화자) |
 | **아이템 이름** | ✅ `item_name` 필수 | ❌ 없음 |
-| **날짜 정보** | ❌ 없음 | ✅ `day` 필수 |
+| **Request Body** | ✅ 필수 | ❌ 없음 |
 
 ### 2.2 응답 차이점
 
@@ -116,12 +103,6 @@ Content-Type: application/json
 
 #### Night Dialogue API 호출
 ```csharp
-[Serializable]
-public class NightDialogueRequest
-{
-    public int day;
-}
-
 [Serializable]
 public class NightDialogueResponse
 {
@@ -141,27 +122,17 @@ public class DialogueLine
 }
 
 public IEnumerator RequestNightDialogueCoroutine(
-    int day,
     Action<NightDialogueResponse> onSuccess,
     Action<string> onError)
 {
     int gameId = getGameId();
     string url = $"{baseUrl}/api/v1/game/{gameId}/night_dialogue";
 
-    NightDialogueRequest requestData = new NightDialogueRequest
-    {
-        day = day
-    };
-
-    string jsonBody = JsonConvert.SerializeObject(requestData);
-    Debug.Log($"[NightDialogueApiClient] POST {url} | Body: {jsonBody}");
+    Debug.Log($"[NightDialogueApiClient] POST {url}");
 
     using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
     {
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("ngrok-skip-browser-warning", "true");
         request.timeout = Mathf.CeilToInt(timeoutSeconds);
 
@@ -214,10 +185,7 @@ public class NightDialogueManager : MonoBehaviour
     
     private void RequestNightDialogue()
     {
-        int currentDay = GameStateManager.Instance.GetCurrentDay();
-        
         StartCoroutine(apiClient.RequestNightDialogueCoroutine(
-            day: currentDay,
             onSuccess: (response) => {
                 // 대화 목록 설정
                 dialogues = response.dialogues;
@@ -334,7 +302,6 @@ public class NightDialogueManager : MonoBehaviour
 
 ### 백엔드
 - [ ] 엔드포인트 구현 (`POST /api/v1/game/{game_id}/night_dialogue`)
-- [ ] 요청 바디 검증 (`day` 필드 필수)
 - [ ] 대화 생성 로직 구현 (낮 행동 반영)
 - [ ] 상태 변화 계산 로직 구현
 - [ ] 응답 형식 정의 및 문서화
@@ -348,7 +315,7 @@ public class NightDialogueManager : MonoBehaviour
 
 ### 테스트
 - [ ] API 엔드포인트 테스트
-- [ ] 다양한 날짜/상태에서 대화 생성 테스트
+- [ ] 다양한 상태에서 대화 생성 테스트
 - [ ] 상태 변화 적용 테스트
 - [ ] 에러 케이스 테스트 (네트워크 오류, 잘못된 응답 등)
 
