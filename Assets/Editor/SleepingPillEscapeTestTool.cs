@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json;
 using System.IO;
+using System.Reflection;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 수면제 탈출 원 사이클 테스트를 위한 Unity Editor Tool입니다.
@@ -100,7 +103,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
             "홍차에 수면제를 탄다", "", "sleeping_pill", "tea_with_sleeping_pill.json");
         
         DrawStepButton("4. 밤의 대화 (무력화 확인)", 3, TestStep.Step4_NightDialogue,
-            null, null, null, "night_dialogue_family_asleep.json", true); // 스킵 가능한 단계
+            null, null, null, "night_dialogue_family_asleep.json"); // JSON 파일 사용
         
         DrawStepButton("5. 열쇠 획득", 4, TestStep.Step5_StealKey,
             "잠든 엄마의 목걸이에서 열쇠를 훔친다", "new_mother", "", "master_key_stolen.json");
@@ -116,7 +119,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
     }
 
     private void DrawStepButton(string label, int stepIndex, TestStep stepType,
-        string chatInput, string npcName, string itemName, string jsonFileName, bool isSkipStep = false)
+        string chatInput, string npcName, string itemName, string jsonFileName)
     {
         EditorGUILayout.BeginHorizontal();
         
@@ -131,23 +134,11 @@ public class SleepingPillEscapeTestTool : EditorWindow
         // 버튼
         EditorGUI.BeginDisabledGroup(stepInProgress[stepIndex]);
         
-        if (isSkipStep)
+        // 실행 버튼
+        string buttonText = stepCompleted[stepIndex] ? "다시 실행" : "실행";
+        if (GUILayout.Button(buttonText, GUILayout.Width(80)))
         {
-            // 스킵 가능한 단계 (밤의 대화)
-            if (GUILayout.Button("스킵", GUILayout.Width(60)))
-            {
-                stepCompleted[stepIndex] = true;
-                statusMessage = $"{label} 단계를 스킵했습니다. (NightDialogueManager에서 자동 처리됨)";
-            }
-        }
-        else
-        {
-            // 실행 버튼
-            string buttonText = stepCompleted[stepIndex] ? "다시 실행" : "실행";
-            if (GUILayout.Button(buttonText, GUILayout.Width(80)))
-            {
-                ExecuteSingleStep(stepIndex, stepType, chatInput, npcName, itemName, jsonFileName);
-            }
+            ExecuteSingleStep(stepIndex, stepType, chatInput, npcName, itemName, jsonFileName);
         }
         
         EditorGUI.EndDisabledGroup();
@@ -262,7 +253,182 @@ public class SleepingPillEscapeTestTool : EditorWindow
             yield break;
         }
 
-        // JSON 파싱
+        // 밤의 대화 단계인 경우 (stepIndex == 3) 특별 처리
+        if (stepIndex == 3)
+        {
+            // NightDialogueApiClient.BackendNightDialogueResponse로 파싱
+            NightDialogueApiClient.BackendNightDialogueResponse nightResponse;
+            try
+            {
+                nightResponse = JsonConvert.DeserializeObject<NightDialogueApiClient.BackendNightDialogueResponse>(jsonAsset.text);
+            }
+            catch (System.Exception e)
+            {
+                statusMessage = $"오류: JSON 파싱 실패: {e.Message}";
+                onError?.Invoke();
+                yield break;
+            }
+
+            // NightDialogueManager 찾기 및 테스트 데이터 로드
+            NightDialogueManager nightDialogueManager = Object.FindFirstObjectByType<NightDialogueManager>();
+            
+            // NightDialogueManager가 없으면 Night 씬으로 전환
+            if (nightDialogueManager == null)
+            {
+                string nightSceneName = "Night";
+                string currentSceneName = SceneManager.GetActiveScene().name;
+                
+                if (currentSceneName != nightSceneName)
+                {
+                    Debug.Log($"[SleepingPillEscapeTestTool] NightDialogueManager를 찾을 수 없습니다. Night 씬으로 전환합니다. (현재 씬: {currentSceneName})");
+                    statusMessage = $"Night 씬으로 전환 중...";
+                    
+                    // 씬 전환
+                    SceneManager.LoadScene(nightSceneName);
+                    
+                    // 씬 전환 후 대기 (씬이 완전히 로드될 때까지)
+                    yield return new WaitForSeconds(1.0f);
+                    
+                    // 다시 NightDialogueManager 찾기
+                    nightDialogueManager = Object.FindFirstObjectByType<NightDialogueManager>();
+                    
+                    if (nightDialogueManager == null)
+                    {
+                        statusMessage = "오류: Night 씬 전환 후에도 NightDialogueManager를 찾을 수 없습니다.";
+                        Debug.LogError("[SleepingPillEscapeTestTool] Night 씬 전환 후에도 NightDialogueManager를 찾을 수 없습니다.");
+                        onError?.Invoke();
+                        yield break;
+                    }
+                    
+                    // 즉시 테스트 모드 설정 (API 요청 차단)
+                    nightDialogueManager.SetTestMode(true);
+                    Debug.Log("[SleepingPillEscapeTestTool] Night 씬 전환 완료. NightDialogueManager를 찾았고 테스트 모드를 설정했습니다.");
+                }
+                else
+                {
+                    statusMessage = "오류: Night 씬에 있지만 NightDialogueManager를 찾을 수 없습니다.";
+                    Debug.LogError("[SleepingPillEscapeTestTool] Night 씬에 있지만 NightDialogueManager를 찾을 수 없습니다.");
+                    onError?.Invoke();
+                    yield break;
+                }
+            }
+            
+            // NightDialogueManager에 테스트 데이터 로드
+            if (nightDialogueManager != null)
+            {
+                nightDialogueManager.SetTestMode(true);
+                nightDialogueManager.LoadTestDialogue(nightResponse);
+                Debug.Log("[SleepingPillEscapeTestTool] 밤의 대화 테스트 데이터 로드 완료");
+            }
+
+            // BackendResponseConverter를 사용하여 응답 변환 (상태 적용용)
+            BackendResponseConverter nightConverter = new BackendResponseConverter(ApiClient.MOCK_RESPONSE);
+            nightConverter.ConvertBackendResponseToCurrentFormat(
+                nightResponse,
+                GameStateManager.Instance,
+                out string nightNarrative,
+                out float nightHumanityChange,
+                out NPCAffectionChanges nightAffectionChanges,
+                out NPCHumanityChanges nightHumanityChanges,
+                out NPCDisabledStates nightDisabledStates,
+                out ItemChanges nightItemChanges,
+                out EventFlags nightEventFlags,
+                out string nightEndingTrigger,
+                out Dictionary<string, bool> nightLocks
+            );
+
+            // InputHandler를 통해 InputFieldManager에 접근하여 ResultText 표시
+            InputHandler nightInputHandler = Object.FindFirstObjectByType<InputHandler>();
+            InputFieldManager nightInputFieldManager = null;
+            
+            if (nightInputHandler != null)
+            {
+                FieldInfo fieldInfo = typeof(InputHandler).GetField("inputFieldManager", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (fieldInfo != null)
+                {
+                    nightInputFieldManager = fieldInfo.GetValue(nightInputHandler) as InputFieldManager;
+                }
+            }
+            
+            if (nightInputFieldManager != null)
+            {
+                // 테스트 모드에서는 narrative만 표시 (JSON Response 제거)
+                string displayText = nightNarrative;
+                
+                nightInputFieldManager.ShowResultText();
+                nightInputFieldManager.SetResultText(displayText);
+                
+                Debug.Log($"[SleepingPillEscapeTestTool] ResultText에 밤의 대화 응답 표시 완료");
+            }
+
+            // 상태 적용
+            GameStateManager nightManager = GameStateManager.Instance;
+            if (nightManager != null)
+            {
+                GameStateApplier.ApplyHumanityChange(nightManager, nightHumanityChange);
+                
+                if (nightAffectionChanges != null)
+                    NPCStateApplier.ApplyAffectionChanges(nightManager, nightAffectionChanges);
+                
+                if (nightHumanityChanges != null)
+                    NPCStateApplier.ApplyHumanityChanges(nightManager, nightHumanityChanges);
+                
+                if (nightDisabledStates != null)
+                    NPCStateApplier.ApplyDisabledStates(nightManager, nightDisabledStates);
+                
+                if (nightItemChanges != null)
+                    ItemStateApplier.ApplyItemChanges(nightManager, nightItemChanges);
+                
+                if (nightEventFlags != null)
+                    EventFlagApplier.ApplyEventFlags(nightManager, nightEventFlags);
+                
+                if (nightLocks != null && nightLocks.Count > 0)
+                    GameStateApplier.ApplyLocks(nightManager, nightLocks);
+                
+                if (!string.IsNullOrEmpty(nightEndingTrigger))
+                {
+                    bool endingTriggered = GameStateApplier.ApplyEndingTrigger(nightManager, nightEndingTrigger);
+                    if (endingTriggered)
+                    {
+                        Debug.Log($"[SleepingPillEscapeTestTool] 엔딩 트리거됨: {nightEndingTrigger}");
+                        onSuccess?.Invoke();
+                        yield break;
+                    }
+                }
+            }
+
+            // 턴 소모
+            RoomTurnManager nightRoomTurnManager = Object.FindFirstObjectByType<RoomTurnManager>();
+            if (nightRoomTurnManager != null)
+            {
+                int turnAfter = nightResponse.debug?.turn_after ?? 0;
+                if (turnAfter > 0)
+                {
+                    for (int i = 0; i < turnAfter; i++)
+                    {
+                        nightRoomTurnManager.ConsumeTurn();
+                        yield return new WaitForSeconds(0.1f);
+                    }
+                    Debug.Log($"[SleepingPillEscapeTestTool] 턴 {turnAfter}개 소모 완료. 남은 턴수: {nightRoomTurnManager.GetRemainingTurns()}");
+                }
+            }
+            else if (nightManager != null)
+            {
+                int turnAfter = nightResponse.debug?.turn_after ?? 0;
+                if (turnAfter > 0)
+                {
+                    nightManager.ConsumeTurn(turnAfter);
+                    Debug.Log($"[SleepingPillEscapeTestTool] 턴 {turnAfter}개 소모 완료. 남은 턴수: {nightManager.GetRemainingTurns()}");
+                }
+            }
+
+            Debug.Log($"[SleepingPillEscapeTestTool] 밤의 대화 단계 완료: {nightNarrative}");
+            yield return new WaitForSeconds(0.5f);
+            onSuccess?.Invoke();
+            yield break;
+        }
+
+        // 일반 단계 처리 (기존 로직)
         BackendGameResponse response;
         try
         {
@@ -291,30 +457,42 @@ public class SleepingPillEscapeTestTool : EditorWindow
             out Dictionary<string, bool> locks
         );
 
-        // ResultText 찾기 및 JSON 응답 표시
-        TMPro.TextMeshProUGUI resultText = null;
-        
-        // InputHandler를 통해 resultText 찾기
+        // InputHandler를 통해 InputFieldManager에 접근하여 ResultText 표시
         InputHandler inputHandler = Object.FindFirstObjectByType<InputHandler>();
+        InputFieldManager inputFieldManager = null;
+        
         if (inputHandler != null)
         {
-            // InputHandler의 resultText는 private이므로 리플렉션 사용 또는 다른 방법 필요
-            // 일단 GameObject.Find로 시도
-            GameObject resultTextObj = GameObject.Find("ResultText");
-            if (resultTextObj != null)
+            // 리플렉션을 사용하여 InputHandler의 private inputFieldManager 필드에 접근
+            FieldInfo fieldInfo = typeof(InputHandler).GetField("inputFieldManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (fieldInfo != null)
             {
-                resultText = resultTextObj.GetComponent<TMPro.TextMeshProUGUI>();
+                inputFieldManager = fieldInfo.GetValue(inputHandler) as InputFieldManager;
             }
         }
         
-        // InputHandler가 없거나 찾지 못한 경우 직접 찾기
-        if (resultText == null)
+        // InputFieldManager를 통해 ResultText 표시
+        if (inputFieldManager != null)
         {
+            // 테스트 모드에서는 narrative만 표시 (JSON Response 제거)
+            string displayText = narrative;
+            
+            // InputFieldManager를 통해 ResultText 표시 (InputField 비활성화, ResultText 활성화)
+            inputFieldManager.ShowResultText();
+            inputFieldManager.SetResultText(displayText);
+            
+            Debug.Log($"[SleepingPillEscapeTestTool] ResultText에 응답 표시 완료 (InputFieldManager 사용)");
+        }
+        else
+        {
+            // InputFieldManager를 찾지 못한 경우 직접 찾기 시도
+            TMPro.TextMeshProUGUI resultText = null;
+            
             // Canvas 하위에서 찾기
             Canvas canvas = Object.FindFirstObjectByType<Canvas>();
             if (canvas != null)
             {
-                TMPro.TextMeshProUGUI[] texts = canvas.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+                TMPro.TextMeshProUGUI[] texts = canvas.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true); // 비활성화된 것도 포함
                 foreach (var text in texts)
                 {
                     if (text.gameObject.name.Contains("Result") || text.gameObject.name == "ResultText")
@@ -324,22 +502,28 @@ public class SleepingPillEscapeTestTool : EditorWindow
                     }
                 }
             }
-        }
-        
-        if (resultText != null)
-        {
-            // JSON 응답을 포맷팅하여 표시
-            string formattedJson = JsonConvert.SerializeObject(response, Formatting.Indented);
-            resultText.text = $"{narrative}\n\n[JSON Response]\n{formattedJson}";
             
-            // ResultText를 활성화 (InputFieldManager와 유사한 로직)
-            resultText.gameObject.SetActive(true);
-            
-            Debug.Log($"[SleepingPillEscapeTestTool] ResultText에 응답 표시 완료");
-        }
-        else
-        {
-            Debug.LogWarning("[SleepingPillEscapeTestTool] ResultText를 찾을 수 없습니다. Scene에 ResultText가 있는지 확인하세요.");
+            if (resultText != null)
+            {
+                // 테스트 모드에서는 narrative만 표시 (JSON Response 제거)
+                resultText.text = narrative;
+                
+                // ResultText를 활성화하고 InputField 비활성화
+                resultText.gameObject.SetActive(true);
+                
+                // InputField 찾아서 비활성화
+                TMP_InputField inputField = Object.FindFirstObjectByType<TMP_InputField>();
+                if (inputField != null)
+                {
+                    inputField.gameObject.SetActive(false);
+                }
+                
+                Debug.Log($"[SleepingPillEscapeTestTool] ResultText에 응답 표시 완료 (직접 접근)");
+            }
+            else
+            {
+                Debug.LogWarning("[SleepingPillEscapeTestTool] InputFieldManager와 ResultText를 찾을 수 없습니다. Scene에 InputHandler가 있는지 확인하세요.");
+            }
         }
 
         // 상태 적용 (ApiResponseHandler와 동일한 로직)
@@ -350,7 +534,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
             
             if (affectionChanges != null)
                 NPCStateApplier.ApplyAffectionChanges(manager, affectionChanges);
-            
+                
             if (humanityChanges != null)
                 NPCStateApplier.ApplyHumanityChanges(manager, humanityChanges);
             

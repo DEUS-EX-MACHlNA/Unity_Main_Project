@@ -13,7 +13,7 @@
   "debug": {
     "game_id": 24,
     "reasoning": "플레이어가 새엄마에게 긍정적인 발언을 하여 호감도가 상승했습니다.",
-    "turn_after": 2
+    "turn_after": 1
   }
 }
 

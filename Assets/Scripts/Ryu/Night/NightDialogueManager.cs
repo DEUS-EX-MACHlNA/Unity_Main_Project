@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Newtonsoft.Json;
 
 [System.Serializable]
 public class DialogueLine
@@ -23,7 +25,7 @@ public class NightDialogueManager : MonoBehaviour
 
     [Header("Scene Transition")]
     [SerializeField] private SceneFadeManager fadeManager;
-    [SerializeField] private string tutorialSceneName = "Tutorial";
+    [SerializeField] private string nextSceneName = "PlayersRoom";
     [SerializeField] private float fadeDuration = 1f;
 
     [Header("Dialogue Settings")]
@@ -40,6 +42,8 @@ public class NightDialogueManager : MonoBehaviour
     private string accumulatedText = ""; // 누적된 대사 텍스트
     private NightDialogueApiClient apiClient;
     private bool isApiRequestInProgress = false;
+    private bool isTestMode = false; // 테스트 모드 플래그
+    private Coroutine apiRequestCoroutine; // API 요청 코루틴 추적용
 
     private void Awake()
     {
@@ -85,9 +89,12 @@ public class NightDialogueManager : MonoBehaviour
             dialoguePanel.SetActive(true);
         }
 
-        // API 클라이언트 초기화 및 밤의 대화 요청
-        InitializeApiClient();
-        RequestNightDialogue();
+        // 테스트 모드가 아닐 때만 API 호출
+        if (!isTestMode)
+        {
+            InitializeApiClient();
+            RequestNightDialogue();
+        }
     }
 
     /// <summary>
@@ -151,6 +158,13 @@ public class NightDialogueManager : MonoBehaviour
     /// </summary>
     private void RequestNightDialogue()
     {
+        // 테스트 모드일 때는 API 요청 차단
+        if (isTestMode)
+        {
+            Debug.Log("[NightDialogueManager] 테스트 모드입니다. API 요청을 차단합니다.");
+            return;
+        }
+
         if (isApiRequestInProgress)
         {
             Debug.LogWarning("[NightDialogueManager] API 요청이 이미 진행 중입니다.");
@@ -166,7 +180,7 @@ public class NightDialogueManager : MonoBehaviour
         }
 
         isApiRequestInProgress = true;
-        StartCoroutine(apiClient.RequestNightDialogueCoroutine(
+        apiRequestCoroutine = StartCoroutine(apiClient.RequestNightDialogueCoroutine(
             onSuccess: (backendDialogues, narrative, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks) =>
             {
                 isApiRequestInProgress = false;
@@ -392,6 +406,13 @@ public class NightDialogueManager : MonoBehaviour
 
     private void OnDialogueClick()
     {
+        // dialogues가 null이거나 비어있으면 처리하지 않음
+        if (dialogues == null || dialogues.Length == 0)
+        {
+            Debug.LogWarning("[NightDialogueManager] 대화 데이터가 아직 로드되지 않았습니다.");
+            return;
+        }
+
         if (isTyping)
         {
             // 타이핑 중이면 즉시 완성
@@ -448,15 +469,92 @@ public class NightDialogueManager : MonoBehaviour
             return;
         }
 
-        // Tutorial 씬으로 전환 (페이드 효과)
+        // PlayersRoom 씬으로 전환 (페이드 효과)
         if (fadeManager != null)
         {
-            fadeManager.LoadSceneWithFade(tutorialSceneName, fadeDuration);
+            fadeManager.LoadSceneWithFade(nextSceneName, fadeDuration);
         }
         else
         {
             Debug.LogWarning("[NightDialogueManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(tutorialSceneName);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
+        }
+    }
+
+    /// <summary>
+    /// 테스트 모드를 설정합니다. 테스트 모드일 때는 자동 API 호출을 하지 않습니다.
+    /// </summary>
+    public void SetTestMode(bool testMode)
+    {
+        isTestMode = testMode;
+        Debug.Log($"[NightDialogueManager] 테스트 모드 설정: {testMode}");
+        
+        // 테스트 모드로 전환할 때 진행 중인 API 요청이 있다면 취소
+        if (testMode && isApiRequestInProgress && apiRequestCoroutine != null)
+        {
+            Debug.Log("[NightDialogueManager] 테스트 모드 전환: 진행 중인 API 요청을 취소합니다.");
+            StopCoroutine(apiRequestCoroutine);
+            apiRequestCoroutine = null;
+            isApiRequestInProgress = false;
+        }
+    }
+
+    /// <summary>
+    /// 테스트용 밤의 대화 데이터를 로드합니다. (JSON 응답에서)
+    /// </summary>
+    public void LoadTestDialogue(NightDialogueApiClient.BackendNightDialogueResponse response)
+    {
+        if (response == null)
+        {
+            Debug.LogError("[NightDialogueManager] 테스트 대화 데이터가 null입니다.");
+            return;
+        }
+
+        // 대화 배열 변환 (BackendDialogueLine[] → DialogueLine[])
+        if (response.dialogues != null && response.dialogues.Length > 0)
+        {
+            dialogues = new DialogueLine[response.dialogues.Length];
+            for (int i = 0; i < response.dialogues.Length; i++)
+            {
+                dialogues[i] = new DialogueLine
+                {
+                    speakerName = response.dialogues[i].speaker_name,
+                    dialogue = response.dialogues[i].dialogue
+                };
+            }
+            Debug.Log($"[NightDialogueManager] 테스트 대화 데이터 로드 완료: {dialogues.Length}개 대화");
+        }
+        else
+        {
+            Debug.LogWarning("[NightDialogueManager] 테스트 응답에 대화가 없습니다. 기본 대화를 사용합니다.");
+            InitializeDefaultDialogues();
+        }
+
+        // BackendResponseConverter를 사용하여 상태 변화 추출 및 적용
+        BackendResponseConverter converter = new BackendResponseConverter(ApiClient.MOCK_RESPONSE);
+        converter.ConvertBackendResponseToCurrentFormat(
+            response,
+            GameStateManager.Instance,
+            out string narrative,
+            out float humanityChange,
+            out NPCAffectionChanges affectionChanges,
+            out NPCHumanityChanges humanityChanges,
+            out NPCDisabledStates disabledStates,
+            out ItemChanges itemChanges,
+            out EventFlags eventFlags,
+            out string endingTrigger,
+            out Dictionary<string, bool> locks
+        );
+
+        // 상태 변화 적용
+        ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks);
+
+        Debug.Log($"[NightDialogueManager] 테스트 대화 상태 적용 완료: {narrative}");
+
+        // 첫 번째 대화 표시 추가
+        if (dialogues != null && dialogues.Length > 0)
+        {
+            ShowDialogue(0);
         }
     }
 
