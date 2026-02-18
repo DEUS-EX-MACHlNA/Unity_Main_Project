@@ -4,6 +4,14 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
+/// 페이드 인 시간을 씬 전환 시 전달하기 위한 임시 데이터 클래스
+/// </summary>
+public class FadeInData : MonoBehaviour
+{
+    public float fadeInDuration = 1f;
+}
+
+/// <summary>
 /// 씬 전환 시 페이드 인/아웃 효과를 담당합니다.
 /// Canvas에 검은색 Image 오브젝트가 필요합니다.
 /// 모든 설정은 스크립트를 통해서만 처리됩니다.
@@ -53,7 +61,17 @@ public class SceneFadeManager : MonoBehaviour
         // 씬 로드 후 페이드 인 효과 자동 실행
         if (fadeImage != null && fadeImage.color.a > 0)
         {
-            StartCoroutine(FadeIn(DEFAULT_FADE_DURATION));
+            // FadeInData에서 페이드 인 시간 가져오기
+            FadeInData data = FindFirstObjectByType<FadeInData>();
+            float fadeInDuration = DEFAULT_FADE_DURATION;
+            
+            if (data != null)
+            {
+                fadeInDuration = data.fadeInDuration;
+                Destroy(data.gameObject); // 사용 후 삭제
+            }
+            
+            StartCoroutine(FadeIn(fadeInDuration));
         }
     }
 
@@ -62,25 +80,40 @@ public class SceneFadeManager : MonoBehaviour
     /// </summary>
     public void LoadSceneWithFade(string sceneName, float fadeDuration)
     {
+        LoadSceneWithFade(sceneName, fadeDuration, fadeDuration);
+    }
+
+    /// <summary>
+    /// 페이드 아웃 → 씬 로드 → 페이드 인을 순차적으로 실행합니다.
+    /// 페이드 인/아웃 시간을 각각 설정할 수 있습니다.
+    /// </summary>
+    public void LoadSceneWithFade(string sceneName, float fadeOutDuration, float fadeInDuration)
+    {
         // 중요: 로드 불가 씬이면 검은 화면에 '갇히는' 현상을 방지하기 위해 시작 자체를 막습니다.
         if (!CanLoadScene(sceneName))
         {
             Debug.LogError($"[SceneFadeManager] 씬 로드 실패: '{sceneName}' (Build Profiles/Shared scene list에 씬이 등록되어 있어야 합니다)");
             return;
         }
-        StartCoroutine(LoadSceneWithFadeCoroutine(sceneName, fadeDuration));
+        StartCoroutine(LoadSceneWithFadeCoroutine(sceneName, fadeOutDuration, fadeInDuration));
     }
 
-    private IEnumerator LoadSceneWithFadeCoroutine(string sceneName, float fadeDuration)
+    private IEnumerator LoadSceneWithFadeCoroutine(string sceneName, float fadeOutDuration, float fadeInDuration)
     {
-        Debug.Log($"[SceneFadeManager] 페이드 아웃 시작 → {sceneName} 씬으로 전환");
+        Debug.Log($"[SceneFadeManager] 페이드 아웃 시작 → {sceneName} 씬으로 전환 (아웃: {fadeOutDuration}초, 인: {fadeInDuration}초)");
         
         // 페이드 아웃
-        yield return StartCoroutine(FadeOut(fadeDuration));
+        yield return StartCoroutine(FadeOut(fadeOutDuration));
         
         Debug.Log($"[SceneFadeManager] {sceneName} 씬 로드 중...");
         
-        // 씬 로드 (새 씬은 검은색 배경으로 시작하지만 Start()에서 자동으로 페이드 인됨)
+        // 씬 로드 전에 페이드 인 시간을 저장 (DontDestroyOnLoad 오브젝트에 저장)
+        GameObject fadeInData = new GameObject("FadeInData");
+        DontDestroyOnLoad(fadeInData);
+        FadeInData data = fadeInData.AddComponent<FadeInData>();
+        data.fadeInDuration = fadeInDuration;
+        
+        // 씬 로드
         SceneManager.LoadScene(sceneName);
 
         // 만약 씬 로드가 실패하면(예: Build Profiles 미등록), 이 코루틴은 계속 살아있고 화면은 검은색(알파 1)로 남습니다.
@@ -89,7 +122,8 @@ public class SceneFadeManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name != sceneName)
         {
             Debug.LogError($"[SceneFadeManager] 씬 전환에 실패했습니다: '{sceneName}'. 검은 화면 복구를 위해 페이드 인합니다.");
-            yield return StartCoroutine(FadeIn(fadeDuration));
+            Destroy(fadeInData);
+            yield return StartCoroutine(FadeIn(fadeInDuration));
         }
     }
 
