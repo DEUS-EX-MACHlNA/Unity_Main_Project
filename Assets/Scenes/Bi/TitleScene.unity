@@ -2025,7 +2025,7 @@ SpriteRenderer:
   m_Size: {x: 38.399998, y: 21.599998}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!4 &922021377
 Transform:
@@ -2347,7 +2347,7 @@ SpriteRenderer:
   m_Size: {x: 9.01, y: 8.13}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!1 &1026930913
 GameObject:
@@ -4496,7 +4496,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70dde24d1510545f7be06f61581f87ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleMenu
+  titleSceneBuildIndex: 0
   nextSceneBuildIndex: 1
+  firstPanel: {fileID: 1013967111}
+  menuPanel: {fileID: 435863013}
+  saveLoadPanel: {fileID: 1916471258}
+  howToPlayPanel: {fileID: 1501848963}
+  fadePanel: {fileID: 1832636044}
+  fadeDuration: 1.5
 --- !u!4 &1908489383
 Transform:
   m_ObjectHideFlags: 0

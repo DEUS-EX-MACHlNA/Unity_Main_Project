@@ -1,23 +1,38 @@
-# Unity generated
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Uu]ser[Ss]ettings/
+# [유니티 프로젝트용 .gitignore]
 
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
+# --- 절대 공유하면 안 되는 필수 제외 폴더 ---
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[MemoryCaptures]/
 
-# OS generated
-.DS_Store
-._*
+# --- 에디터가 생성하는 임시 파일 ---
+Assets/AssetStoreTools*
+/assets/AssetStoreTools*
 
-# Visual Studio
+# --- 비주얼 스튜디오 / 라이더 관련 임시 파일 ---
 .vs/
+.idea/
 *.csproj
+*.unityproj
 *.sln
 *.suo
+*.tmp
 *.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.opendb
+*.VC.db
+
+# --- OS 관련 파일 ---
+.DS_Store
+Thumbs.db
+
+# --- 유니티 유저 설정 ---
+UserSettings/
