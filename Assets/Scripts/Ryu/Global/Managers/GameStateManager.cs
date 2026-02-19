@@ -139,7 +139,7 @@ public class GameStateManager : MonoBehaviour
     {
         // 기본 매니저들 초기화
         humanityManager = new HumanityManager();
-        humanityManager.Initialize(10f); // 테스트용: 10%로 설정
+        humanityManager.Initialize(100f); // 기본값: 100%로 설정
         humanityManager.SetGameOverSettings(gameOverSceneName, gameOverFadeDuration);
 
         dayManager = new DayManager();
