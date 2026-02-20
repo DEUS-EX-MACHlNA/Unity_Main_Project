@@ -787,6 +787,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: Hallway
+  showTooltip: 1
 --- !u!60 &1541191136
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -950,6 +952,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: Basement
+  showTooltip: 1
 --- !u!60 &1850170217
 PolygonCollider2D:
   m_ObjectHideFlags: 0

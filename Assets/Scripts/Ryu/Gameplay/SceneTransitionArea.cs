@@ -42,6 +42,13 @@ public class SceneTransitionArea : MonoBehaviour
     [Tooltip("중복 클릭 방지 쿨다운 (초)")]
     [SerializeField] private float clickCooldown = 0.1f;
     
+    [Header("Tooltip")]
+    [Tooltip("툴팁에 표시할 문 제목 (예: '거실로 이동', 비어있으면 자동 생성)")]
+    [SerializeField] private string tooltipTitle;
+    
+    [Tooltip("툴팁 표시 여부")]
+    [SerializeField] private bool showTooltip = true;
+    
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
     private float lastClickTime;
@@ -126,6 +133,17 @@ public class SceneTransitionArea : MonoBehaviour
         
         // 커서 변경
         ChangeCursor(true);
+        
+        // 툴팁 표시
+        if (showTooltip && DoorTooltipManager.Instance != null)
+        {
+            // tooltipTitle이 비어있으면 목적지 씬 이름 사용
+            string title = string.IsNullOrEmpty(tooltipTitle) 
+                ? targetSceneName 
+                : tooltipTitle;
+            
+            DoorTooltipManager.Instance.ShowTooltip(title);
+        }
     }
     
     private void OnMouseExit()
@@ -140,6 +158,12 @@ public class SceneTransitionArea : MonoBehaviour
         
         // 커서 복원
         ChangeCursor(false);
+        
+        // 툴팁 숨김
+        if (showTooltip && DoorTooltipManager.Instance != null)
+        {
+            DoorTooltipManager.Instance.HideTooltip();
+        }
     }
     
     private void ChangeCursor(bool isHovering)
@@ -170,7 +194,13 @@ public class SceneTransitionArea : MonoBehaviour
     
     private void OnDisable()
     {
-        // GameObject가 비활성화될 때 커서 복원 (씬 전환 시 호출됨)
+        // GameObject가 비활성화될 때 툴팁도 숨김
+        if (isHovering && showTooltip && DoorTooltipManager.Instance != null)
+        {
+            DoorTooltipManager.Instance.HideTooltip();
+        }
+        
+        // 커서 복원 (씬 전환 시 호출됨)
         if (isHovering)
         {
             RestoreDefaultCursor();

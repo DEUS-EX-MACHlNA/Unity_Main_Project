@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06bd5389572924944ad082aa9484383e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionArea
-  targetSceneName: Kitchen
+  targetSceneName: SiblingsRoom
   fadeOutDuration: 0.2
   fadeInDuration: 0.2
   highlightColor: {r: 1, g: 1, b: 0.5, a: 1}
@@ -159,6 +159,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &140924638
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -437,6 +439,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &861727113
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -931,6 +935,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &1488547304
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -1105,6 +1111,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &1629141316
 PolygonCollider2D:
   m_ObjectHideFlags: 0
