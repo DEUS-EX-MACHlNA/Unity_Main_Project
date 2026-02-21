@@ -1413,7 +1413,7 @@ SpriteRenderer:
   m_Size: {x: 3.91, y: 11.08}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!4 &921697656
 Transform:
@@ -1720,9 +1720,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 439eaab46aeebc544bf1c47b41f5668d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApiClient
-  baseUrl: https://d564-115-95-186-2.ngrok-free.app
-  gameId: 1
-  userId: 1
+  baseUrl: https://7783-115-95-186-2.ngrok-free.app
   timeoutSeconds: 3
 --- !u!4 &1067568062
 Transform:
@@ -1757,6 +1755,7 @@ MonoBehaviour:
   nightSceneName: Night
   tutorialSceneName: Tutorial
   fadeDuration: 1
+  remainingTurns: 0
 --- !u!114 &1067568064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1769,8 +1768,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca6f632cb25d27d41b1a1c0db5cd0910, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneFadeManager
-  fadeImage: {fileID: 1550901604}
-  defaultFadeDuration: 1
 --- !u!114 &1067568065
 MonoBehaviour:
   m_ObjectHideFlags: 0

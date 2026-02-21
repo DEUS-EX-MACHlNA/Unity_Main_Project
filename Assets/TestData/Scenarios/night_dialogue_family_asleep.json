@@ -1,0 +1,64 @@
+{
+  "dialogues": [
+    {
+      "speaker_name": "엘리노어 (새엄마)",
+      "dialogue": "..."
+    },
+    {
+      "speaker_name": "아더 (새아빠)",
+      "dialogue": "..."
+    },
+    {
+      "speaker_name": "루카스 (동생)",
+      "dialogue": "..."
+    }
+  ],
+  "ending_info": null,
+  "state_result": {
+    "humanity": 90.0,
+    "npc_stats": {
+      "new_mother": {
+        "trust": 75.0,
+        "suspicion": 0.0,
+        "fear": 0.0
+      },
+      "new_father": {
+        "trust": 50.0,
+        "suspicion": 0.0,
+        "fear": 0.0
+      },
+      "sibling": {
+        "trust": 50.0,
+        "suspicion": 0.0,
+        "fear": 0.0
+      }
+    },
+    "flags": {
+      "family_asleep": true,
+      "tea_with_sleeping_pill": true
+    },
+    "npc_disabled_states": {
+      "new_mother": {
+        "is_disabled": true,
+        "remaining_turns": -1,
+        "reason": "sleeping_pill"
+      },
+      "new_father": {
+        "is_disabled": true,
+        "remaining_turns": -1,
+        "reason": "sleeping_pill"
+      },
+      "sibling": {
+        "is_disabled": true,
+        "remaining_turns": -1,
+        "reason": "sleeping_pill"
+      }
+    }
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 홍차에 수면제를 투여하여 가족들이 모두 잠들었습니다. 밤의 대화가 발생하지 않습니다.",
+    "turn_after": 0
+  }
+}
+

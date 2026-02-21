@@ -1,0 +1,19 @@
+{
+  "narrative": "엘리노어의 얼굴에 따뜻한 미소가 번졌습니다. \"우리 아이가 이렇게 말해주니 엄마 마음이 정말 기쁘구나. 앞으로도 이렇게 예의 바르게 행동하면 좋겠어.\"",
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": {
+      "new_mother": {
+        "trust": 75.0,
+        "suspicion": 0.0,
+        "fear": 0.0
+      }
+    }
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 새엄마에게 긍정적인 발언을 하여 호감도가 상승했습니다.",
+    "turn_after": 1
+  }
+}
+

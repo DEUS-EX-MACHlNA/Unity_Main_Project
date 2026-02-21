@@ -71,7 +71,7 @@
     "turn_increment": 1
   },
   "debug": {
-    "game_id": 12,
+    "game_id": 24,
     "steps": [...],
     "turn_after": 3
   }

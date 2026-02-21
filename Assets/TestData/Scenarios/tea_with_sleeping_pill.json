@@ -1,0 +1,18 @@
+{
+  "narrative": "홍차 주전자에 수면제를 조심스럽게 넣었습니다. 진한 홍차의 향이 수면제의 냄새를 가려주지만, 액체가 살짝 탁해진 것을 확인할 수 있습니다.",
+  "ending_info": null,
+  "state_result": {
+    "flags": {
+      "tea_with_sleeping_pill": true
+    },
+    "inventory_remove": [
+      "sleeping_pill"
+    ]
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 홍차에 수면제를 투여했습니다. 이제 가족들에게 이 홍차를 대접할 수 있습니다.",
+    "turn_after": 1
+  }
+}
+
