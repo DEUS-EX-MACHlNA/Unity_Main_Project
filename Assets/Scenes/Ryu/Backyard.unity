@@ -1135,7 +1135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae5246f193b3b7e4bbceb33a5dc510d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemStateDisplay
-  itemType: 0
+  itemType: 3
   inventoryCount: 0
   itemState: 0
   itemLocation: 1

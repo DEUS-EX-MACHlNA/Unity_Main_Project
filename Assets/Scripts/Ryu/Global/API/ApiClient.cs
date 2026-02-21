@@ -152,6 +152,11 @@ public class ApiClient : MonoBehaviour
     /// <param name="itemName">아이템 이름 (선택적)</param>
     /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger, locks)</param>
     /// <param name="onError">에러 콜백</param>
+    /// <summary>
+    /// 낮 대화 응답 수신 시 페이드 아웃/인 지속 시간 (초)
+    /// </summary>
+    private const float DayDialogueFadeDuration = 0.2f;
+
     public Coroutine SendMessage(
         string chatInput,
         string npcName,
@@ -163,6 +168,39 @@ public class ApiClient : MonoBehaviour
         {
             gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
         }
-        return StartCoroutine(gameStepApiClient.SendMessageCoroutine(chatInput, npcName, itemName, onSuccess, onError));
+        return StartCoroutine(SendMessageWithFadeCoroutine(chatInput, npcName, itemName, onSuccess, onError));
+    }
+
+    private IEnumerator SendMessageWithFadeCoroutine(
+        string chatInput,
+        string npcName,
+        string itemName,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<string> onError)
+    {
+        // 백엔드 요청 (응답 수신 시 페이드 아웃 → 페이드 인 후 콜백 호출)
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> wrappedOnSuccess =
+            (response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger, locks) =>
+            {
+                StartCoroutine(FadeOutFadeInThenInvoke(DayDialogueFadeDuration, () =>
+                    onSuccess?.Invoke(response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger, locks)));
+            };
+        Action<string> wrappedOnError = (err) =>
+        {
+            StartCoroutine(FadeOutFadeInThenInvoke(DayDialogueFadeDuration, () => onError?.Invoke(err)));
+        };
+
+        yield return gameStepApiClient.SendMessageCoroutine(chatInput, npcName, itemName, wrappedOnSuccess, wrappedOnError);
+    }
+
+    private IEnumerator FadeOutFadeInThenInvoke(float duration, Action callback)
+    {
+        SceneFadeManager fadeManager = FindFirstObjectByType<SceneFadeManager>();
+        if (fadeManager != null)
+        {
+            yield return fadeManager.StartCoroutine(fadeManager.FadeOutRoutine(duration));
+            yield return fadeManager.StartCoroutine(fadeManager.FadeInRoutine(duration));
+        }
+        callback?.Invoke();
     }
 }

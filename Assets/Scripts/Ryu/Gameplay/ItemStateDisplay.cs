@@ -87,9 +87,13 @@ public class ItemStateDisplay : MonoBehaviour
                 return "SleepingPills";
             case "earlgreytea":
             case "earl_grey_tea":
+            case "blacktea":
+            case "black_tea":
                 return "EarlGreyTea";
             case "realfamilyphoto":
             case "real_family_photo":
+            case "familyphoto":
+            case "family_photo":
                 return "RealFamilyPhoto";
             case "whaleoilcan":
             case "whale_oil_can":
@@ -98,12 +102,8 @@ public class ItemStateDisplay : MonoBehaviour
                 return "WhaleOilCan";
             case "silverlighter":
             case "silver_lighter":
+            case "lighter":
                 return "SilverLighter";
-            case "oldrobottoy":
-            case "old_robot_toy":
-            case "siblingstoy":
-            case "siblings_toy":
-                return "OldRobotToy";
             case "brasskey":
             case "brass_key":
                 return "BrassKey";
@@ -152,6 +152,16 @@ public class ItemStateDisplay : MonoBehaviour
             itemLocation = GameLocation.Hallway;
             locationDetails = "사용됨";
         }
+        else if (itemState == ItemState.Hidden)
+        {
+            itemLocation = GameLocation.Hallway;
+            locationDetails = "숨김";
+        }
+
+        // Hidden: 씬에 비표시. InWorld일 때만 월드 오브젝트 표시 (획득/사용 후엔 월드에 없음)
+        bool visibleInWorld = (itemState == ItemState.InWorld);
+        if (gameObject.activeSelf != visibleInWorld)
+            gameObject.SetActive(visibleInWorld);
     }
 
     /// <summary>

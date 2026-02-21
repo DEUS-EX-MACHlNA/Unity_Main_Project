@@ -24,7 +24,14 @@ public class NPCStateDisplay : MonoBehaviour
     [Tooltip("상태 업데이트 간격 (초)")]
     [SerializeField] private float updateInterval = 0.5f;
 
+    [Header("무력화 시 씬 표시")]
+    [Tooltip("isDisabled가 true일 때 씬에서 보이지 않게 할지 여부")]
+    [SerializeField] private bool hideInSceneWhenDisabled = true;
+
     private float lastUpdateTime = 0f;
+    private Renderer[] cachedRenderers;
+    private Collider[] cachedColliders;
+    private bool lastAppliedVisible = true;
 
     private void Start()
     {
@@ -38,7 +45,14 @@ public class NPCStateDisplay : MonoBehaviour
             }
         }
 
+        CacheRenderersAndColliders();
         UpdateState();
+    }
+
+    private void CacheRenderersAndColliders()
+    {
+        cachedRenderers = GetComponentsInChildren<Renderer>(true);
+        cachedColliders = GetComponentsInChildren<Collider>(true);
     }
 
     private void Update()
@@ -103,6 +117,40 @@ public class NPCStateDisplay : MonoBehaviour
 
         // NPC 위치 조회
         currentLocation = GameStateManager.Instance.GetNPCLocation(npcType);
+
+        // 무력화 시 씬에서 보이지 않게 처리
+        if (hideInSceneWhenDisabled)
+        {
+            bool shouldBeVisible = !isDisabled;
+            if (lastAppliedVisible != shouldBeVisible)
+            {
+                ApplyVisibility(shouldBeVisible);
+                lastAppliedVisible = shouldBeVisible;
+            }
+        }
+    }
+
+    /// <summary>
+    /// NPC의 씬 표시 여부를 적용합니다. isDisabled일 때 숨기기 위해 사용합니다.
+    /// </summary>
+    private void ApplyVisibility(bool visible)
+    {
+        if (cachedRenderers != null)
+        {
+            for (int i = 0; i < cachedRenderers.Length; i++)
+            {
+                if (cachedRenderers[i] != null)
+                    cachedRenderers[i].enabled = visible;
+            }
+        }
+        if (cachedColliders != null)
+        {
+            for (int i = 0; i < cachedColliders.Length; i++)
+            {
+                if (cachedColliders[i] != null)
+                    cachedColliders[i].enabled = visible;
+            }
+        }
     }
 
     /// <summary>

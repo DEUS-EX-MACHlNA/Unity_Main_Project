@@ -29,21 +29,15 @@ public class ItemStateManager
     /// </summary>
     private void InitializeWorldItemStates()
     {
-        // 수면제 - 주방 찬장
+        // 수면제 (Sleeping_pills) - none
         worldItemStates[ItemType.SleepingPills] = new WorldItemState
         {
             itemType = ItemType.SleepingPills,
             state = ItemState.InWorld,
-            location = new ItemLocation
-            {
-                location = GameLocation.Kitchen,
-                sceneName = "Tutorial",
-                locationId = "Kitchen_Cabinet"
-            },
-            isRespawnable = false
+            location = null
         };
-        
-        // 홍차 - 주방 식탁 (매일 리스폰)
+
+        // 홍차 (Black_tea) - kitchen
         worldItemStates[ItemType.EarlGreyTea] = new WorldItemState
         {
             itemType = ItemType.EarlGreyTea,
@@ -53,25 +47,23 @@ public class ItemStateManager
                 location = GameLocation.Kitchen,
                 sceneName = "Tutorial",
                 locationId = "Kitchen_Table"
-            },
-            isRespawnable = true
+            }
         };
-        
-        // 진짜 가족 사진 - 뒷마당 개집 근처
+
+        // 진짜 가족 사진 (Family_photo) - Backyard, 기본 Hidden (백엔드에서 InWorld로 변경할 때까지 비표시)
         worldItemStates[ItemType.RealFamilyPhoto] = new WorldItemState
         {
             itemType = ItemType.RealFamilyPhoto,
-            state = ItemState.InWorld,
+            state = ItemState.Hidden,
             location = new ItemLocation
             {
                 location = GameLocation.Backyard,
                 sceneName = "Tutorial",
                 locationId = "Backyard_DogHouse"
-            },
-            isRespawnable = false
+            }
         };
-        
-        // 고래기름 통 - 지하실 수술대 아래
+
+        // 기름병 (Oil_bottle) - Basement
         worldItemStates[ItemType.WhaleOilCan] = new WorldItemState
         {
             itemType = ItemType.WhaleOilCan,
@@ -81,11 +73,10 @@ public class ItemStateManager
                 location = GameLocation.Basement,
                 sceneName = "Tutorial",
                 locationId = "Basement_SurgeryTable"
-            },
-            isRespawnable = false
+            }
         };
-        
-        // 은색 라이터 - 거실 소파 틈새
+
+        // 라이터 (Lighter) - LivingRoom
         worldItemStates[ItemType.SilverLighter] = new WorldItemState
         {
             itemType = ItemType.SilverLighter,
@@ -95,36 +86,15 @@ public class ItemStateManager
                 location = GameLocation.LivingRoom,
                 sceneName = "Tutorial",
                 locationId = "LivingRoom_Sofa"
-            },
-            isRespawnable = false
+            }
         };
-        
-        // 동생의 장난감 - 동생의 방 인형의 집 모형
-        worldItemStates[ItemType.OldRobotToy] = new WorldItemState
-        {
-            itemType = ItemType.OldRobotToy,
-            state = ItemState.InWorld,
-            location = new ItemLocation
-            {
-                location = GameLocation.SiblingsRoom,
-                sceneName = "Tutorial",
-                locationId = "SiblingsRoom_DollHouse"
-            },
-            isRespawnable = false
-        };
-        
-        // 황동 열쇠 - 새엄마 목걸이 (항상 소지)
+
+        // 황동 열쇠 (BrassKey) - none
         worldItemStates[ItemType.BrassKey] = new WorldItemState
         {
             itemType = ItemType.BrassKey,
             state = ItemState.InWorld,
-            location = new ItemLocation
-            {
-                location = GameLocation.Kitchen,
-                sceneName = "Tutorial",
-                locationId = "NewMother_Necklace"
-            },
-            isRespawnable = false
+            location = null
         };
     }
 
@@ -169,26 +139,10 @@ public class ItemStateManager
     }
 
     /// <summary>
-    /// 매일 리스폰되는 아이템을 처리합니다.
+    /// 매일 리스폰되는 아이템을 처리합니다. (isRespawnable 제거로 현재는 no-op)
     /// </summary>
     public void RespawnDailyItems(int currentDay)
     {
-        foreach (var kvp in worldItemStates)
-        {
-            WorldItemState itemState = kvp.Value;
-            
-            // 리스폰 가능하고 인벤토리에 없거나 사용된 경우 리스폰
-            if (itemState.isRespawnable && 
-                (itemState.state == ItemState.Used || 
-                 (!inventoryManager.HasItem(kvp.Key) && itemState.state != ItemState.InWorld)))
-            {
-                itemState.state = ItemState.InWorld;
-                worldItemStates[kvp.Key] = itemState;
-                
-                OnItemStateChanged?.Invoke(kvp.Key, itemState);
-                Debug.Log($"[ItemStateManager] 아이템 리스폰: {kvp.Key}");
-            }
-        }
     }
 
     /// <summary>

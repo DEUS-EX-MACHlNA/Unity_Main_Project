@@ -46,7 +46,6 @@ public class CreateItemVariants : EditorWindow
             "Item_Hole", 
             "Item_OilBottle", 
             "Item_RealFamilyPhoto", 
-            "Item_SiblingsToy", 
             "Item_SilverLighter", 
             "Item_SleepingPill" 
         };
@@ -57,7 +56,6 @@ public class CreateItemVariants : EditorWindow
             "Hole", 
             "OilBottle", 
             "RealFamilyPhoto", 
-            "SiblingsToy", 
             "SilverLighter", 
             "SleepingPill" 
         };

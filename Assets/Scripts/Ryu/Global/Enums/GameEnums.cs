@@ -24,8 +24,7 @@ public enum ItemType
     EarlGreyTea,       // 홍차 - earl_grey_tea
     RealFamilyPhoto,   // 훼손된 가족 사진 (진짜 가족 사진) - real_family_photo
     WhaleOilCan,       // 고래기름 통 (기름병) - oil_bottle (문서 기준)
-    SilverLighter,     // 은색 지포 라이터 - silver_lighter
-    OldRobotToy,       // 낡은 태엽 로봇 (동생의 장난감) - siblings_toy (문서 기준)
+    SilverLighter,     // 은색 지포 라이터 - lighter
     BrassKey           // 황동 열쇠 (마스터 키) - brass_key
 }
 
@@ -36,7 +35,8 @@ public enum ItemState
 {
     InWorld,        // 월드에 존재 (획득 가능)
     InInventory,    // 인벤토리에 있음
-    Used            // 사용됨 (소모품)
+    Used,           // 사용됨 (소모품)
+    Hidden          // 숨김
 }
 
 /// <summary>

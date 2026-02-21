@@ -9,15 +9,16 @@ public static class NameMapper
     // 아이템 이름 매핑 (문서 기준: BackendResponseSpec.md)
     private static Dictionary<string, ItemType> itemNameMapping = new Dictionary<string, ItemType>
     {
-        { "sleeping_pill", ItemType.SleepingPills },      // 문서: 단수형
-        { "sleeping_pills", ItemType.SleepingPills },     // 하위 호환성 유지
+        { "sleeping_pill", ItemType.SleepingPills },
+        { "sleeping_pills", ItemType.SleepingPills },
+        { "black_tea", ItemType.EarlGreyTea },
         { "earl_grey_tea", ItemType.EarlGreyTea },
+        { "family_photo", ItemType.RealFamilyPhoto },
         { "real_family_photo", ItemType.RealFamilyPhoto },
-        { "oil_bottle", ItemType.WhaleOilCan },           // 문서: oil_bottle
-        { "whale_oil_can", ItemType.WhaleOilCan },        // 하위 호환성 유지
+        { "oil_bottle", ItemType.WhaleOilCan },
+        { "whale_oil_can", ItemType.WhaleOilCan },
+        { "lighter", ItemType.SilverLighter },
         { "silver_lighter", ItemType.SilverLighter },
-        { "siblings_toy", ItemType.OldRobotToy },        // 문서: siblings_toy
-        { "old_robot_toy", ItemType.OldRobotToy },       // 하위 호환성 유지
         { "brass_key", ItemType.BrassKey }
     };
 
@@ -50,7 +51,8 @@ public static class NameMapper
     {
         { "in_world", ItemState.InWorld },
         { "in_inventory", ItemState.InInventory },
-        { "used", ItemState.Used }
+        { "used", ItemState.Used },
+        { "hidden", ItemState.Hidden }
     };
 
     /// <summary>

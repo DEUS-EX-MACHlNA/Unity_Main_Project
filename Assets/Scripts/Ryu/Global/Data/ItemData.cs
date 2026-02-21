@@ -20,6 +20,5 @@ public class WorldItemState
     public ItemType itemType;
     public ItemState state;
     public ItemLocation location;   // null이면 여러 위치 가능 또는 위치 불명
-    public bool isRespawnable;     // 매일 리스폰 여부 (홍차 등)
 }
 

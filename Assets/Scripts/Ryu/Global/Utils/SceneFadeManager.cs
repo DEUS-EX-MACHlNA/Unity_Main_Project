@@ -135,6 +135,22 @@ public class SceneFadeManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 페이드 아웃 코루틴 (외부에서 호출용). 낮 대화 전송 등 요청 중 화면 전환에 사용.
+    /// </summary>
+    public IEnumerator FadeOutRoutine(float duration)
+    {
+        yield return StartCoroutine(FadeOut(duration));
+    }
+
+    /// <summary>
+    /// 페이드 인 코루틴 (외부에서 호출용).
+    /// </summary>
+    public IEnumerator FadeInRoutine(float duration)
+    {
+        yield return StartCoroutine(FadeIn(duration));
+    }
+
+    /// <summary>
     /// 페이드 아웃 효과 (투명 → 검은색)
     /// RGB는 항상 검은색(0,0,0)으로 강제 설정하여 노란색 문제 해결
     /// </summary>
