@@ -1108,7 +1108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aa74c7d3b40ab349b1c822c7b351935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCStateDisplay
-  npcType: 0
+  npcType: 3
   affection: 0
   npcHumanity: 0
   isAvailable: 0
@@ -1118,6 +1118,8 @@ MonoBehaviour:
   currentLocation: 1
   autoUpdate: 1
   updateInterval: 0.5
+  hideInSceneWhenDisabled: 1
+  applyLocation: 1
 --- !u!1 &1717248401 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6913316113488718014, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}

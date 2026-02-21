@@ -58,6 +58,10 @@ public class RoomTurnManager : MonoBehaviour
             UpdateTurnsDisplay();
             Debug.Log($"[RoomTurnManager] 턴 소모. 남은 턴수: {remainingTurns}");
 
+            // 턴이 지날 때마다 NPC 무력화 남은 턴 차감 및 0이면 해제
+            if (GameStateManager.Instance != null)
+                GameStateManager.Instance.UpdateNPCDisabledStates();
+
             // 턴수가 0이 되면 Night 씬으로 전환
             if (remainingTurns == 0)
             {

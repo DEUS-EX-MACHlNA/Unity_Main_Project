@@ -9,8 +9,10 @@ public class ItemStateDisplay : MonoBehaviour
     [Tooltip("아이템 타입 (자동 감지 또는 수동 설정)")]
     [SerializeField] private ItemType itemType = ItemType.None;
 
-    [Header("현재 상태 (읽기 전용)")]
+    [Header("현재 상태")]
+    [Tooltip("인벤토리 개수 (표시용). 플레이 중 GameStateManager에서 갱신됩니다.")]
     [SerializeField] private int inventoryCount = 0;
+    [Tooltip("아이템 상태. 플레이 중 Inspector에서 변경하면 GameStateManager에 즉시 반영되고, 씬 표시도 갱신됩니다.")]
     [SerializeField] private ItemState itemState = ItemState.InWorld;
     [SerializeField] private GameLocation itemLocation = GameLocation.Hallway;
     [SerializeField] private string locationDetails = "";
@@ -22,6 +24,17 @@ public class ItemStateDisplay : MonoBehaviour
     [SerializeField] private float updateInterval = 0.5f;
 
     private float lastUpdateTime = 0f;
+
+    /// <summary>
+    /// Inspector에서 값이 변경되면 호출됩니다. 플레이 중 itemState를 수정하면 GameStateManager에 반영합니다.
+    /// </summary>
+    private void OnValidate()
+    {
+        if (!UnityEngine.Application.isPlaying || GameStateManager.Instance == null || itemType == ItemType.None)
+            return;
+        GameStateManager.Instance.SetItemState(itemType, itemState);
+        UpdateState();
+    }
 
     private void Start()
     {

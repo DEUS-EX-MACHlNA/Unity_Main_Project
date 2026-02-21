@@ -116,11 +116,11 @@ public class ApiClient : MonoBehaviour
     public Coroutine SendMessage(string chatInput, Action<string, float> onSuccess, Action<string> onError)
     {
         // 하위 호환성을 위해 기존 시그니처 유지
-        // Action<string, float>를 9개 매개변수를 받는 Action으로 래핑
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> wrappedOnSuccess = null;
+        // Action<string, float>를 8개 매개변수를 받는 Action으로 래핑
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> wrappedOnSuccess = null;
         if (onSuccess != null)
         {
-            wrappedOnSuccess = (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger, locks) =>
+            wrappedOnSuccess = (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger) =>
             {
                 onSuccess(response, humanityChange);
             };
@@ -133,11 +133,11 @@ public class ApiClient : MonoBehaviour
     /// 3초 타임아웃 시 목업 데이터를 반환합니다.
     /// </summary>
     /// <param name="chatInput">사용자 입력 텍스트</param>
-    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger, locks)</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger)</param>
     /// <param name="onError">에러 콜백</param>
     public Coroutine SendMessage(
         string chatInput,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
         return SendMessage(chatInput, null, null, onSuccess, onError);
@@ -150,7 +150,7 @@ public class ApiClient : MonoBehaviour
     /// <param name="chatInput">사용자 입력 텍스트</param>
     /// <param name="npcName">NPC 이름 (선택적)</param>
     /// <param name="itemName">아이템 이름 (선택적)</param>
-    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger, locks)</param>
+    /// <param name="onSuccess">성공 콜백 (response, humanityChange, npcAffectionChanges, npcHumanityChanges, npcDisabledStates, itemChanges, eventFlags, endingTrigger)</param>
     /// <param name="onError">에러 콜백</param>
     /// <summary>
     /// 낮 대화 응답 수신 시 페이드 아웃/인 지속 시간 (초)
@@ -161,7 +161,7 @@ public class ApiClient : MonoBehaviour
         string chatInput,
         string npcName,
         string itemName,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
         if (gameStepApiClient == null)
@@ -175,15 +175,15 @@ public class ApiClient : MonoBehaviour
         string chatInput,
         string npcName,
         string itemName,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
         // 백엔드 요청 (응답 수신 시 페이드 아웃 → 페이드 인 후 콜백 호출)
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> wrappedOnSuccess =
-            (response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger, locks) =>
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> wrappedOnSuccess =
+            (response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger) =>
             {
                 StartCoroutine(FadeOutFadeInThenInvoke(DayDialogueFadeDuration, () =>
-                    onSuccess?.Invoke(response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger, locks)));
+                    onSuccess?.Invoke(response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger)));
             };
         Action<string> wrappedOnError = (err) =>
         {

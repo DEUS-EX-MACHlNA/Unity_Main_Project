@@ -32,8 +32,7 @@ public class BackendResponseConverter
         out NPCDisabledStates disabledStates,
         out ItemChanges itemChanges,
         out EventFlags eventFlags,
-        out string endingTrigger,
-        out Dictionary<string, bool> locks)
+        out string endingTrigger)
     {
         // 1. narrative → response
         response = !string.IsNullOrEmpty(backendResponse.narrative)
@@ -55,7 +54,6 @@ public class BackendResponseConverter
             disabledStates = new NPCDisabledStates();
             itemChanges = new ItemChanges();
             eventFlags = null;
-            locks = null;
             return;
         }
 
@@ -294,14 +292,6 @@ public class BackendResponseConverter
                         break;
                 }
             }
-        }
-
-        // 9. locks 처리
-        locks = null;
-        if (stateResult.locks != null && stateResult.locks.Count > 0)
-        {
-            locks = new Dictionary<string, bool>(stateResult.locks);
-            Debug.Log($"[BackendResponseConverter] 잠금 상태 변경: {JsonConvert.SerializeObject(locks)}");
         }
     }
 }

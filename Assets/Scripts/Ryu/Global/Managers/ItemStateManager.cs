@@ -45,7 +45,6 @@ public class ItemStateManager
             location = new ItemLocation
             {
                 location = GameLocation.Kitchen,
-                sceneName = "Tutorial",
                 locationId = "Kitchen_Table"
             }
         };
@@ -58,7 +57,6 @@ public class ItemStateManager
             location = new ItemLocation
             {
                 location = GameLocation.Backyard,
-                sceneName = "Tutorial",
                 locationId = "Backyard_DogHouse"
             }
         };
@@ -71,7 +69,6 @@ public class ItemStateManager
             location = new ItemLocation
             {
                 location = GameLocation.Basement,
-                sceneName = "Tutorial",
                 locationId = "Basement_SurgeryTable"
             }
         };
@@ -84,7 +81,6 @@ public class ItemStateManager
             location = new ItemLocation
             {
                 location = GameLocation.LivingRoom,
-                sceneName = "Tutorial",
                 locationId = "LivingRoom_Sofa"
             }
         };

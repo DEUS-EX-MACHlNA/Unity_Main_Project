@@ -223,6 +223,29 @@ public class NPCManager
     }
 
     /// <summary>
+    /// NPC 무력화 상태를 즉시 해제합니다. (에디터/테스트용)
+    /// </summary>
+    public void ClearNPCDisabled(NPCType npc)
+    {
+        if (!npcStatuses.ContainsKey(npc))
+        {
+            Debug.LogWarning($"[NPCManager] NPC 상태를 찾을 수 없습니다: {npc}");
+            return;
+        }
+
+        NPCStatus status = npcStatuses[npc];
+        if (!status.isDisabled)
+            return;
+
+        status.isDisabled = false;
+        status.disabledRemainingTurns = 0;
+        status.disabledReason = "";
+        status.isAvailable = true;
+        OnNPCStatusChanged?.Invoke(npc, status);
+        Debug.Log($"[NPCManager] {npc} 무력화 해제 (수동)");
+    }
+
+    /// <summary>
     /// 턴 경과에 따라 NPC 무력화 상태를 업데이트합니다.
     /// </summary>
     public void UpdateNPCDisabledStates()
@@ -237,9 +260,10 @@ public class NPCManager
                 if (status.disabledRemainingTurns <= 0)
                 {
                     status.isDisabled = false;
-                    status.isAvailable = true;
+                    status.disabledRemainingTurns = 0;
                     status.disabledReason = "";
-                    Debug.Log($"[NPCManager] {kvp.Key} 무력화 해제");
+                    status.isAvailable = true;
+                    Debug.Log($"[NPCManager] {kvp.Key} 무력화 해제 (남은 턴 0)");
                 }
                 
                 OnNPCStatusChanged?.Invoke(kvp.Key, status);

@@ -210,14 +210,6 @@ public class BackendStateDelta
     public Dictionary<string, NPCDisabledState> npc_disabled_states;
     
     /// <summary>
-    /// 잠금 상태 (문, 상자 등)
-    /// Key: 잠금 이름 (예: "basement_door", "siblings_room_door")
-    /// Value: 잠금 여부 (true = 잠금, false = 해제)
-    /// </summary>
-    [JsonProperty("locks")]
-    public Dictionary<string, bool> locks;
-    
-    /// <summary>
     /// 플레이어 인간성 현재 값 (스펙 문서 기준)
     /// 0~100 범위의 값
     /// </summary>

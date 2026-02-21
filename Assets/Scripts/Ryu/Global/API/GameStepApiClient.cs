@@ -53,7 +53,7 @@ public class GameStepApiClient
         string chatInput,
         string npcName,
         string itemName,
-        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
         int gameId = getGameId();
@@ -86,8 +86,8 @@ public class GameStepApiClient
             {
                 Debug.LogWarning($"[GameStepApiClient] 요청 실패 또는 타임아웃: {request.error}");
                 Debug.Log($"[GameStepApiClient] 목업 데이터를 반환합니다.");
-                // 타임아웃 시 목업 데이터 반환 (NPC 변화량은 모두 0, 무력화 상태는 null, 아이템 변화량은 빈 인스턴스, 이벤트 플래그와 엔딩 트리거는 null, locks는 null)
-                onSuccess?.Invoke(mockResponse, 0f, new NPCAffectionChanges(), new NPCHumanityChanges(), null, new ItemChanges(), null, null, null);
+                // 타임아웃 시 목업 데이터 반환 (NPC 변화량은 모두 0, 무력화 상태는 null, 아이템 변화량은 빈 인스턴스, 이벤트 플래그와 엔딩 트리거는 null)
+                onSuccess?.Invoke(mockResponse, 0f, new NPCAffectionChanges(), new NPCHumanityChanges(), null, new ItemChanges(), null, null);
                 yield break;
             }
 
@@ -115,11 +115,10 @@ public class GameStepApiClient
                     out NPCDisabledStates disabledStates,
                     out ItemChanges itemChanges,
                     out EventFlags eventFlags,
-                    out string endingTrigger,
-                    out Dictionary<string, bool> locks
+                    out string endingTrigger
                 );
 
-                onSuccess?.Invoke(response, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks);
+                onSuccess?.Invoke(response, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger);
             }
             catch (JsonException e)
             {

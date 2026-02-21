@@ -181,7 +181,7 @@ public class NightDialogueManager : MonoBehaviour
 
         isApiRequestInProgress = true;
         apiRequestCoroutine = StartCoroutine(apiClient.RequestNightDialogueCoroutine(
-            onSuccess: (backendDialogues, narrative, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks) =>
+            onSuccess: (backendDialogues, narrative, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger) =>
             {
                 isApiRequestInProgress = false;
                 
@@ -206,7 +206,7 @@ public class NightDialogueManager : MonoBehaviour
                 }
 
                 // 상태 변화 적용
-                ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks);
+                ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger);
 
                 // 첫 번째 대화 표시
                 if (dialogues != null && dialogues.Length > 0)
@@ -237,8 +237,7 @@ public class NightDialogueManager : MonoBehaviour
         NPCDisabledStates disabledStates,
         ItemChanges itemChanges,
         EventFlags eventFlags,
-        string endingTrigger,
-        System.Collections.Generic.Dictionary<string, bool> locks)
+        string endingTrigger)
     {
         GameStateManager manager = GameStateManager.Instance;
         if (manager == null)
@@ -281,12 +280,6 @@ public class NightDialogueManager : MonoBehaviour
         if (eventFlags != null)
         {
             EventFlagApplier.ApplyEventFlags(manager, eventFlags);
-        }
-
-        // 잠금 상태 적용
-        if (locks != null && locks.Count > 0)
-        {
-            GameStateApplier.ApplyLocks(manager, locks);
         }
 
         // 엔딩 트리거 처리
@@ -542,12 +535,11 @@ public class NightDialogueManager : MonoBehaviour
             out NPCDisabledStates disabledStates,
             out ItemChanges itemChanges,
             out EventFlags eventFlags,
-            out string endingTrigger,
-            out Dictionary<string, bool> locks
+            out string endingTrigger
         );
 
         // 상태 변화 적용
-        ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks);
+        ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger);
 
         Debug.Log($"[NightDialogueManager] 테스트 대화 상태 적용 완료: {narrative}");
 

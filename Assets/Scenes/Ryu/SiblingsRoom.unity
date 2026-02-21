@@ -751,6 +751,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: NPC_Sibling
       objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 5.52
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 5.52
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3989481832249327010, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6089366029667166480, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
       propertyPath: m_Size.x
       value: 5.52
@@ -818,8 +846,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3368319871232933201, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1528146929}
   m_SourcePrefab: {fileID: 100100000, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+--- !u!1 &1528146928 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3368319871232933201, guid: 0c56cc25b9692eb4cb722c3c7dbe6848, type: 3}
+  m_PrefabInstance: {fileID: 1528146927}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1528146929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528146928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa74c7d3b40ab349b1c822c7b351935, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCStateDisplay
+  npcType: 2
+  affection: 0
+  npcHumanity: 0
+  isAvailable: 0
+  isDisabled: 0
+  disabledRemainingTurns: 0
+  disabledReason: 
+  currentLocation: 1
+  autoUpdate: 1
+  updateInterval: 0.5
+  hideInSceneWhenDisabled: 1
+  applyLocation: 1
 --- !u!1 &1674523138
 GameObject:
   m_ObjectHideFlags: 0

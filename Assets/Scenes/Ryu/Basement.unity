@@ -978,7 +978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae5246f193b3b7e4bbceb33a5dc510d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemStateDisplay
-  itemType: 0
+  itemType: 4
   inventoryCount: 0
   itemState: 0
   itemLocation: 1
@@ -1179,7 +1179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aa74c7d3b40ab349b1c822c7b351935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCStateDisplay
-  npcType: 0
+  npcType: 4
   affection: 0
   npcHumanity: 0
   isAvailable: 0
@@ -1189,6 +1189,8 @@ MonoBehaviour:
   currentLocation: 1
   autoUpdate: 1
   updateInterval: 0.5
+  hideInSceneWhenDisabled: 1
+  applyLocation: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

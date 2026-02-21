@@ -7,7 +7,6 @@ using System;
 public class ItemLocation
 {
     public GameLocation location;   // 게임 구역
-    public string sceneName;       // 씬 이름
     public string locationId;      // 구체적 위치 식별자 (예: "Hallway_PhotoFrame", "Garden_DogHouse")
 }
 

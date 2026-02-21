@@ -9,13 +9,20 @@ public class NPCStateDisplay : MonoBehaviour
     [Tooltip("NPC 타입 (자동 감지 또는 수동 설정)")]
     [SerializeField] private NPCType npcType;
 
-    [Header("현재 상태 (읽기 전용)")]
+    [Header("현재 상태 (플레이 중 편집 시 GameStateManager에 즉시 반영)")]
+    [Tooltip("호감도. 플레이 중 값 변경 시 즉시 반영됩니다.")]
     [SerializeField] private float affection = 0f;
+    [Tooltip("NPC 인간성. 플레이 중 값 변경 시 즉시 반영됩니다.")]
     [SerializeField] private float npcHumanity = 0f;
+    [Tooltip("대화 가능 여부 (무력화 해제 시 true로 갱신됨).")]
     [SerializeField] private bool isAvailable = false;
+    [Tooltip("무력화 여부. true로 바꾸면 disabledRemainingTurns/disabledReason이 적용됩니다.")]
     [SerializeField] private bool isDisabled = false;
+    [Tooltip("무력화 시 남은 턴 수. isDisabled가 true일 때 적용됩니다.")]
     [SerializeField] private int disabledRemainingTurns = 0;
+    [Tooltip("무력화 사유. isDisabled가 true일 때 적용됩니다.")]
     [SerializeField] private string disabledReason = "";
+    [Tooltip("현재 위치. 플레이 중 값 변경 시 즉시 반영됩니다.")]
     [SerializeField] private GameLocation currentLocation = GameLocation.Hallway;
 
     [Header("상태 업데이트")]
@@ -28,10 +35,48 @@ public class NPCStateDisplay : MonoBehaviour
     [Tooltip("isDisabled가 true일 때 씬에서 보이지 않게 할지 여부")]
     [SerializeField] private bool hideInSceneWhenDisabled = true;
 
+    [Header("Inspector에서 상태 적용 (테스트용)")]
+    [Tooltip("'위치 적용' 시 이 위치로 설정됩니다")]
+    [SerializeField] private GameLocation applyLocation = GameLocation.Hallway;
+
     private float lastUpdateTime = 0f;
     private Renderer[] cachedRenderers;
     private Collider[] cachedColliders;
     private bool lastAppliedVisible = true;
+
+    /// <summary>
+    /// Inspector에서 값이 변경되면 호출됩니다. 플레이 중 상태 필드를 수정하면 GameStateManager에 반영합니다.
+    /// </summary>
+    private void OnValidate()
+    {
+        if (!Application.isPlaying || GameStateManager.Instance == null || npcType == 0)
+            return;
+
+        var gsm = GameStateManager.Instance;
+
+        // 호감도: 목표값과의 차이로 반영
+        float currentAffection = gsm.GetAffection(npcType);
+        float affectionDelta = affection - currentAffection;
+        if (Mathf.Abs(affectionDelta) > 0.001f)
+            gsm.ModifyAffection(npcType, affectionDelta);
+
+        // NPC 인간성: 목표값과의 차이로 반영 (새엄마는 NPCManager에서 변경 불가 처리됨)
+        float currentHumanity = gsm.GetNPCHumanity(npcType);
+        float humanityDelta = npcHumanity - currentHumanity;
+        if (Mathf.Abs(humanityDelta) > 0.001f)
+            gsm.ModifyNPCHumanity(npcType, humanityDelta);
+
+        // 무력화: isDisabled에 따라 설정/해제
+        if (isDisabled)
+            gsm.SetNPCDisabled(npcType, Mathf.Max(0, disabledRemainingTurns), string.IsNullOrEmpty(disabledReason) ? "Inspector" : disabledReason);
+        else
+            gsm.ClearNPCDisabled(npcType);
+
+        // 위치
+        gsm.SetNPCLocation(npcType, currentLocation);
+
+        UpdateState();
+    }
 
     private void Start()
     {
@@ -160,6 +205,80 @@ public class NPCStateDisplay : MonoBehaviour
     public void ManualUpdate()
     {
         UpdateState();
+    }
+
+    // ========== Inspector에서 상태 적용 (컴포넌트 우클릭 Context Menu) ==========
+
+    [ContextMenu("상태 적용: 무력화 (3턴)")]
+    private void ApplyDisabled3Turns()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.SetNPCDisabled(npcType, 3, "Inspector 테스트");
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 무력화 해제")]
+    private void ApplyClearDisabled()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.ClearNPCDisabled(npcType);
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 호감도 +10")]
+    private void ApplyAffectionPlus10()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.ModifyAffection(npcType, 10f);
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 호감도 -10")]
+    private void ApplyAffectionMinus10()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.ModifyAffection(npcType, -10f);
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 인간성 +10")]
+    private void ApplyHumanityPlus10()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.ModifyNPCHumanity(npcType, 10f);
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 인간성 -10")]
+    private void ApplyHumanityMinus10()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.ModifyNPCHumanity(npcType, -10f);
+        UpdateState();
+    }
+
+    [ContextMenu("상태 적용: 위치 설정")]
+    private void ApplyLocation()
+    {
+        if (!TryGetGameStateManager(out var gsm)) return;
+        gsm.SetNPCLocation(npcType, applyLocation);
+        UpdateState();
+    }
+
+    private bool TryGetGameStateManager(out GameStateManager gsm)
+    {
+        gsm = GameStateManager.Instance;
+        if (gsm == null)
+        {
+            Debug.LogWarning("[NPCStateDisplay] GameStateManager.Instance가 없습니다. 플레이 모드에서 실행해주세요.");
+            return false;
+        }
+        if (npcType == 0)
+        {
+            Debug.LogWarning("[NPCStateDisplay] NPC 타입을 설정해주세요.");
+            return false;
+        }
+        return true;
     }
 }
 

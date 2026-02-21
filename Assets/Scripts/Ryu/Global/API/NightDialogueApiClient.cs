@@ -63,10 +63,10 @@ public class NightDialogueApiClient
     /// <summary>
     /// 밤의 대화를 요청하는 코루틴을 반환합니다.
     /// </summary>
-    /// <param name="onSuccess">성공 콜백 (dialogues, response, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger, locks)</param>
+    /// <param name="onSuccess">성공 콜백 (dialogues, response, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger)</param>
     /// <param name="onError">에러 콜백</param>
     public IEnumerator RequestNightDialogueCoroutine(
-        Action<BackendDialogueLine[], string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string, Dictionary<string, bool>> onSuccess,
+        Action<BackendDialogueLine[], string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
         int gameId = getGameId();
@@ -123,8 +123,7 @@ public class NightDialogueApiClient
                     out NPCDisabledStates disabledStates,
                     out ItemChanges itemChanges,
                     out EventFlags eventFlags,
-                    out string endingTrigger,
-                    out Dictionary<string, bool> locks
+                    out string endingTrigger
                 );
                 
                 // dialogues 배열과 변환된 데이터를 콜백에 전달
@@ -137,8 +136,7 @@ public class NightDialogueApiClient
                     disabledStates,
                     itemChanges,
                     eventFlags,
-                    endingTrigger,
-                    locks
+                    endingTrigger
                 );
             }
             catch (JsonException e)

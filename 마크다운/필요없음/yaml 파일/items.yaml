@@ -44,65 +44,65 @@ items:
           success_message: "달콤한 홍차를 마셨다. 머릿속이 살짝 흐릿해지는 기분이다."
           failure_message: "지금은 차를 마실 상황이 아니다."
 
-  - item_id: dried_herbs
-    name: "말린 허브 뭉치"
-    type: "consumable"
-    description: "강한 향을 내는 약초 뭉치. 정신을 맑게 해주는 효능이 있다."
-    acquire:
-      method: "manual"
-      condition: "vars.day >= 2"
-      location: "basement"
-      success_message: "지하실 선반 뒤에서 말린 허브 뭉치를 찾았다. 향을 맡으면 정신이 맑아질 것 같다."
-      failure_message: "아직 지하실에서 쓸 만한 것을 찾을 수 없다. 며칠 더 지나봐야 할 것 같다."
-    use:
-      actions:
-        - action_id: inhale_scent
-          label: "향기 들이마시기"
-          allowed_when: "vars.humanity < 100"
-          effects:
-            - { type: var_add, key: "vars.humanity", value: 5 }
-          success_message: "허브 향을 깊이 들이마시자 흐릿하던 시야가 조금 맑아졌다."
-          failure_message: "이미 정신이 충분히 맑다. 지금은 필요 없을 것 같다."
+  # - item_id: dried_herbs
+  #   name: "말린 허브 뭉치"
+  #   type: "consumable"
+  #   description: "강한 향을 내는 약초 뭉치. 정신을 맑게 해주는 효능이 있다."
+  #   acquire:
+  #     method: "manual"
+  #     condition: "vars.day >= 2"
+  #     location: "basement"
+  #     success_message: "지하실 선반 뒤에서 말린 허브 뭉치를 찾았다. 향을 맡으면 정신이 맑아질 것 같다."
+  #     failure_message: "아직 지하실에서 쓸 만한 것을 찾을 수 없다. 며칠 더 지나봐야 할 것 같다."
+  #   use:
+  #     actions:
+  #       - action_id: inhale_scent
+  #         label: "향기 들이마시기"
+  #         allowed_when: "vars.humanity < 100"
+  #         effects:
+  #           - { type: var_add, key: "vars.humanity", value: 5 }
+  #         success_message: "허브 향을 깊이 들이마시자 흐릿하던 시야가 조금 맑아졌다."
+  #         failure_message: "이미 정신이 충분히 맑다. 지금은 필요 없을 것 같다."
 
-  - item_id: dog_treat
-    name: "강아지 간식"
-    type: "gift"
-    description: "바론이 가장 좋아하는 육포. 주방 찬장에 숨겨져 있었다."
-    acquire:
-      method: "manual"
-      condition: "true"
-      location: "kitchen"
-      success_message: "주방 찬장 깊숙이 숨겨진 강아지 간식을 발견했다. 바론에게 주면 좋아할 것이다."
-      failure_message: "찬장을 뒤져봤지만 아무것도 없다."
-    use:
-      actions:
-        - action_id: feed_baron
-          label: "바론에게 주기"
-          allowed_when: "true"
-          effects:
-            - { type: npc_stat_add, target: "npc.dog_baron.affection", value: 25 }
-          success_message: "바론이 꼬리를 흔들며 간식을 받아먹었다. 눈빛에 신뢰가 깃든다."
-          failure_message: "바론이 보이지 않는다. 가까이에 있을 때 줘야 할 것 같다."
+  # - item_id: dog_treat
+  #   name: "강아지 간식"
+  #   type: "gift"
+  #   description: "바론이 가장 좋아하는 육포. 주방 찬장에 숨겨져 있었다."
+  #   acquire:
+  #     method: "manual"
+  #     condition: "true"
+  #     location: "kitchen"
+  #     success_message: "주방 찬장 깊숙이 숨겨진 강아지 간식을 발견했다. 바론에게 주면 좋아할 것이다."
+  #     failure_message: "찬장을 뒤져봤지만 아무것도 없다."
+  #   use:
+  #     actions:
+  #       - action_id: feed_baron
+  #         label: "바론에게 주기"
+  #         allowed_when: "true"
+  #         effects:
+  #           - { type: npc_stat_add, target: "npc.dog_baron.affection", value: 25 }
+  #         success_message: "바론이 꼬리를 흔들며 간식을 받아먹었다. 눈빛에 신뢰가 깃든다."
+  #         failure_message: "바론이 보이지 않는다. 가까이에 있을 때 줘야 할 것 같다."
 
-  - item_id: lubricant_oil
-    name: "윤활유"
-    type: "tool"
-    description: "기계 마찰을 줄여주는 기름. 삐걱거리는 곳에 효과적이다."
-    acquire:
-      method: "manual"
-      condition: "true"
-      location: "garden"
-      success_message: "정원 창고에서 윤활유를 찾았다. 삐걱거리는 문에 쓰면 소리를 줄일 수 있을 것이다."
-      failure_message: "정원에서 쓸 만한 것을 찾지 못했다."
-    use:
-      actions:
-        - action_id: apply_to_door
-          label: "기름칠하기"
-          allowed_when: "true"
-          effects:
-            - { type: var_sub, key: "vars.suspicion_level", value: 5 }
-          success_message: "삐걱거리던 경첩에 기름을 발랐다. 이제 소리 없이 열 수 있을 것이다."
-          failure_message: "기름칠할 곳이 마땅치 않다."
+  # - item_id: lubricant_oil
+  #   name: "윤활유"
+  #   type: "tool"
+  #   description: "기계 마찰을 줄여주는 기름. 삐걱거리는 곳에 효과적이다."
+  #   acquire:
+  #     method: "manual"
+  #     condition: "true"
+  #     location: "garden"
+  #     success_message: "정원 창고에서 윤활유를 찾았다. 삐걱거리는 문에 쓰면 소리를 줄일 수 있을 것이다."
+  #     failure_message: "정원에서 쓸 만한 것을 찾지 못했다."
+  #   use:
+  #     actions:
+  #       - action_id: apply_to_door
+  #         label: "기름칠하기"
+  #         allowed_when: "true"
+  #         effects:
+  #           - { type: var_sub, key: "vars.suspicion_level", value: 5 }
+  #         success_message: "삐걱거리던 경첩에 기름을 발랐다. 이제 소리 없이 열 수 있을 것이다."
+  #         failure_message: "기름칠할 곳이 마땅치 않다."
 
   # ────────────────────────────────────────
   # [완벽한 기만] 루트 아이템
