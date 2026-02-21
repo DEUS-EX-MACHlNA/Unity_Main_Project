@@ -43,7 +43,22 @@ public class ClickableObject : MonoBehaviour
 
         if (inputHandler != null)
         {
+            // InputField에 블록 삽입
             inputHandler.AddBlockToInput(blockName);
+            
+            // NPC/아이템 구분하여 선택 상태 전달
+            string objectName = gameObject.name;
+            if (objectName.StartsWith("NPC_"))
+            {
+                // NPC 클릭 시
+                inputHandler.SetSelectedNpc(blockName);
+            }
+            else if (objectName.StartsWith("Item_"))
+            {
+                // 아이템 클릭 시
+                inputHandler.SetSelectedItem(blockName);
+            }
+            
             Debug.Log($"[ClickableObject] {gameObject.name} 클릭 → @{blockName} 삽입");
         }
     }

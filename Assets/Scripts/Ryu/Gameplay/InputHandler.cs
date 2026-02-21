@@ -25,6 +25,10 @@ public class InputHandler : MonoBehaviour
     private BlockInserter blockInserter;
     private ApiResponseHandler apiResponseHandler;
 
+    // 선택된 NPC/아이템 상태
+    private string selectedNpcName = "";
+    private string selectedItemName = "";
+
     private void Start()
     {
         // 모듈 초기화
@@ -79,6 +83,14 @@ public class InputHandler : MonoBehaviour
             return;
 
         Debug.Log($"[InputHandler] 입력 전송: {text}");
+        if (!string.IsNullOrEmpty(selectedNpcName))
+        {
+            Debug.Log($"[InputHandler] 선택된 NPC: {selectedNpcName}");
+        }
+        if (!string.IsNullOrEmpty(selectedItemName))
+        {
+            Debug.Log($"[InputHandler] 선택된 아이템: {selectedItemName}");
+        }
 
         // InputField 숨기고 ResultText 표시
         if (inputFieldManager != null)
@@ -88,10 +100,14 @@ public class InputHandler : MonoBehaviour
             inputFieldManager.ClearInputField();
         }
 
-        // API 호출
+        // API 호출 (선택된 NPC/아이템 정보 전달)
         if (apiClient != null && apiResponseHandler != null)
         {
-            apiClient.SendMessage(text, apiResponseHandler.OnApiSuccess, apiResponseHandler.OnApiError);
+            apiClient.SendMessage(text, selectedNpcName, selectedItemName, apiResponseHandler.OnApiSuccess, apiResponseHandler.OnApiError);
+            
+            // API 전송 후 선택 상태 초기화
+            selectedNpcName = "";
+            selectedItemName = "";
         }
         else
         {
@@ -118,6 +134,26 @@ public class InputHandler : MonoBehaviour
         {
             Debug.LogWarning("[InputHandler] BlockInserter 또는 InputFieldManager가 초기화되지 않았습니다.");
         }
+    }
+
+    /// <summary>
+    /// 선택된 NPC 이름을 설정합니다. 아이템 선택은 해제됩니다.
+    /// </summary>
+    public void SetSelectedNpc(string npcName)
+    {
+        selectedNpcName = npcName ?? "";
+        selectedItemName = ""; // NPC 선택 시 아이템 선택 해제
+        Debug.Log($"[InputHandler] NPC 선택: {selectedNpcName}");
+    }
+
+    /// <summary>
+    /// 선택된 아이템 이름을 설정합니다. NPC 선택은 해제됩니다.
+    /// </summary>
+    public void SetSelectedItem(string itemName)
+    {
+        selectedItemName = itemName ?? "";
+        selectedNpcName = ""; // 아이템 선택 시 NPC 선택 해제
+        Debug.Log($"[InputHandler] 아이템 선택: {selectedItemName}");
     }
 
     private void LateUpdate()
