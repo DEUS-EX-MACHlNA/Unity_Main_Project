@@ -141,8 +141,9 @@ public class GameOverManager : MonoBehaviour
         // 런타임에서는 코드로 생성하고 MCP는 검증 용도로 사용
         GameObject gameStateManagerObj = new GameObject("GameStateManager");
         GameStateManager newManager = gameStateManagerObj.AddComponent<GameStateManager>();
-        
+
         // DontDestroyOnLoad 명시적으로 설정 (싱글톤 패턴 유지)
+        // InventoryInspectorDisplay는 GameStateManager.Awake()에서 동일 오브젝트에 추가됨
         DontDestroyOnLoad(gameStateManagerObj);
         
         // Unity MCP를 사용하여 생성 확인 및 검증

@@ -1,0 +1,12 @@
+{
+  "narrative": "기름병이 새엄마에게 부딪혀 깨진다. 번쩍— 라이터를 켜 손을 뻗는 순간, 불꽃이 퍼져 나간다. 새엄마의 비명과 함께 세계가 흔들리기 시작한다.",
+  "ending_info": {
+    "ending_id": "chaotic_breakout",
+    "name": "혼돈의 밤 (Chaotic Breakout)",
+    "epilogue_prompt": "불길 속에서 꿈의 세계가 무너지고, 마침내 눈을 뜬다."
+  },
+  "state_result": {
+    "inventory_remove": ["oil_bottle", "silver_lighter"]
+  },
+  "debug": { "game_id": 24, "reasoning": "기름+라이터로 새엄마에게 불. 혼돈의 밤 엔딩.", "turn_after": 1 }
+}

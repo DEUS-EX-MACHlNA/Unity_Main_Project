@@ -1,0 +1,6 @@
+{
+  "narrative": "안방 바닥에 은빛 라이터가 놓여 있다. 조용히 손에 넣었다.",
+  "ending_info": null,
+  "state_result": { "inventory_add": ["silver_lighter"] },
+  "debug": { "game_id": 24, "reasoning": "안방에서 라이터 획득.", "turn_after": 1 }
+}

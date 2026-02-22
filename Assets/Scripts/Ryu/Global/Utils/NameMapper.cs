@@ -11,15 +11,20 @@ public static class NameMapper
     {
         { "sleeping_pill", ItemType.SleepingPills },
         { "sleeping_pills", ItemType.SleepingPills },
+        { "industrial_sedative", ItemType.SleepingPills },  // 완벽한기만 시나리오 등
         { "black_tea", ItemType.EarlGreyTea },
         { "earl_grey_tea", ItemType.EarlGreyTea },
+        { "warm_black_tea", ItemType.EarlGreyTea },         // 완벽한기만 시나리오
         { "family_photo", ItemType.RealFamilyPhoto },
         { "real_family_photo", ItemType.RealFamilyPhoto },
         { "oil_bottle", ItemType.WhaleOilCan },
         { "whale_oil_can", ItemType.WhaleOilCan },
         { "lighter", ItemType.SilverLighter },
         { "silver_lighter", ItemType.SilverLighter },
-        { "brass_key", ItemType.BrassKey }
+        { "brass_key", ItemType.BrassKey },
+        { "secret_key", ItemType.BrassKey },                 // 완벽한기만: 비밀 열쇠
+        { "livingroom_photo", ItemType.LivingroomPhoto },
+        { "hole", ItemType.Hole }
     };
 
     // 위치 이름 매핑

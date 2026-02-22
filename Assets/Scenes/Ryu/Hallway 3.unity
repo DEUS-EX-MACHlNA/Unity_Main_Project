@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06bd5389572924944ad082aa9484383e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionArea
-  targetSceneName: ParentRoom
+  targetSceneName: ParentsRoom
   fadeOutDuration: 0.2
   fadeInDuration: 0.2
   highlightColor: {r: 1, g: 1, b: 0.5, a: 1}

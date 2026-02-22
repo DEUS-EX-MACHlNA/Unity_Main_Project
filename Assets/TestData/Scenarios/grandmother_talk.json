@@ -1,0 +1,6 @@
+{
+  "narrative": "할머니가 흐릿한 눈으로 나를 본다. '이 아이야... 나에게 생기를 조금만 나누어 주겠니? 그리하면 네가 궁금해하는 것을 말해 줄 수 있어.'",
+  "ending_info": null,
+  "state_result": {},
+  "debug": { "game_id": 24, "reasoning": "할머니에게 말 걸기.", "turn_after": 1 }
+}

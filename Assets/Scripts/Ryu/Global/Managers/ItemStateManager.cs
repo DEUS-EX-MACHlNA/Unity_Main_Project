@@ -92,6 +92,30 @@ public class ItemStateManager
             state = ItemState.InWorld,
             location = null
         };
+
+        // 거실 사진 (Livingroom_photo) - LivingRoom
+        worldItemStates[ItemType.LivingroomPhoto] = new WorldItemState
+        {
+            itemType = ItemType.LivingroomPhoto,
+            state = ItemState.InWorld,
+            location = new ItemLocation
+            {
+                location = GameLocation.LivingRoom,
+                locationId = "Item_Livingroom_photo"
+            }
+        };
+
+        // 개구멍 (Item_Hole) - Backyard, 탈출구 상호작용
+        worldItemStates[ItemType.Hole] = new WorldItemState
+        {
+            itemType = ItemType.Hole,
+            state = ItemState.InWorld,
+            location = new ItemLocation
+            {
+                location = GameLocation.Backyard,
+                locationId = "Item_Hole"
+            }
+        };
     }
 
     /// <summary>

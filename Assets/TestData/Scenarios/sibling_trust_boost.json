@@ -1,0 +1,12 @@
+{
+  "narrative": "루카스가 좋아하며 웃는다. \"누나랑 놀면 재밌어!\" 장난감을 나에게 건넨다.",
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": { "sibling": { "trust": 15, "suspicion": 0, "fear": 0 } }
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "플레이어가 동생과 놀아 호감도가 상승했습니다. (절대값 반영)",
+    "turn_after": 1
+  }
+}

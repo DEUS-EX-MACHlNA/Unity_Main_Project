@@ -44,6 +44,8 @@ public class NightDialogueManager : MonoBehaviour
     private bool isApiRequestInProgress = false;
     private bool isTestMode = false; // 테스트 모드 플래그
     private Coroutine apiRequestCoroutine; // API 요청 코루틴 추적용
+    private string endingNarrative = ""; // 엔딩 도달 시 표시할 내러티브 (API 응답)
+    private bool waitingForEndingClick = false; // 내러티브 표시 후 엔딩 씬 전환 대기
 
     private void Awake()
     {
@@ -205,6 +207,9 @@ public class NightDialogueManager : MonoBehaviour
                     InitializeDefaultDialogues();
                 }
 
+                // 엔딩 시 클릭 후 씬 전환을 위해 내러티브 저장
+                endingNarrative = narrative ?? "";
+
                 // 상태 변화 적용
                 ApplyStateChanges(humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger);
 
@@ -282,15 +287,13 @@ public class NightDialogueManager : MonoBehaviour
             EventFlagApplier.ApplyEventFlags(manager, eventFlags);
         }
 
-        // 엔딩 트리거 처리
+        // 엔딩 트리거 처리 (씬 전환은 사용자 클릭 후 수행됨)
         if (!string.IsNullOrEmpty(endingTrigger))
         {
             bool endingTriggered = GameStateApplier.ApplyEndingTrigger(manager, endingTrigger);
             if (endingTriggered)
             {
-                Debug.Log("[NightDialogueManager] 엔딩이 트리거되었습니다.");
-                // 엔딩 진입 시 더 이상 처리하지 않음 (씬 전환됨)
-                return;
+                Debug.Log("[NightDialogueManager] 엔딩이 트리거되었습니다. 대화 후 내러티브 표시하고 클릭 시 씬 전환됩니다.");
             }
         }
     }
@@ -399,6 +402,13 @@ public class NightDialogueManager : MonoBehaviour
 
     private void OnDialogueClick()
     {
+        // 엔딩 내러티브 표시 후 클릭 시 엔딩 씬으로 전환
+        if (waitingForEndingClick && GameStateManager.Instance != null)
+        {
+            GameStateManager.Instance.LoadEndingScene();
+            return;
+        }
+
         // dialogues가 null이거나 비어있으면 처리하지 않음
         if (dialogues == null || dialogues.Length == 0)
         {
@@ -442,6 +452,27 @@ public class NightDialogueManager : MonoBehaviour
 
     private void OnAllDialoguesComplete()
     {
+        // 엔딩이 트리거된 경우: 내러티브를 표시하고, 클릭 시 엔딩 씬으로 전환
+        if (GameStateManager.Instance != null && GameStateManager.Instance.HasPendingEndingTransition())
+        {
+            Debug.Log("[NightDialogueManager] 엔딩 대기. 내러티브 표시 후 클릭 시 GameOver 씬으로 전환됩니다.");
+            waitingForEndingClick = true;
+            if (dialogueText != null)
+            {
+                string textToShow = !string.IsNullOrEmpty(endingNarrative) ? endingNarrative : "클릭하여 엔딩으로...";
+                dialogueText.text = textToShow;
+                accumulatedText = textToShow;
+            }
+            if (clickHint != null)
+            {
+                TextMeshProUGUI hintText = clickHint.GetComponent<TextMeshProUGUI>();
+                if (hintText != null)
+                    hintText.text = "클릭하여 엔딩으로";
+                clickHint.SetActive(true);
+            }
+            return;
+        }
+
         Debug.Log("[NightDialogueManager] 모든 대사 표시 완료. 다음 날로 진행합니다.");
 
         // GameStateManager를 통해 다음 날 진행 (인간성 감소 포함)

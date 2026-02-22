@@ -1,0 +1,8 @@
+{
+  "narrative": "바론이 꼬리를 흔들며 다가온다. 따뜻한 눈으로 나를 올려다본다.",
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": { "dog": { "trust": 25, "suspicion": 0, "fear": 0 } }
+  },
+  "debug": { "game_id": 24, "reasoning": "바론 돌봐 주기. dog trust 상승.", "turn_after": 1 }
+}

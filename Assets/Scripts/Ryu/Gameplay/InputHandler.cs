@@ -34,7 +34,7 @@ public class InputHandler : MonoBehaviour
         // 모듈 초기화
         if (inputField != null && resultText != null)
         {
-            inputFieldManager = new InputFieldManager(inputField, resultText);
+            inputFieldManager = new InputFieldManager(inputField, resultText, gameStateManager);
             blockInserter = new BlockInserter(inputField);
         }
         else

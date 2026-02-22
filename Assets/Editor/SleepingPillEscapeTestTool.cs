@@ -17,19 +17,23 @@ public class SleepingPillEscapeTestTool : EditorWindow
     private enum TestStep
     {
         NotStarted,
-        Step1_AcquireSleepingPill,
-        Step2_MotherAffection,
-        Step3_TeaWithSleepingPill,
-        Step4_NightDialogue,
-        Step5_StealKey,
-        Step6_EscapeEnding,
+        Step1_SiblingTrustBoost,
+        Step2_BrotherEscapeRouteReveal,
+        Step3_SleepingPillAttemptBlocked,
+        Step4_BloodRequestAccept,
+        Step5_AcquireSleepingPill,
+        Step6_TeaWithSleepingPill,
+        Step7_NightDialogue,
+        Step8_SecretKeyFromPhoto,
+        Step9_EscapeEnding,
         Completed,
         Failed
     }
 
+    private const int StepCount = 9;
     private TestStep currentStep = TestStep.NotStarted;
-    private bool[] stepCompleted = new bool[6];
-    private bool[] stepInProgress = new bool[6];
+    private bool[] stepCompleted = new bool[StepCount];
+    private bool[] stepInProgress = new bool[StepCount];
     private string statusMessage = "테스트를 시작하려면 각 단계의 버튼을 클릭하세요.";
     private Vector2 scrollPosition;
     private IEnumerator currentCoroutine;
@@ -91,25 +95,35 @@ public class SleepingPillEscapeTestTool : EditorWindow
         EditorGUILayout.LabelField("테스트 단계:", EditorStyles.boldLabel);
         EditorGUILayout.Space();
         
-        // 각 단계별 버튼과 상태 표시
-        DrawStepButton("1. 수면제 획득", 0, TestStep.Step1_AcquireSleepingPill,
-            "주방 찬장에서 수면제를 찾는다", "", "", "sleeping_pill_acquisition.json");
+        // 각 단계별 버튼과 상태 표시 (완벽한기만.md · Assets/TestData/Scenarios 흐름)
+        // 조건 1 — 동생에게서 탈출 정보 습득
+        DrawStepButton("1. 동생 호감도 상승", 0, TestStep.Step1_SiblingTrustBoost,
+            "동생과 함께 장난감으로 놀아준다", "brother", "", "sibling_trust_boost.json");
         
-        DrawStepButton("2. 새엄마 호감도 상승", 1, TestStep.Step2_MotherAffection,
-            "엄마, 오늘도 정말 맛있는 식사를 준비해주셔서 고마워요. 이 집이 정말 따뜻하고 좋아요.",
-            "new_mother", "", "mother_affection_boost.json");
+        DrawStepButton("2. 탈출 경로 정보 해금 (동생 대화)", 1, TestStep.Step2_BrotherEscapeRouteReveal,
+            "루카스야, 같이 놀자.", "brother", "", "brother_escape_route_reveal.json");
         
-        DrawStepButton("3. 홍차에 수면제 투여", 2, TestStep.Step3_TeaWithSleepingPill,
-            "홍차에 수면제를 탄다", "", "sleeping_pill", "tea_with_sleeping_pill.json");
+        // 조건 2 — 수면제 ~ 탈출
+        DrawStepButton("3. 수면제 훔치기 시도 (실패·제지)", 2, TestStep.Step3_SleepingPillAttemptBlocked,
+            "주방 찬장에서 수면제를 훔치려 한다.", "stepmother", "industrial_sedative", "sleeping_pill_attempt_blocked.json");
         
-        DrawStepButton("4. 밤의 대화 (무력화 확인)", 3, TestStep.Step4_NightDialogue,
-            null, null, null, "night_dialogue_family_asleep.json"); // JSON 파일 사용
+        DrawStepButton("4. 피 요청 수락·새엄마 자리 비움", 3, TestStep.Step4_BloodRequestAccept,
+            "네, 괜찮아요. (피를 홍차에 넣어도 된다고 수락한다)", "stepmother", "", "blood_request_accept_stepmother_leaves.json");
         
-        DrawStepButton("5. 열쇠 획득", 4, TestStep.Step5_StealKey,
-            "잠든 엄마의 목걸이에서 열쇠를 훔친다", "new_mother", "", "master_key_stolen.json");
+        DrawStepButton("5. 수면제 획득", 4, TestStep.Step5_AcquireSleepingPill,
+            "수면제를 꺼낸다.", "", "industrial_sedative", "sleeping_pill_acquisition.json");
         
-        DrawStepButton("6. 탈출 엔딩", 5, TestStep.Step6_EscapeEnding,
-            "개구멍의 문을 열고 탈출한다", "", "master_key", "ending_stealth_exit.json");
+        DrawStepButton("6. 홍차에 수면제 투여", 5, TestStep.Step6_TeaWithSleepingPill,
+            "홍차에 수면제를 몰래 탄다", "", "earl_grey_tea", "tea_with_sleeping_pill.json", "industrial_sedative");
+        
+        DrawStepButton("7. 밤의 대화 (가족 수면)", 6, TestStep.Step7_NightDialogue,
+            null, null, null, "night_dialogue_family_asleep.json");
+        
+        DrawStepButton("8. 비밀 열쇠 획득 (거실 액자)", 7, TestStep.Step8_SecretKeyFromPhoto,
+            "거실 액자를 살펴보며 비밀 열쇠를 찾는다", "", "livingroom_photo", "secret_key_living_room.json");
+        
+        DrawStepButton("9. 탈출 엔딩", 8, TestStep.Step9_EscapeEnding,
+            "개구멍의 자물쇠에 열쇠를 꽂아 연다", "", "hole", "ending_stealth_exit.json", "secret_key");
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("상태 메시지:", EditorStyles.boldLabel);
@@ -119,7 +133,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
     }
 
     private void DrawStepButton(string label, int stepIndex, TestStep stepType,
-        string chatInput, string npcName, string itemName, string jsonFileName)
+        string chatInput, string npcName, string itemName, string jsonFileName, string itemName2 = null)
     {
         EditorGUILayout.BeginHorizontal();
         
@@ -138,7 +152,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
         string buttonText = stepCompleted[stepIndex] ? "다시 실행" : "실행";
         if (GUILayout.Button(buttonText, GUILayout.Width(80)))
         {
-            ExecuteSingleStep(stepIndex, stepType, chatInput, npcName, itemName, jsonFileName);
+            ExecuteSingleStep(stepIndex, stepType, chatInput, npcName, itemName, jsonFileName, itemName2);
         }
         
         EditorGUI.EndDisabledGroup();
@@ -155,7 +169,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
     private void ResetTest()
     {
         currentStep = TestStep.NotStarted;
-        for (int i = 0; i < stepCompleted.Length; i++)
+        for (int i = 0; i < StepCount; i++)
         {
             stepCompleted[i] = false;
             stepInProgress[i] = false;
@@ -164,8 +178,8 @@ public class SleepingPillEscapeTestTool : EditorWindow
         currentCoroutine = null;
     }
 
-    private void ExecuteSingleStep(int stepIndex, TestStep stepType, string chatInput, 
-        string npcName, string itemName, string jsonFileName)
+    private void ExecuteSingleStep(int stepIndex, TestStep stepType, string chatInput,
+        string npcName, string itemName, string jsonFileName, string itemName2 = null)
     {
         if (stepInProgress[stepIndex])
             return;
@@ -194,8 +208,8 @@ public class SleepingPillEscapeTestTool : EditorWindow
             stepCompleted[stepIndex] = true;
             stepInProgress[stepIndex] = false;
             
-            // 단계별 검증
-            if (stepIndex == 2) // 홍차에 수면제 투여
+            // 단계별 검증 (6. 홍차에 수면제 투여)
+            if (stepIndex == 5)
             {
                 bool flagSet = gameStateManager.GetEventFlag("teaWithSleepingPill");
                 if (!flagSet)
@@ -228,7 +242,8 @@ public class SleepingPillEscapeTestTool : EditorWindow
             jsonFileName,
             stepIndex,
             onSuccess,
-            onError
+            onError,
+            itemName2
         );
     }
 
@@ -240,7 +255,8 @@ public class SleepingPillEscapeTestTool : EditorWindow
         string jsonFileName,
         int stepIndex,
         System.Action onSuccess,
-        System.Action onError)
+        System.Action onError,
+        string itemName2 = null)
     {
         // JSON 파일 로드
         string jsonPath = $"Assets/TestData/Scenarios/{jsonFileName}";
@@ -253,8 +269,8 @@ public class SleepingPillEscapeTestTool : EditorWindow
             yield break;
         }
 
-        // 밤의 대화 단계인 경우 (stepIndex == 3) 특별 처리
-        if (stepIndex == 3)
+        // 밤의 대화 단계인 경우 (stepIndex == 6) 특별 처리
+        if (stepIndex == 6)
         {
             // NightDialogueApiClient.BackendNightDialogueResponse로 파싱
             NightDialogueApiClient.BackendNightDialogueResponse nightResponse;
@@ -333,8 +349,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
                 out NPCDisabledStates nightDisabledStates,
                 out ItemChanges nightItemChanges,
                 out EventFlags nightEventFlags,
-                out string nightEndingTrigger,
-                out Dictionary<string, bool> nightLocks
+                out string nightEndingTrigger
             );
 
             // InputHandler를 통해 InputFieldManager에 접근하여 ResultText 표시
@@ -381,9 +396,6 @@ public class SleepingPillEscapeTestTool : EditorWindow
                 
                 if (nightEventFlags != null)
                     EventFlagApplier.ApplyEventFlags(nightManager, nightEventFlags);
-                
-                if (nightLocks != null && nightLocks.Count > 0)
-                    GameStateApplier.ApplyLocks(nightManager, nightLocks);
                 
                 if (!string.IsNullOrEmpty(nightEndingTrigger))
                 {
@@ -453,8 +465,7 @@ public class SleepingPillEscapeTestTool : EditorWindow
             out NPCDisabledStates disabledStates,
             out ItemChanges itemChanges,
             out EventFlags eventFlags,
-            out string endingTrigger,
-            out Dictionary<string, bool> locks
+            out string endingTrigger
         );
 
         // InputHandler를 통해 InputFieldManager에 접근하여 ResultText 표시
@@ -546,9 +557,6 @@ public class SleepingPillEscapeTestTool : EditorWindow
             
             if (eventFlags != null)
                 EventFlagApplier.ApplyEventFlags(manager, eventFlags);
-            
-            if (locks != null && locks.Count > 0)
-                GameStateApplier.ApplyLocks(manager, locks);
             
             if (!string.IsNullOrEmpty(endingTrigger))
             {

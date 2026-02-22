@@ -1,0 +1,6 @@
+{
+  "narrative": "바론이 마당 한편에서 낡은 액자를 물어 와 내 앞에 내려놓는다. 안에는 예전 가족의 사진이 담겨 있다. 동생에게 보여 주면 그때의 기억이 조금이라도 돌아올지도 모른다.",
+  "ending_info": null,
+  "state_result": { "inventory_add": ["real_family_photo"] },
+  "debug": { "game_id": 24, "reasoning": "바론 호감도 최대. 진짜 가족 액자 획득.", "turn_after": 1 }
+}

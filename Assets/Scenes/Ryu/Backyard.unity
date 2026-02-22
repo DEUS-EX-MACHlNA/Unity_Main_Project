@@ -409,8 +409,8 @@ Transform:
   m_GameObject: {fileID: 377832861}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.9648, y: -1.3244, z: 0}
-  m_LocalScale: {x: 1.2858949, y: 1.2969003, z: 1}
+  m_LocalPosition: {x: -4.8918, y: -1.3967, z: 0}
+  m_LocalScale: {x: 1.3031259, y: 1.3220601, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -470,14 +470,17 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7816613854874263434, guid: 45daf1759ef6c524585ad3ba3af26661, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2105551934}
   m_SourcePrefab: {fileID: 100100000, guid: 45daf1759ef6c524585ad3ba3af26661, type: 3}
 --- !u!114 &918215383 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 389637875795598269, guid: 45daf1759ef6c524585ad3ba3af26661, type: 3}
   m_PrefabInstance: {fileID: 918215382}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2105551933}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3a5420ea404f1f4489548df40f8e86d8, type: 3}
@@ -1139,7 +1142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemStateDisplay
   itemType: 3
   inventoryCount: 0
-  itemState: 0
+  itemState: 3
   itemLocation: 1
   locationDetails: 
   autoUpdate: 1
@@ -1201,6 +1204,25 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e1b688d5905c3743bd651057ead15e5, type: 3}
+--- !u!1 &2105551933 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7816613854874263434, guid: 45daf1759ef6c524585ad3ba3af26661, type: 3}
+  m_PrefabInstance: {fileID: 918215382}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2105551934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105551933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b8ee4f0ba30104fa4a1e2297edd9f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryInspectorDisplay
+  heldItems: []
+  updateInterval: 0.3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

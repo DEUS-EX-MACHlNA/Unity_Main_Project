@@ -1,0 +1,10 @@
+{
+  "narrative": "동생이 가족을 밖으로 유인해 준 덕분에, 조용히 자물쇠에 열쇠를 꽂았다. 찰칵— 개구멍이 열리고, 밖으로 나갈 수 있다. 동생의 희생 위에 서 있는 것만 같다.",
+  "ending_info": {
+    "ending_id": "siblings_help",
+    "name": "조력자의 희생 (Sibling's Help)",
+    "epilogue_prompt": "동생이 가족을 유인하는 사이, 비밀 열쇠로 개구멍을 열고 탈출했다. 동생은 다시는 만날 수 없을 것이다."
+  },
+  "state_result": { "inventory_remove": ["secret_key"] },
+  "debug": { "game_id": 24, "reasoning": "조력자의 희생 엔딩 조건 충족.", "turn_after": 1 }
+}

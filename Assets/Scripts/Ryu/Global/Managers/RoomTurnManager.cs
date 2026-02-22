@@ -42,44 +42,64 @@ public class RoomTurnManager : MonoBehaviour
     {
         // 현재 씬 이름 저장
         currentSceneName = SceneManager.GetActiveScene().name;
-        
-        remainingTurns = initialTurns;
+
+        // 씬 전환 후에도 턴 수 유지: GameStateManager(DontDestroyOnLoad)에서 동기화
+        if (GameStateManager.Instance != null)
+            remainingTurns = GameStateManager.Instance.GetRemainingTurns();
+        else
+            remainingTurns = initialTurns;
         UpdateTurnsDisplay();
     }
 
     /// <summary>
-    /// 남은 턴수를 1 차감합니다.
+    /// 남은 턴수를 1 차감합니다. GameStateManager에 반영해 씬 전환 후에도 턴 수가 유지됩니다.
     /// </summary>
     public void ConsumeTurn()
     {
-        if (remainingTurns > 0)
+        if (GameStateManager.Instance == null)
         {
+            // GameStateManager 없을 때만 로컬 턴 사용
+            if (remainingTurns <= 0)
+            {
+                Debug.LogWarning("[RoomTurnManager] 남은 턴수가 0입니다.");
+                return;
+            }
             remainingTurns--;
             UpdateTurnsDisplay();
             Debug.Log($"[RoomTurnManager] 턴 소모. 남은 턴수: {remainingTurns}");
-
-            // 턴이 지날 때마다 NPC 무력화 남은 턴 차감 및 0이면 해제
-            if (GameStateManager.Instance != null)
-                GameStateManager.Instance.UpdateNPCDisabledStates();
-
-            // 턴수가 0이 되면 Night 씬으로 전환
-            if (remainingTurns == 0)
-            {
-                Debug.Log("[RoomTurnManager] 턴수가 0이 되었습니다. Night 씬으로 전환합니다.");
-                if (fadeManager != null)
-                {
-                    fadeManager.LoadSceneWithFade(nightSceneName, fadeDuration);
-                }
-                else
-                {
-                    Debug.LogWarning("[RoomTurnManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
-                    SceneManager.LoadScene(nightSceneName);
-                }
-            }
+            ApplyTurnEndLogic();
+            return;
         }
-        else
+
+        if (!GameStateManager.Instance.ConsumeTurn(1))
         {
             Debug.LogWarning("[RoomTurnManager] 남은 턴수가 0입니다.");
+            return;
+        }
+
+        remainingTurns = GameStateManager.Instance.GetRemainingTurns();
+        UpdateTurnsDisplay();
+        Debug.Log($"[RoomTurnManager] 턴 소모. 남은 턴수: {remainingTurns}");
+        ApplyTurnEndLogic();
+    }
+
+    /// <summary>
+    /// 턴 종료 시 공통 처리 (Night 씬 전환 등).
+    /// NPC 무력화 차감은 GameStateManager.ConsumeTurn() 내부에서 이미 한 번 수행되므로 여기서 호출하지 않음.
+    /// (중복 호출 시 disabled_remaining_turns가 턴당 2씩 줄어드는 버그 방지)
+    /// </summary>
+    private void ApplyTurnEndLogic()
+    {
+        if (remainingTurns == 0)
+        {
+            Debug.Log("[RoomTurnManager] 턴수가 0이 되었습니다. Night 씬으로 전환합니다.");
+            if (fadeManager != null)
+                fadeManager.LoadSceneWithFade(nightSceneName, fadeDuration);
+            else
+            {
+                Debug.LogWarning("[RoomTurnManager] SceneFadeManager가 연결되지 않았습니다. 페이드 없이 씬을 전환합니다.");
+                SceneManager.LoadScene(nightSceneName);
+            }
         }
     }
 
@@ -102,11 +122,14 @@ public class RoomTurnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 턴수를 초기값으로 리셋합니다.
+    /// 턴수를 초기값으로 리셋합니다. GameStateManager가 있으면 해당 값과 동기화합니다.
     /// </summary>
     public void ResetTurns()
     {
-        remainingTurns = initialTurns;
+        if (GameStateManager.Instance != null)
+            remainingTurns = GameStateManager.Instance.GetRemainingTurns();
+        else
+            remainingTurns = initialTurns;
         UpdateTurnsDisplay();
         Debug.Log($"[RoomTurnManager] 턴수 리셋: {remainingTurns}");
     }

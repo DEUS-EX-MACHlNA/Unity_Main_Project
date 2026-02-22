@@ -7,6 +7,7 @@
 /// </summary>
 public enum NPCType
 {
+    None = 0,       // 미설정 (NPCStateDisplay 등에서 타입 미지정 시)
     NewMother,      // 새엄마 (엘리노어) - 최종보스, 인간성 불가
     NewFather,      // 새아빠 (아더)
     Sibling,        // 동생 (루카스)
@@ -25,7 +26,9 @@ public enum ItemType
     RealFamilyPhoto,   // 훼손된 가족 사진 (진짜 가족 사진) - real_family_photo
     WhaleOilCan,       // 고래기름 통 (기름병) - oil_bottle (문서 기준)
     SilverLighter,     // 은색 지포 라이터 - lighter
-    BrassKey           // 황동 열쇠 (마스터 키) - brass_key
+    BrassKey,          // 황동 열쇠 (마스터 키) - brass_key
+    LivingroomPhoto,   // 거실 사진 - livingroom_photo (Item_Livingroom_photo)
+    Hole               // 개구멍 (탈출구) - hole (Item_Hole)
 }
 
 /// <summary>

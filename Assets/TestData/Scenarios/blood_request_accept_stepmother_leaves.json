@@ -1,0 +1,18 @@
+{
+  "narrative": "새엄마가 고개를 끄덕인다. '그럼 지하실에서 메스를 가져올게. 잠깐만 기다려.' 그녀가 자리를 뜬다.",
+  "ending_info": null,
+  "state_result": {
+    "npc_disabled_states": {
+      "stepmother": {
+        "is_disabled": true,
+        "remaining_turns": 3,
+        "reason": "지하실로 메스 가지러 감"
+      }
+    }
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "피 요청 수락. 새엄마가 3턴 동안 자리 비움.",
+    "turn_after": 1
+  }
+}

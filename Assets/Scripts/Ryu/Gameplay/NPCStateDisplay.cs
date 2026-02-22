@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -5,6 +6,21 @@ using UnityEngine;
 /// </summary>
 public class NPCStateDisplay : MonoBehaviour
 {
+    /// <summary>
+    /// 무력화 해제 시 비활성화된 NPC 오브젝트를 다시 켜기 위한 등록 테이블.
+    /// (SetActive(false) 후에는 본 컴포넌트가 동작하지 않으므로, GameStateManager에서 이벤트로 재활성화)
+    /// </summary>
+    private static readonly Dictionary<NPCType, GameObject> NpcGameObjectsByType = new Dictionary<NPCType, GameObject>();
+
+    /// <summary>
+    /// 무력화 해제 시 해당 NPC GameObject를 다시 활성화합니다. (이벤트 구독처에서 호출)
+    /// </summary>
+    public static void TryReactivateNPC(NPCType npcType)
+    {
+        if (npcType == NPCType.None) return;
+        if (NpcGameObjectsByType.TryGetValue(npcType, out GameObject go) && go != null && !go.activeSelf)
+            go.SetActive(true);
+    }
     [Header("NPC 정보")]
     [Tooltip("NPC 타입 (자동 감지 또는 수동 설정)")]
     [SerializeField] private NPCType npcType;
@@ -49,7 +65,7 @@ public class NPCStateDisplay : MonoBehaviour
     /// </summary>
     private void OnValidate()
     {
-        if (!Application.isPlaying || GameStateManager.Instance == null || npcType == 0)
+        if (!Application.isPlaying || GameStateManager.Instance == null || npcType == NPCType.None)
             return;
 
         var gsm = GameStateManager.Instance;
@@ -81,17 +97,32 @@ public class NPCStateDisplay : MonoBehaviour
     private void Start()
     {
         // GameObject 이름에서 NPC 타입 자동 감지
-        if (npcType == 0) // 기본값이면
+        if (npcType == NPCType.None) // 기본값이면
         {
             npcType = ParseNPCTypeFromName(gameObject.name);
-            if (npcType == 0)
+            if (npcType == NPCType.None)
             {
                 Debug.LogWarning($"[NPCStateDisplay] {gameObject.name}: NPC 타입을 자동 감지할 수 없습니다. Inspector에서 수동으로 설정해주세요.");
             }
         }
 
+        if (npcType != NPCType.None)
+            NpcGameObjectsByType[npcType] = gameObject;
+
         CacheRenderersAndColliders();
         UpdateState();
+    }
+
+    private void OnEnable()
+    {
+        if (npcType != NPCType.None)
+            NpcGameObjectsByType[npcType] = gameObject;
+    }
+
+    private void OnDestroy()
+    {
+        if (npcType != NPCType.None)
+            NpcGameObjectsByType.Remove(npcType);
     }
 
     private void CacheRenderersAndColliders()
@@ -121,15 +152,48 @@ public class NPCStateDisplay : MonoBehaviour
         if (objectName.StartsWith("NPC_"))
         {
             string typeName = objectName.Substring(4); // "NPC_" 제거
-            
-            // Enum.TryParse를 사용하여 NPCType으로 변환
-            if (System.Enum.TryParse<NPCType>(typeName, true, out NPCType result))
+            string enumName = MapNPCNameToEnumName(typeName);
+
+            if (System.Enum.TryParse<NPCType>(enumName, true, out NPCType result))
             {
                 return result;
             }
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// GameObject/백엔드 NPC 이름을 NPCType enum 이름으로 매핑합니다.
+    /// (씬 이름이 소문자나 스네이크 케이스일 때 매칭 보장)
+    /// </summary>
+    private static string MapNPCNameToEnumName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return name;
+
+        switch (name.ToLower())
+        {
+            case "newmother":
+            case "new_mother":
+            case "stepmother":
+                return "NewMother";
+            case "newfather":
+            case "new_father":
+            case "father":
+                return "NewFather";
+            case "sibling":
+            case "brother":
+                return "Sibling";
+            case "dog":
+            case "baron":
+                return "Dog";
+            case "grandmother":
+            case "grandma":
+                return "Grandmother";
+            default:
+                return name;
+        }
     }
 
     /// <summary>
@@ -143,7 +207,7 @@ public class NPCStateDisplay : MonoBehaviour
             return;
         }
 
-        if (npcType == 0)
+        if (npcType == NPCType.None)
         {
             return; // NPC 타입이 설정되지 않음
         }
@@ -177,6 +241,7 @@ public class NPCStateDisplay : MonoBehaviour
 
     /// <summary>
     /// NPC의 씬 표시 여부를 적용합니다. isDisabled일 때 숨기기 위해 사용합니다.
+    /// GameObject 자체를 비활성화하여 확실히 숨기고, 무력화 해제 시 OnNPCStatusChanged에서 TryReactivateNPC로 다시 켭니다.
     /// </summary>
     private void ApplyVisibility(bool visible)
     {
@@ -196,6 +261,9 @@ public class NPCStateDisplay : MonoBehaviour
                     cachedColliders[i].enabled = visible;
             }
         }
+        // 무력화 시 전체 오브젝트 비활성화로 확실히 숨김 (재활성화는 GameStateManager 쪽 이벤트로 처리)
+        if (gameObject.activeSelf != visible)
+            gameObject.SetActive(visible);
     }
 
     /// <summary>
@@ -273,7 +341,7 @@ public class NPCStateDisplay : MonoBehaviour
             Debug.LogWarning("[NPCStateDisplay] GameStateManager.Instance가 없습니다. 플레이 모드에서 실행해주세요.");
             return false;
         }
-        if (npcType == 0)
+        if (npcType == NPCType.None)
         {
             Debug.LogWarning("[NPCStateDisplay] NPC 타입을 설정해주세요.");
             return false;

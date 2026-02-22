@@ -1,22 +1,16 @@
 {
-  "narrative": "황동 열쇠가 자물쇠에 완벽하게 맞아들어갑니다. 문이 조용히 열리며, 새벽의 차가운 공기가 방 안으로 스며듭니다. 당신은 아무도 모르게 집을 빠져나왔습니다. 자유의 맛이었습니다.",
+  "narrative": "떨리는 손으로 자물쇠에 열쇠를 꽂았다. 찰칵— 개구멍이 열린다.",
   "ending_info": {
     "ending_id": "stealth_exit",
     "name": "완벽한 기만 (The Stealth Exit)",
-    "epilogue_prompt": "당신은 인형의 집에서 탈출했습니다. 하지만 그곳에 남겨진 것들에 대한 기억은 영원히 당신과 함께할 것입니다."
+    "epilogue_prompt": "밤이 되자 수면제가 든 홍차를 마신 가족들이..."
   },
   "state_result": {
-    "flags": {
-      "hole_unlocked": true
-    },
-    "inventory_remove": [
-      "master_key"
-    ]
+    "inventory_remove": ["secret_key"]
   },
   "debug": {
     "game_id": 24,
-    "reasoning": "플레이어가 마스터 키를 사용하여 개구멍 문을 열고 탈출했습니다. 엔딩 조건이 충족되었습니다.",
+    "reasoning": "플레이어가 비밀 열쇠로 개구멍 자물쇠를 열고 탈출. 엔딩 조건 충족.",
     "turn_after": 1
   }
 }
-

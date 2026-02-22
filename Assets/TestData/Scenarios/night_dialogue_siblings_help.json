@@ -1,0 +1,22 @@
+{
+  "narrative": "가족이 거실에 모여 이야기를 나눈다.",
+  "dialogues": [
+    { "speaker_name": "엘리노어 (새엄마)", "dialogue": "그 아이는 어디로 갔을까. 오늘부터 눈에 띄지 않네." },
+    { "speaker_name": "루카스 (동생)", "dialogue": "나, 오늘 밖에서 봤어. 이미 달아난 것 같아. 멀리 안 갔을 테니까 내일 같이 찾아보자." },
+    { "speaker_name": "아더 (새아빠)", "dialogue": "그렇다면 내일 아침에 나가서 주변을 수색해 보자." }
+  ],
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": {
+      "new_mother": { "trust": 50, "suspicion": 0, "fear": 0 },
+      "new_father": { "trust": 50, "suspicion": 0, "fear": 0 },
+      "sibling": { "trust": 80, "suspicion": 0, "fear": 0 }
+    },
+    "npc_disabled_states": {
+      "new_mother": { "is_disabled": true, "remaining_turns": 10, "reason": "밖에서 수색 중" },
+      "new_father": { "is_disabled": true, "remaining_turns": 10, "reason": "밖에서 수색 중" },
+      "sibling": { "is_disabled": true, "remaining_turns": 10, "reason": "밖에서 수색 중" }
+    }
+  },
+  "debug": { "reasoning": "조력자의 희생 루트: 동생이 주인공 탈출 거짓말, 내일 찾자 제안. 다음 날 가족 수색 나감.", "turn_after": 0 }
+}

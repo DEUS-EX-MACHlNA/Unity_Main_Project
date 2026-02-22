@@ -120,6 +120,11 @@ public class ItemStateDisplay : MonoBehaviour
             case "brasskey":
             case "brass_key":
                 return "BrassKey";
+            case "livingroomphoto":
+            case "livingroom_photo":
+                return "LivingroomPhoto";
+            case "hole":
+                return "Hole";
             default:
                 // 직접 매칭 시도
                 return itemName;

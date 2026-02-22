@@ -51,7 +51,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Ryu/Hallway 2.unity
     guid: f0633d47d778d7a448faa537130662a8
   - enabled: 1
-    path: Assets/Scenes/Ryu/ParentRoom.unity
+    path: Assets/Scenes/Ryu/ParentsRoom.unity
     guid: 2b7089f7149910346b0492ac3fc9128e
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

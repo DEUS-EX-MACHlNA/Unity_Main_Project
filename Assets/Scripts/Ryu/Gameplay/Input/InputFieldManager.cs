@@ -10,16 +10,19 @@ public class InputFieldManager
 {
     private TMP_InputField inputField;
     private TextMeshProUGUI resultText;
+    private GameStateManager gameStateManager;
 
     /// <summary>
     /// InputFieldManager 생성자
     /// </summary>
     /// <param name="inputField">InputField 컴포넌트</param>
     /// <param name="resultText">ResultText 컴포넌트</param>
-    public InputFieldManager(TMP_InputField inputField, TextMeshProUGUI resultText)
+    /// <param name="gameStateManager">엔딩 대기 시 클릭으로 씬 전환을 위해 사용 (선택)</param>
+    public InputFieldManager(TMP_InputField inputField, TextMeshProUGUI resultText, GameStateManager gameStateManager = null)
     {
         this.inputField = inputField;
         this.resultText = resultText;
+        this.gameStateManager = gameStateManager;
     }
 
     /// <summary>
@@ -80,10 +83,16 @@ public class InputFieldManager
     }
 
     /// <summary>
-    /// ResultText 클릭 시 InputField로 전환합니다.
+    /// ResultText 클릭 시: 엔딩 대기 중이면 엔딩 씬으로 전환, 아니면 InputField로 전환합니다.
     /// </summary>
     private void OnResultTextClicked()
     {
+        if (gameStateManager != null && gameStateManager.HasPendingEndingTransition())
+        {
+            Debug.Log("[InputFieldManager] ResultText 클릭 → 엔딩 씬으로 전환");
+            gameStateManager.LoadEndingScene();
+            return;
+        }
         Debug.Log("[InputFieldManager] ResultText 클릭 → InputField로 전환");
         ShowInputField();
     }

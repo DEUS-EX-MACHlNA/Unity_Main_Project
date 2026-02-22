@@ -115,6 +115,10 @@ public class GameStateManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Inspector 디버깅용: 인벤토리 표시 컴포넌트를 같은 오브젝트에 추가
+            if (GetComponent<InventoryInspectorDisplay>() == null)
+                gameObject.AddComponent<InventoryInspectorDisplay>();
         }
         else
         {
@@ -193,7 +197,13 @@ public class GameStateManager : MonoBehaviour
 
         if (npcManager != null)
         {
-            npcManager.OnNPCStatusChanged += (npc, status) => OnNPCStatusChanged?.Invoke(npc, status);
+            npcManager.OnNPCStatusChanged += (npc, status) =>
+            {
+                OnNPCStatusChanged?.Invoke(npc, status);
+                // 무력화 해제 시 씬에서 비활성화돼 있던 NPC 오브젝트 다시 표시
+                if (!status.isDisabled)
+                    NPCStateDisplay.TryReactivateNPC(npc);
+            };
         }
 
         if (inventoryManager != null)
@@ -485,6 +495,22 @@ public class GameStateManager : MonoBehaviour
     public void TriggerEnding(EndingType ending)
     {
         endingManager?.TriggerEnding(ending);
+    }
+
+    /// <summary>
+    /// 엔딩이 트리거되었으나 사용자 클릭을 기다리는 대기 상태인지 여부를 반환합니다.
+    /// </summary>
+    public bool HasPendingEndingTransition()
+    {
+        return endingManager != null && endingManager.HasPendingEnding();
+    }
+
+    /// <summary>
+    /// 엔딩 씬으로 전환합니다. HasPendingEndingTransition()이 true일 때(내러티브 표시 후 클릭 시) 호출합니다.
+    /// </summary>
+    public void LoadEndingScene()
+    {
+        endingManager?.LoadEndingScene();
     }
 
     /// <summary>

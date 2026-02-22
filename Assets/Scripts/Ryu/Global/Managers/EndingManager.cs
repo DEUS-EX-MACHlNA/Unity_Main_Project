@@ -42,7 +42,7 @@ public class EndingManager
     }
 
     /// <summary>
-    /// 엔딩을 트리거합니다.
+    /// 엔딩을 트리거합니다. 내러티브 표시 후 사용자 클릭 시 LoadEndingScene()을 호출해야 씬으로 전환됩니다.
     /// </summary>
     public void TriggerEnding(EndingType ending)
     {
@@ -55,7 +55,7 @@ public class EndingManager
         currentEnding = ending;
         OnEndingTriggered?.Invoke(ending);
         
-        Debug.Log($"[EndingManager] 엔딩 트리거: {ending}");
+        Debug.Log($"[EndingManager] 엔딩 트리거 (클릭 시 씬 전환): {ending}");
         
         // GameStateManager에 현재 엔딩 타입 저장
         if (GameStateManager.Instance != null)
@@ -63,8 +63,29 @@ public class EndingManager
             GameStateManager.Instance.SetCurrentEnding(ending);
         }
         
-        // 모든 엔딩이 GameOver 씬으로 통합됨
-        string endingSceneName = GetEndingSceneName(ending);
+        // 씬 로드는 사용자 클릭 후 LoadEndingScene() 호출 시 수행
+    }
+
+    /// <summary>
+    /// 엔딩이 트리거되었으나 아직 씬 전환이 이루어지지 않은 대기 상태인지 여부를 반환합니다.
+    /// </summary>
+    public bool HasPendingEnding()
+    {
+        return currentEnding != EndingType.None;
+    }
+
+    /// <summary>
+    /// 엔딩 씬(GameOver)으로 전환합니다. HasPendingEnding()이 true일 때만 호출해야 합니다.
+    /// </summary>
+    public void LoadEndingScene()
+    {
+        if (currentEnding == EndingType.None)
+        {
+            Debug.LogWarning("[EndingManager] 전환할 엔딩이 없습니다.");
+            return;
+        }
+
+        string endingSceneName = GetEndingSceneName(currentEnding);
         if (!string.IsNullOrEmpty(endingSceneName))
         {
             SceneFadeManager fadeManager = Object.FindFirstObjectByType<SceneFadeManager>();

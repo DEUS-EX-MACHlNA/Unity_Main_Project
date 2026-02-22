@@ -650,6 +650,34 @@ PrefabInstance:
       propertyPath: blockName
       value: Hole
       objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 2.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 7.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 2.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 7.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 1619918872792243709, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2972340540686664464, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.8352
@@ -741,7 +769,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6913316113488718014, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1347041787}
   m_SourcePrefab: {fileID: 100100000, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
 --- !u!1001 &1249396993
 PrefabInstance:
@@ -904,6 +935,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_InputField
+--- !u!1 &1347041786 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6913316113488718014, guid: c8a95208ddb68c444805bfef73bc6d06, type: 3}
+  m_PrefabInstance: {fileID: 1032734388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1347041787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347041786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae5246f193b3b7e4bbceb33a5dc510d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemStateDisplay
+  itemType: 8
+  inventoryCount: 0
+  itemState: 0
+  itemLocation: 1
+  locationDetails: 
+  autoUpdate: 1
+  updateInterval: 0.5
 --- !u!1001 &1515522593
 PrefabInstance:
   m_ObjectHideFlags: 0

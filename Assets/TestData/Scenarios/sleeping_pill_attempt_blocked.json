@@ -1,0 +1,12 @@
+{
+  "narrative": "'뭘 찾고 있는 거니?' 새엄마가 싸늘한 눈으로 돌아본다. 찬장에서 손을 뗄 수밖에 없었다.",
+  "ending_info": null,
+  "state_result": {
+    "npc_stats": { "stepmother": { "trust": 40, "suspicion": 5, "fear": 0 } }
+  },
+  "debug": {
+    "game_id": 24,
+    "reasoning": "새엄마가 같은 장소에 있어 수면제 훔치기 실패. 호감도 -10, 의심 소폭 상승(절대값 반영).",
+    "turn_after": 1
+  }
+}
