@@ -31,10 +31,11 @@ public class InputHandler : MonoBehaviour
 
     private void Start()
     {
-        // 모듈 초기화
+        // 모듈 초기화 (씬 전환 후에도 엔딩 전환이 동작하도록 GameStateManager.Instance 우선 사용)
         if (inputField != null && resultText != null)
         {
-            inputFieldManager = new InputFieldManager(inputField, resultText, gameStateManager);
+            GameStateManager gsm = GameStateManager.Instance != null ? GameStateManager.Instance : gameStateManager;
+            inputFieldManager = new InputFieldManager(inputField, resultText, gsm);
             blockInserter = new BlockInserter(inputField);
         }
         else

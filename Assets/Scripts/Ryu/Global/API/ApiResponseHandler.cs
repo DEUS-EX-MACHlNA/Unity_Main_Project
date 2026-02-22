@@ -112,13 +112,19 @@ public class ApiResponseHandler
             EventFlagApplier.ApplyEventFlags(gameStateManager, eventFlags);
         }
 
-        // 엔딩 트리거 처리
+        // 엔딩 트리거 처리: 대화(내러티브)를 표시한 뒤, 사용자가 클릭하여 넘길 때만 게임 오버 씬으로 전환됨
         if (!string.IsNullOrEmpty(endingTrigger))
         {
             bool endingTriggered = GameStateApplier.ApplyEndingTrigger(gameStateManager, endingTrigger);
             if (endingTriggered)
             {
-                // 엔딩 진입 시 더 이상 처리하지 않음
+                // 결과 텍스트에 클릭 안내 추가 (대화 씬을 넘긴 후에만 씬 전환되도록)
+                if (resultText != null)
+                {
+                    string current = resultText.text ?? "";
+                    if (!current.Contains("클릭") && !current.Contains("넘기"))
+                        resultText.text = current + "\n\n[클릭하여 엔딩으로]";
+                }
                 return;
             }
         }

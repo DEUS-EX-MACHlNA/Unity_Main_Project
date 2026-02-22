@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json;
 using System.Reflection;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 /// <summary>
@@ -19,14 +18,13 @@ public class SiblingsHelpTestTool : EditorWindow
         Step1_BaronTrustBoost,
         Step2_BaronGivesRealFamilyPhoto,
         Step3_SiblingShowRealFamilyPhoto,
-        Step4_NightDialogueSiblingsHelp,
-        Step5_SecretKeyFromLivingRoom,
-        Step6_EscapeEnding,
+        Step4_SecretKeyFromLivingRoom,
+        Step5_EscapeEnding,
         Completed,
         Failed
     }
 
-    private const int StepCount = 6;
+    private const int StepCount = 5;
     private TestStep currentStep = TestStep.NotStarted;
     private bool[] stepCompleted = new bool[StepCount];
     private bool[] stepInProgress = new bool[StepCount];
@@ -99,13 +97,10 @@ public class SiblingsHelpTestTool : EditorWindow
         DrawStepButton("3. 동생에게 액자 보여 주기", 2, TestStep.Step3_SiblingShowRealFamilyPhoto,
             "동생에게 액자를 보여 준다.", "sibling", "real_family_photo", "sibling_show_real_family_photo.json");
 
-        DrawStepButton("4. 밤의 대화 (동생 거짓말·내일 찾자)", 3, TestStep.Step4_NightDialogueSiblingsHelp,
-            null, null, null, "night_dialogue_siblings_help.json");
-
-        DrawStepButton("5. 거실에서 비밀 열쇠 획득", 4, TestStep.Step5_SecretKeyFromLivingRoom,
+        DrawStepButton("4. 거실에서 비밀 열쇠 획득", 3, TestStep.Step4_SecretKeyFromLivingRoom,
             "거실에서 액자를 탐색해 비밀 열쇠를 찾는다.", "", "livingroom_photo", "secret_key_siblings_help.json");
 
-        DrawStepButton("6. 개구멍 탈출 엔딩", 5, TestStep.Step6_EscapeEnding,
+        DrawStepButton("5. 개구멍 탈출 엔딩", 4, TestStep.Step5_EscapeEnding,
             "개구멍의 자물쇠에 열쇠를 꽂아 연다.", "", "hole", "ending_siblings_help.json", "secret_key");
 
         EditorGUILayout.Space();
@@ -182,13 +177,13 @@ public class SiblingsHelpTestTool : EditorWindow
             stepCompleted[stepIndex] = true;
             stepInProgress[stepIndex] = false;
 
-            // 3. 동생에게 액자 보여줌 → sibling_escape_plan_agreed 플래그 검증
+            // 3. 동생에게 액자 보여줌 → brother_sacrifice 플래그 검증 (조력자의 희생.md: 밤 대화 없음, 2턴 구성)
             if (stepIndex == 2)
             {
-                bool flagSet = gameStateManager.GetCustomEvent("sibling_escape_plan_agreed");
+                bool flagSet = gameStateManager.GetCustomEvent("brother_sacrifice");
                 if (!flagSet)
                 {
-                    statusMessage = "경고: sibling_escape_plan_agreed 플래그가 설정되지 않았습니다.";
+                    statusMessage = "경고: brother_sacrifice 플래그가 설정되지 않았습니다.";
                 }
                 else
                 {
@@ -230,131 +225,7 @@ public class SiblingsHelpTestTool : EditorWindow
             yield break;
         }
 
-        // 밤의 대화 단계 (stepIndex == 3)
-        if (stepIndex == 3)
-        {
-            NightDialogueApiClient.BackendNightDialogueResponse nightResponse;
-            try
-            {
-                nightResponse = JsonConvert.DeserializeObject<NightDialogueApiClient.BackendNightDialogueResponse>(jsonAsset.text);
-            }
-            catch (System.Exception e)
-            {
-                statusMessage = $"오류: JSON 파싱 실패: {e.Message}";
-                onError?.Invoke();
-                yield break;
-            }
-
-            NightDialogueManager nightDialogueManager = Object.FindFirstObjectByType<NightDialogueManager>();
-
-            if (nightDialogueManager == null)
-            {
-                string nightSceneName = "Night";
-                string currentSceneName = SceneManager.GetActiveScene().name;
-
-                if (currentSceneName != nightSceneName)
-                {
-                    statusMessage = "Night 씬으로 전환 중...";
-                    SceneManager.LoadScene(nightSceneName);
-                    yield return new WaitForSeconds(1.0f);
-                    nightDialogueManager = Object.FindFirstObjectByType<NightDialogueManager>();
-
-                    if (nightDialogueManager == null)
-                    {
-                        statusMessage = "오류: Night 씬 전환 후에도 NightDialogueManager를 찾을 수 없습니다.";
-                        onError?.Invoke();
-                        yield break;
-                    }
-                    nightDialogueManager.SetTestMode(true);
-                }
-                else
-                {
-                    statusMessage = "오류: Night 씬에 있지만 NightDialogueManager를 찾을 수 없습니다.";
-                    onError?.Invoke();
-                    yield break;
-                }
-            }
-
-            if (nightDialogueManager != null)
-            {
-                nightDialogueManager.SetTestMode(true);
-                nightDialogueManager.LoadTestDialogue(nightResponse);
-            }
-
-            BackendResponseConverter nightConverter = new BackendResponseConverter(ApiClient.MOCK_RESPONSE);
-            nightConverter.ConvertBackendResponseToCurrentFormat(
-                nightResponse,
-                GameStateManager.Instance,
-                out string nightNarrative,
-                out float nightHumanityChange,
-                out NPCAffectionChanges nightAffectionChanges,
-                out NPCHumanityChanges nightHumanityChanges,
-                out NPCDisabledStates nightDisabledStates,
-                out ItemChanges nightItemChanges,
-                out EventFlags nightEventFlags,
-                out string nightEndingTrigger
-            );
-
-            InputHandler nightInputHandler = Object.FindFirstObjectByType<InputHandler>();
-            InputFieldManager nightInputFieldManager = null;
-            if (nightInputHandler != null)
-            {
-                FieldInfo fieldInfo = typeof(InputHandler).GetField("inputFieldManager", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (fieldInfo != null)
-                    nightInputFieldManager = fieldInfo.GetValue(nightInputHandler) as InputFieldManager;
-            }
-
-            if (nightInputFieldManager != null)
-            {
-                nightInputFieldManager.ShowResultText();
-                nightInputFieldManager.SetResultText(nightNarrative ?? "");
-            }
-
-            GameStateManager nightManager = GameStateManager.Instance;
-            if (nightManager != null)
-            {
-                GameStateApplier.ApplyHumanityChange(nightManager, nightHumanityChange);
-                if (nightAffectionChanges != null)
-                    NPCStateApplier.ApplyAffectionChanges(nightManager, nightAffectionChanges);
-                if (nightHumanityChanges != null)
-                    NPCStateApplier.ApplyHumanityChanges(nightManager, nightHumanityChanges);
-                if (nightDisabledStates != null)
-                    NPCStateApplier.ApplyDisabledStates(nightManager, nightDisabledStates);
-                if (nightItemChanges != null)
-                    ItemStateApplier.ApplyItemChanges(nightManager, nightItemChanges);
-                if (nightEventFlags != null)
-                    EventFlagApplier.ApplyEventFlags(nightManager, nightEventFlags);
-                if (!string.IsNullOrEmpty(nightEndingTrigger))
-                {
-                    if (GameStateApplier.ApplyEndingTrigger(nightManager, nightEndingTrigger))
-                    {
-                        onSuccess?.Invoke();
-                        yield break;
-                    }
-                }
-            }
-
-            RoomTurnManager nightRoomTurnManager = Object.FindFirstObjectByType<RoomTurnManager>();
-            int turnAfter = nightResponse.debug?.turn_after ?? 0;
-            if (nightRoomTurnManager != null && turnAfter > 0)
-            {
-                for (int i = 0; i < turnAfter; i++)
-                {
-                    nightRoomTurnManager.ConsumeTurn();
-                    yield return new WaitForSeconds(0.1f);
-                }
-            }
-            else if (nightManager != null && turnAfter > 0)
-            {
-                nightManager.ConsumeTurn(turnAfter);
-            }
-
-            yield return new WaitForSeconds(0.5f);
-            onSuccess?.Invoke();
-            yield break;
-        }
-
-        // 일반 단계
+        // 일반 단계 (밤 대화 없음 — 조력자의 희생.md 2턴 구성)
         BackendGameResponse response;
         try
         {
@@ -435,6 +306,13 @@ public class SiblingsHelpTestTool : EditorWindow
                 if (GameStateApplier.ApplyEndingTrigger(manager, endingTrigger))
                 {
                     onSuccess?.Invoke();
+                    // 다른 엔딩과 동일하게, 내러티브 표시 후 사용자가 ResultText를 클릭할 때만 엔딩 씬으로 전환
+                    if (inputFieldManager != null)
+                    {
+                        string current = narrative ?? "";
+                        if (!current.Contains("클릭") && !current.Contains("넘기"))
+                            inputFieldManager.SetResultText(current + "\n\n[클릭하여 엔딩으로]");
+                    }
                     yield break;
                 }
             }

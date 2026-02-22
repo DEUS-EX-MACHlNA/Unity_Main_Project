@@ -83,14 +83,21 @@ public class InputFieldManager
     }
 
     /// <summary>
+    /// 엔딩/씬 전환에 사용할 GameStateManager. 씬 전환 후에도 동작하도록 Instance를 우선 사용합니다.
+    /// </summary>
+    private GameStateManager EffectiveGameStateManager =>
+        GameStateManager.Instance != null ? GameStateManager.Instance : gameStateManager;
+
+    /// <summary>
     /// ResultText 클릭 시: 엔딩 대기 중이면 엔딩 씬으로 전환, 아니면 InputField로 전환합니다.
     /// </summary>
     private void OnResultTextClicked()
     {
-        if (gameStateManager != null && gameStateManager.HasPendingEndingTransition())
+        GameStateManager gsm = EffectiveGameStateManager;
+        if (gsm != null && gsm.HasPendingEndingTransition())
         {
             Debug.Log("[InputFieldManager] ResultText 클릭 → 엔딩 씬으로 전환");
-            gameStateManager.LoadEndingScene();
+            gsm.LoadEndingScene(fromUserClick: true);
             return;
         }
         Debug.Log("[InputFieldManager] ResultText 클릭 → InputField로 전환");

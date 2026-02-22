@@ -1,10 +1,1 @@
-{
-  "narrative": "동생이 액자를 바라보더니 눈에 눈물이 맺힌다. '...이거, 우리 가족이지.' 잠시 침묵이 흐른 뒤 동생이 말한다. '나는 이제 다시는 인간으로 돌아갈 수 없어. 대신 너는 나가야 해.' 동생은 가족들을 밖으로 유인할 테니, 자신의 방 장롱에 숨어 있다가 나오라고 한다. 그리고 거실 어딘가에 비밀 열쇠가 있으니 그걸 찾아 네 방 개구멍의 자물쇠를 열고 탈출하라고 속삭인다.",
-  "ending_info": null,
-  "state_result": {
-    "npc_stats": { "sibling": { "trust": 80, "suspicion": 0, "fear": 0 } },
-    "inventory_remove": ["real_family_photo"],
-    "flags": { "sibling_escape_plan_agreed": true }
-  },
-  "debug": { "game_id": 24, "reasoning": "동생에게 액자 보여줌. 탈출 계획 합의.", "turn_after": 1 }
-}
+{"narrative":"동생이 액자를 바라보더니 눈에 눈물이 맺힌다. '...이거, 우리 가족이지.' 잠시 침묵이 흐른 뒤 동생이 말한다. '나는 이제 다시는 인간으로 돌아갈 수 없어. 대신 너는 나가야 해.' 동생은 자신이 주의를 끌 테니, 자신의 방 장롱에 숨어 있다가 나오라고 한다. 그리고 거실 어딘가에 비밀 열쇠가 있으니 그걸 찾아 네 방 개구멍의 자물쇠를 열고 탈출하라고 속삭인다.","ending_info":null,"state_result":{"npc_stats":{"sibling":{"trust":80,"suspicion":0,"fear":0}},"inventory_remove":["real_family_photo"],"flags":{"brother_sacrifice":true},"npc_disabled_states":{"new_mother":{"is_disabled":true,"remaining_turns":3,"reason":"MISSING"},"new_father":{"is_disabled":true,"remaining_turns":3,"reason":"MISSING"},"sibling":{"is_disabled":true,"remaining_turns":3,"reason":"MISSING"}}},"debug":{"game_id":24,"reasoning":"동생에게 액자 보여줌. brother_sacrifice, 3턴 동안 새엄마·새아빠·동생 MISSING.","turn_after":1}}

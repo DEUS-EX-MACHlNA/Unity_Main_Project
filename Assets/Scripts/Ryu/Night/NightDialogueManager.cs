@@ -405,7 +405,7 @@ public class NightDialogueManager : MonoBehaviour
         // 엔딩 내러티브 표시 후 클릭 시 엔딩 씬으로 전환
         if (waitingForEndingClick && GameStateManager.Instance != null)
         {
-            GameStateManager.Instance.LoadEndingScene();
+            GameStateManager.Instance.LoadEndingScene(fromUserClick: true);
             return;
         }
 

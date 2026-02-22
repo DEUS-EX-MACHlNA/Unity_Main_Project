@@ -33,7 +33,13 @@ public class KitchenBackgroundSwapper : MonoBehaviour
     private void Start()
     {
         if (GameStateManager.Instance != null)
+        {
             GameStateManager.Instance.OnNPCStatusChanged += OnNPCStatusChanged;
+            // 씬 로드 시점에 이미 새엄마가 무력화된 상태일 수 있음 (이벤트는 이미 발생한 후). 현재 상태를 한 번 적용.
+            NPCStatus current = GameStateManager.Instance.GetNPCStatus(NPCType.NewMother);
+            if (current != null)
+                ApplyBackgroundForStatus(current);
+        }
     }
 
     private void OnDisable()
@@ -46,6 +52,12 @@ public class KitchenBackgroundSwapper : MonoBehaviour
     {
         if (npc != NPCType.NewMother || spriteRenderer == null)
             return;
+        ApplyBackgroundForStatus(status);
+    }
+
+    private void ApplyBackgroundForStatus(NPCStatus status)
+    {
+        if (spriteRenderer == null) return;
 
         if (status.isDisabled && noStepmotherSprite != null)
         {

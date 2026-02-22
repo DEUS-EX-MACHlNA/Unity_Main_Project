@@ -14,9 +14,14 @@ public class GameStepApiClient
     [Serializable]
     private class StepRequest
     {
+        [JsonProperty("chat_input")]
         public string chat_input;
+        [JsonProperty("npc_name")]
         public string npc_name;
+        [JsonProperty("item_name")]
         public string item_name;
+        [JsonProperty("world_state")]
+        public StepRequestWorldState world_state;
     }
 
     private string baseUrl;
@@ -42,6 +47,49 @@ public class GameStepApiClient
     }
 
     /// <summary>
+    /// 현재 게임 상태에서 world_state(npc_disabled_states)를 구성합니다.
+    /// 무력화된 NPC만 포함하여 백엔드 world_state에 반영되도록 합니다.
+    /// </summary>
+    private static StepRequestWorldState BuildWorldStateFromGameState()
+    {
+        var worldState = new StepRequestWorldState
+        {
+            npc_disabled_states = new Dictionary<string, NPCDisabledState>()
+        };
+        if (GameStateManager.Instance == null)
+            return worldState;
+
+        var npcTypes = new[] { NPCType.NewMother, NPCType.NewFather, NPCType.Sibling, NPCType.Dog, NPCType.Grandmother };
+        foreach (NPCType npc in npcTypes)
+        {
+            NPCStatus status = GameStateManager.Instance.GetNPCStatus(npc);
+            if (status == null || !status.isDisabled)
+                continue;
+            string key = GetBackendKeyForNPCType(npc);
+            worldState.npc_disabled_states[key] = new NPCDisabledState
+            {
+                is_disabled = true,
+                remaining_turns = status.disabledRemainingTurns,
+                reason = status.disabledReason ?? ""
+            };
+        }
+        return worldState;
+    }
+
+    private static string GetBackendKeyForNPCType(NPCType npc)
+    {
+        switch (npc)
+        {
+            case NPCType.NewMother: return "new_mother";
+            case NPCType.NewFather: return "new_father";
+            case NPCType.Sibling: return "sibling";
+            case NPCType.Dog: return "dog";
+            case NPCType.Grandmother: return "grandmother";
+            default: return null;
+        }
+    }
+
+    /// <summary>
     /// 백엔드 서버에 메시지를 전송하는 코루틴을 반환합니다.
     /// </summary>
     /// <param name="chatInput">사용자 입력 텍스트</param>
@@ -63,10 +111,11 @@ public class GameStepApiClient
         {
             chat_input = chatInput ?? "",
             npc_name = npcName ?? "",
-            item_name = itemName ?? ""
+            item_name = itemName ?? "",
+            world_state = BuildWorldStateFromGameState()
         };
 
-        string jsonBody = JsonUtility.ToJson(requestData);
+        string jsonBody = JsonConvert.SerializeObject(requestData);
         Debug.Log($"[GameStepApiClient] POST {url} | Body: {jsonBody}");
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))

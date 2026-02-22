@@ -868,7 +868,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aa74c7d3b40ab349b1c822c7b351935, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCStateDisplay
-  npcType: 2
+  npcType: 3
   affection: 0
   npcHumanity: 0
   isAvailable: 0

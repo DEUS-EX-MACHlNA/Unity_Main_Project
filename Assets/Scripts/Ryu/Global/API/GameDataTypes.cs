@@ -60,6 +60,17 @@ public class NPCDisabledStates
 }
 
 /// <summary>
+/// step 요청에 담을 현재 월드 상태 (백엔드 world_state 동기화용).
+/// NPC 무력화 상태가 적용된 뒤 다음 step 요청에 포함되어 백엔드 world_state에 반영됩니다.
+/// </summary>
+[Serializable]
+public class StepRequestWorldState
+{
+    [JsonProperty("npc_disabled_states")]
+    public Dictionary<string, NPCDisabledState> npc_disabled_states;
+}
+
+/// <summary>
 /// 아이템 획득 정보
 /// </summary>
 [Serializable]

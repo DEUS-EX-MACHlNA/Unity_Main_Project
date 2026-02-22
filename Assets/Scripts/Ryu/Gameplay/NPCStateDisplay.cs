@@ -59,6 +59,7 @@ public class NPCStateDisplay : MonoBehaviour
     private Renderer[] cachedRenderers;
     private Collider[] cachedColliders;
     private bool lastAppliedVisible = true;
+    private bool subscribedToStatusChanged;
 
     /// <summary>
     /// Inspector에서 값이 변경되면 호출됩니다. 플레이 중 상태 필드를 수정하면 GameStateManager에 반영합니다.
@@ -83,10 +84,16 @@ public class NPCStateDisplay : MonoBehaviour
             gsm.ModifyNPCHumanity(npcType, humanityDelta);
 
         // 무력화: isDisabled에 따라 설정/해제
+        // 단, false로 바뀐 경우 GameStateManager도 아직 무력화가 아님일 때만 Clear 호출.
+        // (UpdateState()가 이전 프레임 값으로 필드를 갱신한 뒤 OnValidate가 돌면, 백엔드에서 적용한 무력화를 덮어쓰지 않도록)
         if (isDisabled)
             gsm.SetNPCDisabled(npcType, Mathf.Max(0, disabledRemainingTurns), string.IsNullOrEmpty(disabledReason) ? "Inspector" : disabledReason);
         else
-            gsm.ClearNPCDisabled(npcType);
+        {
+            NPCStatus current = gsm.GetNPCStatus(npcType);
+            if (current != null && !current.isDisabled)
+                gsm.ClearNPCDisabled(npcType);
+        }
 
         // 위치
         gsm.SetNPCLocation(npcType, currentLocation);
@@ -107,7 +114,10 @@ public class NPCStateDisplay : MonoBehaviour
         }
 
         if (npcType != NPCType.None)
+        {
             NpcGameObjectsByType[npcType] = gameObject;
+            SubscribeToStatusChangedIfNeeded();
+        }
 
         CacheRenderersAndColliders();
         UpdateState();
@@ -116,13 +126,47 @@ public class NPCStateDisplay : MonoBehaviour
     private void OnEnable()
     {
         if (npcType != NPCType.None)
+        {
             NpcGameObjectsByType[npcType] = gameObject;
+            SubscribeToStatusChangedIfNeeded();
+            // 씬 로드/활성화 시 싱글톤 기준으로 즉시 동기화 (다른 씬에서 넘어온 경우 최신 상태 반영)
+            if (GameStateManager.Instance != null)
+                UpdateState();
+        }
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromStatusChanged();
     }
 
     private void OnDestroy()
     {
         if (npcType != NPCType.None)
             NpcGameObjectsByType.Remove(npcType);
+        UnsubscribeFromStatusChanged();
+    }
+
+    private void SubscribeToStatusChangedIfNeeded()
+    {
+        if (subscribedToStatusChanged || GameStateManager.Instance == null || npcType == NPCType.None)
+            return;
+        GameStateManager.Instance.OnNPCStatusChanged += OnNPCStatusChanged;
+        subscribedToStatusChanged = true;
+    }
+
+    private void UnsubscribeFromStatusChanged()
+    {
+        if (!subscribedToStatusChanged || GameStateManager.Instance == null)
+            return;
+        GameStateManager.Instance.OnNPCStatusChanged -= OnNPCStatusChanged;
+        subscribedToStatusChanged = false;
+    }
+
+    private void OnNPCStatusChanged(NPCType npc, NPCStatus status)
+    {
+        if (npc == npcType)
+            UpdateState();
     }
 
     private void CacheRenderersAndColliders()

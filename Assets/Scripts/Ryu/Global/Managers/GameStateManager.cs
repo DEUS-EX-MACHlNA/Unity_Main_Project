@@ -506,11 +506,17 @@ public class GameStateManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 엔딩 씬으로 전환합니다. HasPendingEndingTransition()이 true일 때(내러티브 표시 후 클릭 시) 호출합니다.
+    /// 엔딩 씬으로 전환합니다. 사용자가 대화(내러티브)를 넘긴 뒤(ResultText/대화 클릭)에만 전환해야 하므로
+    /// fromUserClick이 true일 때만 실제 전환을 수행합니다. (InputFieldManager / NightDialogueManager에서만 true로 호출)
     /// </summary>
-    public void LoadEndingScene()
+    /// <param name="fromUserClick">사용자 클릭으로 호출된 경우에만 true. 자동/이벤트 호출 시 false면 전환하지 않음.</param>
+    public void LoadEndingScene(bool fromUserClick = false)
     {
-        endingManager?.LoadEndingScene();
+        if (endingManager == null || !endingManager.HasPendingEnding())
+            return;
+        if (!fromUserClick)
+            return;
+        endingManager.LoadEndingScene();
     }
 
     /// <summary>

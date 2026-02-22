@@ -161,9 +161,12 @@ public class AudioManager : MonoBehaviour
             // 게임플레이 씬: 시간대별 자동 전환
             { "PlayersRoom", MusicPolicy.TimeBased },
             { "Hallway", MusicPolicy.TimeBased },
+            { "Hallway 2", MusicPolicy.TimeBased },
+            { "Hallway 3", MusicPolicy.TimeBased },
             { "LivingRoom", MusicPolicy.TimeBased },
             { "Kitchen", MusicPolicy.TimeBased },
             { "SiblingsRoom", MusicPolicy.TimeBased },
+            { "ParentsRoom", MusicPolicy.TimeBased },
             { "Basement", MusicPolicy.TimeBased },
             { "Backyard", MusicPolicy.TimeBased },
             
