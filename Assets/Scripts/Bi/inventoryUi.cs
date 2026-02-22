@@ -22,7 +22,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Sprite sprRealFamilyPhoto;
     [SerializeField] private Sprite sprWhaleOilCan;
     [SerializeField] private Sprite sprSilverLighter;
-    [SerializeField] private Sprite sprOldRobotToy;
     [SerializeField] private Sprite sprBrassKey;
 
     [Header("아이템 사용 시 입력될 InputField")]
@@ -152,7 +151,6 @@ public class InventoryUI : MonoBehaviour
             ItemType.RealFamilyPhoto => sprRealFamilyPhoto,
             ItemType.WhaleOilCan     => sprWhaleOilCan,
             ItemType.SilverLighter   => sprSilverLighter,
-            ItemType.OldRobotToy     => sprOldRobotToy,
             ItemType.BrassKey        => sprBrassKey,
             _                        => null
         };
@@ -167,7 +165,6 @@ public class InventoryUI : MonoBehaviour
             ItemType.RealFamilyPhoto => "real_family_photo",
             ItemType.WhaleOilCan     => "oil_bottle",
             ItemType.SilverLighter   => "silver_lighter",
-            ItemType.OldRobotToy     => "siblings_toy",
             ItemType.BrassKey        => "brass_key",
             _                        => item.ToString().ToLower()
         };
