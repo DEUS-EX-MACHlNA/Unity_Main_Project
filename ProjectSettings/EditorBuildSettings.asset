@@ -53,6 +53,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Ryu/ParentsRoom.unity
     guid: 2b7089f7149910346b0492ac3fc9128e
+  - enabled: 1
+    path: Assets/Scenes/Bi/pg.unity
+    guid: 123dde4d3f51b440faa023ad364dcde6
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
