@@ -20,12 +20,15 @@ public class PrologueManager : MonoBehaviour
     [Header("Overlay")]
     public Image fadeOverlay;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip knockingSound;
+
     private string[] paragraphs = {
-        "어느 날부터 사람들이 잠들기 시작했습니다.\n그리고 깨어나지 않았습니다.\n의학계는 이것을 <b>N.O.A.H.</b>라 불렀습니다.\nNon-specific Occurrence of Atypical Hypnosia.\n비전형적 최면 장애.\n약도 소용없었습니다. 전기 자극도, 물리적 충격도.\n외부에서 할 수 있는 건 아무것도 없었습니다.\n환자는 오직 스스로만 깨어날 수 있었습니다.",
-        "꿈속에는 무언가가 있습니다.\n각자가 가장 깊숙이 묻어둔 것.\n절대 꺼내지 않으려 했던 것.\nN.O.A.H.는 그것을 끄집어내 형체를 만들고, 환자를 그 앞에 세웁니다.\n도망치면 루프는 다시 시작됩니다.\n눈을 돌리면 루프는 다시 시작됩니다.\n그것을 똑바로 마주하고, 근원을 해소해야만 — 비로소 눈이 열립니다.\n실패하면.\n심장은 뛰지만, 그 사람은 돌아오지 않습니다.",
-        "<color=red><size=60><b>직면하지 못하면, 영원히 잠든다.</b></size></color>",
-        "지금, 누군가가 잠들었습니다.\n당신은 그 꿈속으로 들어가야 합니다.\n그리고 기억하십시오.\n그 꿈은 — 당신의 것이 아닙니다.\n하지만 당신의 공포는, 어디서든 따라옵니다.",
-        "<color=red><size=60><b>지금도 복도 끝에서 누군가 문을 두드리고 있습니다.</b></size></color>"
+        "<color=#C8C7B4>어느 날부터 사람들이 잠들기 시작했습니다.\n\n그리고 깨어나지 않았습니다.\n\n의학계는 이것을 <b>N.O.A.H.</b>라 불렀습니다.\n\nNon-specific Occurrence of Atypical Hypnosia.\n\n비전형적 최면 장애.\n\n약도 소용없었습니다. 전기 자극도, 물리적 충격도.\n외부에서 할 수 있는 건 아무것도 없었습니다.\n\n환자는 오직 스스로만 깨어날 수 있었습니다.</color>",
+        "꿈속에는 무언가가 있습니다.\n\n각자가 가장 깊숙이 묻어둔 것.\n절대 꺼내지 않으려 했던 것.\n\nN.O.A.H.는 그것을 끄집어내 형체를 만들고, 환자를 그 앞에 세웁니다.\n\n도망치면 루프는 다시 시작됩니다.\n\n눈을 돌리면 루프는 다시 시작됩니다.\n\n그것을 똑바로 마주하고, 근원을 해소해야만 비로소 눈이 열립니다.\n\n실패하면.\n심장은 뛰지만, 그 사람은 돌아오지 않습니다.",
+        "지금, 누군가가 잠들었습니다.\n\n당신은 그 꿈속으로 들어가야 합니다.\n\n그리고 기억하십시오.\n그 꿈은 당신의 것이 아닙니다.\n\n\n하지만 당신의 공포는, 어디서든 따라옵니다.",
+        "<color=red><size=80>지금도 복도 끝에서 누군가 문을 두드리고 있습니다.</size></color>"
     };
 
     private bool skipRequested = false;
@@ -84,7 +87,7 @@ public class PrologueManager : MonoBehaviour
 
             if (i == paragraphs.Length - 1)
             {
-                // 마지막 문단 → 타이핑 효과
+                // 마지막 문단 → 타이핑 효과 + 노크 소리
                 textUI.color = new Color(1, 1, 1, 1);
                 yield return StartCoroutine(TypeText(paragraphs[i]));
             }
@@ -136,6 +139,12 @@ public class PrologueManager : MonoBehaviour
     {
         textUI.text = text;
         textUI.maxVisibleCharacters = 0;
+        
+        if (audioSource != null && knockingSound != null)
+        {
+            audioSource.clip = knockingSound;
+            audioSource.Play();
+        }
 
         int totalChars = textUI.textInfo.characterCount;
         for (int i = 0; i <= totalChars; i++)
