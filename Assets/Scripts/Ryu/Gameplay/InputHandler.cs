@@ -43,10 +43,21 @@ public class InputHandler : MonoBehaviour
             Debug.LogError("[InputHandler] InputField 또는 ResultText가 연결되지 않았습니다.");
         }
 
-        // ApiResponseHandler 초기화
-        if (gameStateManager != null && turnManager != null && resultText != null)
+        // ApiClient가 Inspector에서 설정되지 않았으면 싱글톤 인스턴스 사용
+        if (apiClient == null)
         {
-            apiResponseHandler = new ApiResponseHandler(gameStateManager, turnManager, resultText);
+            apiClient = ApiClient.Instance;
+        }
+
+        // ApiResponseHandler 초기화 (GameStateManager.Instance 우선 사용)
+        GameStateManager gsmForHandler = GameStateManager.Instance != null ? GameStateManager.Instance : gameStateManager;
+        if (gsmForHandler != null && turnManager != null && resultText != null)
+        {
+            apiResponseHandler = new ApiResponseHandler(gsmForHandler, turnManager, resultText);
+        }
+        else
+        {
+            Debug.LogWarning($"[InputHandler] ApiResponseHandler 초기화 실패: gameStateManager={(gsmForHandler != null ? "설정됨" : "null")}, turnManager={(turnManager != null ? "설정됨" : "null")}, resultText={(resultText != null ? "설정됨" : "null")}");
         }
 
         // InputField 이벤트 리스너 등록
@@ -101,18 +112,24 @@ public class InputHandler : MonoBehaviour
             inputFieldManager.ClearInputField();
         }
 
+        // ApiClient가 null이면 싱글톤 인스턴스 사용 (씬 전환 후에도 안전하게 작동)
+        if (apiClient == null)
+        {
+            apiClient = ApiClient.Instance;
+        }
+
         // API 호출 (선택된 NPC/아이템 정보 전달)
         if (apiClient != null && apiResponseHandler != null)
         {
             apiClient.SendMessage(text, selectedNpcName, selectedItemName, apiResponseHandler.OnApiSuccess, apiResponseHandler.OnApiError);
-            
+
             // API 전송 후 선택 상태 초기화
             selectedNpcName = "";
             selectedItemName = "";
         }
         else
         {
-            Debug.LogError("[InputHandler] ApiClient 또는 ApiResponseHandler가 연결되지 않았습니다.");
+            Debug.LogError($"[InputHandler] ApiClient 또는 ApiResponseHandler가 연결되지 않았습니다. apiClient={(apiClient != null ? "설정됨" : "null")}, apiResponseHandler={(apiResponseHandler != null ? "설정됨" : "null")}");
             if (inputFieldManager != null)
             {
                 inputFieldManager.SetResultText("ApiClient가 연결되지 않았습니다.");
