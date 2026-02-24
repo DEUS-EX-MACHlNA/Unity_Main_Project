@@ -10,7 +10,6 @@ public class PrologueManager : MonoBehaviour
     [Header("Video")]
     public VideoPlayer videoPlayer;
     public RawImage videoImage;
-    public float videoFadeOutDuration = 2.0f;
 
     [Header("Text")]
     public TextMeshProUGUI textUI;
@@ -21,6 +20,8 @@ public class PrologueManager : MonoBehaviour
     public Image fadeOverlay;
 
     [Header("Audio")]
+    public AudioSource bgmSource;
+    public AudioClip bgmClip;
     public AudioSource audioSource;
     public AudioClip knockingSound;
 
@@ -35,6 +36,12 @@ public class PrologueManager : MonoBehaviour
 
     void Start()
     {
+        if (bgmSource != null && bgmClip != null)
+        {
+            bgmSource.clip = bgmClip;
+            bgmSource.Play();
+        }
+
         fadeOverlay.color = new Color(0, 0, 0, 0);
         textUI.color = new Color(1, 1, 1, 0);
         textUI.text = "";
@@ -58,14 +65,28 @@ public class PrologueManager : MonoBehaviour
         yield return new WaitUntil(() => videoPlayer.isPrepared);
         videoPlayer.Play();
 
+        // 영상 끝날 때까지 대기
         yield return new WaitUntil(() => videoPlayer.frame >= (long)videoPlayer.frameCount - 2);
+        yield return new WaitForSeconds(0.5f);
 
+        // 암전 2초 + BGM 동시에 페이드 아웃
         float elapsed = 0f;
-        while (elapsed < videoFadeOutDuration)
+        float originalVolume = bgmSource != null ? bgmSource.volume : 1f;
+        while (elapsed < 2.0f)
         {
             elapsed += Time.deltaTime;
-            fadeOverlay.color = new Color(0, 0, 0, Mathf.Clamp01(elapsed / videoFadeOutDuration));
+            fadeOverlay.color = new Color(0, 0, 0, Mathf.Clamp01(elapsed / 2.0f));
+
+            if (bgmSource != null)
+                bgmSource.volume = originalVolume * (1f - Mathf.Clamp01(elapsed / 2.0f));
+
             yield return null;
+        }
+
+        if (bgmSource != null)
+        {
+            bgmSource.volume = 0f;
+            bgmSource.Stop();
         }
 
         fadeOverlay.color = new Color(0, 0, 0, 1);
@@ -87,13 +108,11 @@ public class PrologueManager : MonoBehaviour
 
             if (i == paragraphs.Length - 1)
             {
-                // 마지막 문단 → 타이핑 효과 + 노크 소리
                 textUI.color = new Color(1, 1, 1, 1);
                 yield return StartCoroutine(TypeText(paragraphs[i]));
             }
             else
             {
-                // 나머지 → 페이드 인
                 textUI.text = paragraphs[i];
                 textUI.color = new Color(1, 1, 1, 0);
 
@@ -112,13 +131,11 @@ public class PrologueManager : MonoBehaviour
                 }
             }
 
-            // 클릭 대기
             skipRequested = false;
             yield return new WaitForEndOfFrame();
             yield return new WaitUntil(() => skipRequested);
             skipRequested = false;
 
-            // 페이드 아웃
             if (i == paragraphs.Length - 1)
             {
                 yield return StartCoroutine(FadeOutText());
@@ -139,7 +156,7 @@ public class PrologueManager : MonoBehaviour
     {
         textUI.text = text;
         textUI.maxVisibleCharacters = 0;
-        
+
         if (audioSource != null && knockingSound != null)
         {
             audioSource.clip = knockingSound;
