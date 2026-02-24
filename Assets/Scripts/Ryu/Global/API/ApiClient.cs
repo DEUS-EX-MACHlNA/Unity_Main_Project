@@ -253,15 +253,27 @@ public class ApiClient : MonoBehaviour
         Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
-        // 백엔드 요청 (응답 수신 시 페이드 아웃 → 페이드 인 후 콜백 호출)
+        // 로딩 시작
+        if (LoadingSpinner.Instance != null)
+            LoadingSpinner.Instance.ShowLoading();
+
         Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> wrappedOnSuccess =
             (response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger) =>
             {
+                // 로딩 끄기
+                if (LoadingSpinner.Instance != null)
+                    LoadingSpinner.Instance.HideLoading();
+
                 StartCoroutine(FadeOutFadeInThenInvoke(DayDialogueFadeDuration, () =>
                     onSuccess?.Invoke(response, humanityChange, npcAffection, npcHumanity, npcDisabled, itemChanges, eventFlags, endingTrigger)));
             };
+
         Action<string> wrappedOnError = (err) =>
         {
+            // 로딩 끄기
+            if (LoadingSpinner.Instance != null)
+                LoadingSpinner.Instance.HideLoading();
+
             StartCoroutine(FadeOutFadeInThenInvoke(DayDialogueFadeDuration, () => onError?.Invoke(err)));
         };
 

@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public int nextSceneBuildIndex = 1;
 
     [Header("Panels")]
-    public GameObject firstPanel;      // 시작 화면 추가!
+    public GameObject firstPanel;
     public GameObject menuPanel;
     public GameObject saveLoadPanel;
     public GameObject howToPlayPanel;
@@ -20,20 +20,17 @@ public class GameManager : MonoBehaviour
     public float fadeDuration = 1.5f;
 
     [Header("Game Start Settings")]
-    [SerializeField] private int scenarioId = 5;  // 시나리오 ID 고정
-    [SerializeField] private int userId = 1;      // 사용자 ID 고정
+    [SerializeField] private int scenarioId = 5;
+    [SerializeField] private int userId = 1;
 
-    // 상수로 정의 (Inspector에서 수정 불가능)
-    private const string PLAYERS_ROOM_SCENE_NAME = "PlayersRoom";
+    private const string PLAYERS_ROOM_SCENE_NAME = "pg";
 
     private ApiClient apiClient;
+    
 
     void Start()
     {
-        // 시작할 때 첫 화면만 표시
         ShowFirstPanel();
-
-        // ApiClient 싱글톤 인스턴스 사용
         apiClient = ApiClient.Instance;
     }
 
@@ -84,19 +81,15 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"[GameManager] 시나리오 시작: scenarioId={scenarioId}, userId={userId}");
 
-        // 시나리오 시작 API 호출
         apiClient.StartScenario(scenarioId, userId,
             (gameId) =>
             {
                 Debug.Log($"[GameManager] 게임 시작 성공: gameId={gameId}");
-                // API 호출 성공 후 PlayersRoom 씬으로 전환
                 StartCoroutine(FadeAndLoadSceneByName(PLAYERS_ROOM_SCENE_NAME));
             },
             (error) =>
             {
                 Debug.LogError($"[GameManager] 게임 시작 실패: {error}");
-                // 에러 발생 시 사용자에게 알림 (선택적)
-                // 여기서는 로그만 출력
             }
         );
     }
