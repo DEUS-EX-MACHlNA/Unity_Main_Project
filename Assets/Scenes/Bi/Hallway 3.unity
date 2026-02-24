@@ -164,6 +164,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &140924638
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -902,6 +904,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &861727113
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -1463,7 +1467,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 333.30017, y: -200}
+  m_AnchoredPosition: {x: 345.3002, y: -200}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &960690703
@@ -1875,6 +1879,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6953509827240508213, guid: f83c88dcf8c57fd4c84ea9460f38a4c1, type: 3}
+      propertyPath: m_fontSize
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 6953509827240508213, guid: f83c88dcf8c57fd4c84ea9460f38a4c1, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 7226140486032073938, guid: f83c88dcf8c57fd4c84ea9460f38a4c1, type: 3}
       propertyPath: m_text
       value: "\u200B"
@@ -1981,7 +1993,6 @@ MonoBehaviour:
   sprRealFamilyPhoto: {fileID: 2727626612452225211, guid: 652f90022bbe5734c8f9affa50ef547e, type: 3}
   sprWhaleOilCan: {fileID: 4664243952616765988, guid: 788f9ca85c8304747b43b97f4ce04279, type: 3}
   sprSilverLighter: {fileID: -8771740757203877521, guid: 106296378b8228641a610bdd4c1511c2, type: 3}
-  sprOldRobotToy: {fileID: -5146670762495775546, guid: 6425afa730b02aa4f80b44fd977ffd2f, type: 3}
   sprBrassKey: {fileID: -105049869037762682, guid: b342af3020548434883f924c314e33fe, type: 3}
   inputField: {fileID: 0}
   invenPanel: {fileID: 550984114}
@@ -2420,6 +2431,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &1488547304
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -2613,8 +2626,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "> \uC778\uBCA4\uD1A0\uB9AC"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 29557bb714324644c919bb890e390ed4, type: 2}
-  m_sharedMaterial: {fileID: 2436106265955362797, guid: 29557bb714324644c919bb890e390ed4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7c7b81cd744f640e0861243814214f25, type: 2}
+  m_sharedMaterial: {fileID: 285686480477268799, guid: 7c7b81cd744f640e0861243814214f25, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2638,8 +2651,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2731,6 +2744,8 @@ MonoBehaviour:
   clickSound: {fileID: 8300000, guid: 8b0f2d2979389c24b9f7453461c16e76, type: 3}
   soundVolume: 1
   clickCooldown: 0.1
+  tooltipTitle: 
+  showTooltip: 1
 --- !u!60 &1629141316
 PolygonCollider2D:
   m_ObjectHideFlags: 0

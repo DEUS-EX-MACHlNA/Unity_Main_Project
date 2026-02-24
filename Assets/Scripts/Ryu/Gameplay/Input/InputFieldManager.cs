@@ -1,23 +1,17 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using System;
 
-/// <summary>
-/// InputField와 ResultText UI 관리를 담당하는 클래스입니다.
-/// UI 표시/숨김 및 클릭 이벤트를 처리합니다.
-/// </summary>
 public class InputFieldManager
 {
     private TMP_InputField inputField;
     private TextMeshProUGUI resultText;
     private GameStateManager gameStateManager;
 
-    /// <summary>
-    /// InputFieldManager 생성자
-    /// </summary>
-    /// <param name="inputField">InputField 컴포넌트</param>
-    /// <param name="resultText">ResultText 컴포넌트</param>
-    /// <param name="gameStateManager">엔딩 대기 시 클릭으로 씬 전환을 위해 사용 (선택)</param>
+    private string[] paragraphs;
+    private int currentParagraphIndex = 0;
+
     public InputFieldManager(TMP_InputField inputField, TextMeshProUGUI resultText, GameStateManager gameStateManager = null)
     {
         this.inputField = inputField;
@@ -25,9 +19,6 @@ public class InputFieldManager
         this.gameStateManager = gameStateManager;
     }
 
-    /// <summary>
-    /// InputField를 활성화하고 ResultText를 비활성화합니다.
-    /// </summary>
     public void ShowInputField()
     {
         if (inputField != null)
@@ -43,9 +34,6 @@ public class InputFieldManager
         }
     }
 
-    /// <summary>
-    /// ResultText를 활성화하고 InputField를 비활성화합니다.
-    /// </summary>
     public void ShowResultText()
     {
         if (inputField != null)
@@ -59,17 +47,12 @@ public class InputFieldManager
         }
     }
 
-    /// <summary>
-    /// ResultText에 클릭 이벤트 리스너를 추가합니다.
-    /// </summary>
     public void AddClickListenerToResultText()
     {
         if (resultText == null)
             return;
 
         GameObject resultObj = resultText.gameObject;
-
-        // Raycast Target이 활성화되어 있어야 클릭 감지 가능
         resultText.raycastTarget = true;
 
         EventTrigger trigger = resultObj.GetComponent<EventTrigger>();
@@ -82,15 +65,9 @@ public class InputFieldManager
         trigger.triggers.Add(entry);
     }
 
-    /// <summary>
-    /// 엔딩/씬 전환에 사용할 GameStateManager. 씬 전환 후에도 동작하도록 Instance를 우선 사용합니다.
-    /// </summary>
     private GameStateManager EffectiveGameStateManager =>
         GameStateManager.Instance != null ? GameStateManager.Instance : gameStateManager;
 
-    /// <summary>
-    /// ResultText 클릭 시: 엔딩 대기 중이면 엔딩 씬으로 전환, 아니면 InputField로 전환합니다.
-    /// </summary>
     private void OnResultTextClicked()
     {
         GameStateManager gsm = EffectiveGameStateManager;
@@ -100,25 +77,31 @@ public class InputFieldManager
             gsm.LoadEndingScene(fromUserClick: true);
             return;
         }
+
+        // 다음 문단이 있으면 보여주기
+        if (paragraphs != null && currentParagraphIndex < paragraphs.Length - 1)
+        {
+            currentParagraphIndex++;
+            resultText.text = paragraphs[currentParagraphIndex];
+            return;
+        }
+
+        // 모든 문단 다 봤으면 InputField로 전환
         Debug.Log("[InputFieldManager] ResultText 클릭 → InputField로 전환");
         ShowInputField();
     }
 
-    /// <summary>
-    /// ResultText의 텍스트를 설정합니다.
-    /// </summary>
-    /// <param name="text">설정할 텍스트</param>
     public void SetResultText(string text)
     {
         if (resultText != null)
         {
-            resultText.text = text;
+            paragraphs = text.Split(new string[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+            currentParagraphIndex = 0;
+            Debug.Log($"[InputFieldManager] 문단 수: {paragraphs.Length}"); // 이거 추가!
+            resultText.text = paragraphs[0];
         }
     }
 
-    /// <summary>
-    /// InputField의 텍스트를 비웁니다.
-    /// </summary>
     public void ClearInputField()
     {
         if (inputField != null)
@@ -127,13 +110,8 @@ public class InputFieldManager
         }
     }
 
-    /// <summary>
-    /// InputField가 활성화되어 있는지 확인합니다.
-    /// </summary>
-    /// <returns>활성화되어 있으면 true</returns>
     public bool IsInputFieldActive()
     {
         return inputField != null && inputField.gameObject.activeSelf;
     }
 }
-
