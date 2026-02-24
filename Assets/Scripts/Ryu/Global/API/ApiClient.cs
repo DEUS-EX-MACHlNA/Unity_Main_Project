@@ -6,15 +6,40 @@ using UnityEngine;
 /// <summary>
 /// API 클라이언트 메인 코디네이터 클래스입니다.
 /// 각 API 모듈을 조율하여 API 요청을 처리합니다.
+/// 싱글톤 패턴으로 구현되어 씬 전환 시에도 동일한 인스턴스가 유지됩니다.
 /// </summary>
 public class ApiClient : MonoBehaviour
 {
+    private static ApiClient instance;
+
+    /// <summary>
+    /// ApiClient 싱글톤 인스턴스를 반환합니다.
+    /// 인스턴스가 없으면 자동으로 생성합니다.
+    /// </summary>
+    public static ApiClient Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindFirstObjectByType<ApiClient>();
+                if (instance == null)
+                {
+                    GameObject apiClientObj = new GameObject("ApiClient");
+                    instance = apiClientObj.AddComponent<ApiClient>();
+                    DontDestroyOnLoad(apiClientObj);
+                }
+            }
+            return instance;
+        }
+    }
+
     [Header("Server Settings")]
     [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
-    private int gameId = 38;
+    private int gameId = 0;  // 백엔드에서 받아온 값으로 설정됨 (0은 미설정 상태)
 
     [Header("Timeout Settings")]
-    [SerializeField] private float timeoutSeconds = 3f;
+    [SerializeField] private float timeoutSeconds = 200f;
 
     public const string MOCK_RESPONSE = "서버 응답을 기다리는 중... 기본 응답입니다.";
 
@@ -24,15 +49,56 @@ public class ApiClient : MonoBehaviour
 
     private void Awake()
     {
+        // 싱글톤 패턴: 이미 인스턴스가 있으면 자신을 파괴
+        if (instance != null && instance != this)
+        {
+            Debug.LogWarning("[ApiClient] 중복 인스턴스가 감지되었습니다. 기존 인스턴스를 유지합니다.");
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
         // API 클라이언트 초기화
         gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
         scenarioStartApiClient = new ScenarioStartApiClient(baseUrl, timeoutSeconds);
     }
 
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
+
+    /// <summary>
+    /// 게임 ID를 설정합니다. 백엔드 API에서 받아온 game_id를 사용합니다.
+    /// </summary>
+    /// <param name="newGameId">백엔드에서 받아온 game_id</param>
     private void SetGameId(int newGameId)
     {
+        if (newGameId <= 0)
+        {
+            Debug.LogWarning($"[ApiClient] 유효하지 않은 game_id: {newGameId}");
+            return;
+        }
         gameId = newGameId;
         Debug.Log($"[ApiClient] 게임 ID 설정: {gameId}");
+    }
+
+    /// <summary>
+    /// 현재 설정된 게임 ID를 반환합니다. 게임이 시작되지 않았으면 0을 반환합니다.
+    /// </summary>
+    /// <returns>현재 game_id (미설정 시 0)</returns>
+    public int GetGameId()
+    {
+        if (gameId <= 0)
+        {
+            Debug.LogWarning("[ApiClient] game_id가 아직 설정되지 않았습니다. StartScenario를 먼저 호출하세요.");
+        }
+        return gameId;
     }
 
     // ============================================
@@ -92,7 +158,8 @@ public class ApiClient : MonoBehaviour
         return StartCoroutine(scenarioStartApiClient.StartScenarioCoroutine(
             scenarioId,
             userId,
-            (response) => {
+            (response) =>
+            {
                 SetGameId(response.game_id);
                 // GameStepApiClient도 새로운 gameId로 재초기화
                 gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
@@ -164,6 +231,14 @@ public class ApiClient : MonoBehaviour
         Action<string, float, NPCAffectionChanges, NPCHumanityChanges, NPCDisabledStates, ItemChanges, EventFlags, string> onSuccess,
         Action<string> onError)
     {
+        // game_id가 설정되지 않았으면 에러 반환
+        if (gameId <= 0)
+        {
+            Debug.LogError("[ApiClient] game_id가 설정되지 않았습니다. StartScenario를 먼저 호출하세요.");
+            onError?.Invoke("게임이 시작되지 않았습니다. StartScenario를 먼저 호출하세요.");
+            return null;
+        }
+
         if (gameStepApiClient == null)
         {
             gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);

@@ -12,11 +12,11 @@ public class TitleManager : MonoBehaviour
     private Button startButton;
     private SceneFadeManager fadeManager;
     private ApiClient apiClient;
-    
+
     [Header("Game Start Settings")]
-    [SerializeField] private int scenarioId = 1;
-    [SerializeField] private int userId = 1;
-    
+    [SerializeField] private int scenarioId = 5;  // 시나리오 ID 고정
+    [SerializeField] private int userId = 1;      // 사용자 ID 고정
+
     // 상수로 정의 (Inspector에서 수정 불가능)
     private const string PLAYERS_ROOM_SCENE_NAME = "PlayersRoom";
     private const float FADE_DURATION = 1f;
@@ -37,15 +37,7 @@ public class TitleManager : MonoBehaviour
         }
 
         fadeManager = FindFirstObjectByType<SceneFadeManager>();
-        apiClient = FindFirstObjectByType<ApiClient>();
-        
-        // ApiClient가 없으면 생성
-        if (apiClient == null)
-        {
-            GameObject apiClientObj = new GameObject("ApiClient");
-            apiClient = apiClientObj.AddComponent<ApiClient>();
-            DontDestroyOnLoad(apiClientObj);
-        }
+        apiClient = ApiClient.Instance;  // 싱글톤 인스턴스 사용
     }
 
     private void Start()
@@ -84,7 +76,8 @@ public class TitleManager : MonoBehaviour
 
         // 시나리오 시작 API 호출
         apiClient.StartScenario(scenarioId, userId,
-            (gameId) => {
+            (gameId) =>
+            {
                 Debug.Log($"[TitleManager] 게임 시작 성공: gameId={gameId}");
                 // 씬 전환
                 if (fadeManager != null)
@@ -97,7 +90,8 @@ public class TitleManager : MonoBehaviour
                     SceneManager.LoadScene(PLAYERS_ROOM_SCENE_NAME);
                 }
             },
-            (error) => {
+            (error) =>
+            {
                 Debug.LogError($"[TitleManager] 게임 시작 실패: {error}");
                 // 에러 발생 시 버튼 다시 활성화
                 if (startButton != null)

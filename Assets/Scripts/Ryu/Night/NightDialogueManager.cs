@@ -33,7 +33,7 @@ public class NightDialogueManager : MonoBehaviour
 
     [Header("API Settings")]
     [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
-    [SerializeField] private float timeoutSeconds = 30f;
+    [SerializeField] private float timeoutSeconds = 300f;
 
     private DialogueLine[] dialogues;
     private int currentDialogueIndex = 0;
@@ -82,10 +82,10 @@ public class NightDialogueManager : MonoBehaviour
     private void Start()
     {
         SetupUILayout();
-        
+
         // 누적 텍스트 초기화
         accumulatedText = "";
-        
+
         if (dialoguePanel != null)
         {
             dialoguePanel.SetActive(true);
@@ -186,7 +186,7 @@ public class NightDialogueManager : MonoBehaviour
             onSuccess: (backendDialogues, narrative, humanityChange, affectionChanges, humanityChanges, disabledStates, itemChanges, eventFlags, endingTrigger) =>
             {
                 isApiRequestInProgress = false;
-                
+
                 // 대화 배열 변환 (BackendDialogueLine[] → DialogueLine[])
                 if (backendDialogues != null && backendDialogues.Length > 0)
                 {
@@ -224,7 +224,7 @@ public class NightDialogueManager : MonoBehaviour
                 isApiRequestInProgress = false;
                 Debug.LogError($"[NightDialogueManager] 밤의 대화 요청 실패: {error}");
                 Debug.Log("[NightDialogueManager] 기본 대화를 사용합니다.");
-                
+
                 // 에러 시 기본 대화 사용 (fallback)
                 InitializeDefaultDialogues();
                 ShowDialogue(0);
@@ -351,7 +351,7 @@ public class NightDialogueManager : MonoBehaviour
 
         // 새 대사를 누적 텍스트에 추가 (형식: "화자 이름: 대사 내용\n\n")
         string newDialogue = $"{line.speakerName}: {line.dialogue}\n\n";
-        
+
         // 대사 타이핑 효과로 표시 (기존 텍스트는 유지하고 새 대사만 타이핑)
         if (dialogueText != null)
         {
@@ -377,10 +377,10 @@ public class NightDialogueManager : MonoBehaviour
     private IEnumerator TypeDialogueAccumulated(string newDialogue)
     {
         isTyping = true;
-        
+
         // 기존 누적 텍스트는 유지하고, 새 대사만 문자 단위로 추가
         string currentNewText = "";
-        
+
         foreach (char c in newDialogue)
         {
             currentNewText += c;
@@ -512,7 +512,7 @@ public class NightDialogueManager : MonoBehaviour
     {
         isTestMode = testMode;
         Debug.Log($"[NightDialogueManager] 테스트 모드 설정: {testMode}");
-        
+
         // 테스트 모드로 전환할 때 진행 중인 API 요청이 있다면 취소
         if (testMode && isApiRequestInProgress && apiRequestCoroutine != null)
         {
