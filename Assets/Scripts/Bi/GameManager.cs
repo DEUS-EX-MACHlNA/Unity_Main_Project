@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
     public GameObject menuPanel;
     public GameObject saveLoadPanel;
     public GameObject howToPlayPanel;
+    public GameObject langPanel;        // 추가!
     public Image fadePanel;
 
     [Header("Fade Settings")]
@@ -26,7 +28,6 @@ public class GameManager : MonoBehaviour
     private const string PLAYERS_ROOM_SCENE_NAME = "pg";
 
     private ApiClient apiClient;
-    
 
     void Start()
     {
@@ -61,12 +62,25 @@ public class GameManager : MonoBehaviour
         howToPlayPanel.SetActive(true);
     }
 
+    public void ShowLangPanel()
+    {
+        HideAllPanels();
+        langPanel.SetActive(true);
+    }
+
+    public void BackToMenuFromLang()
+    {
+        HideAllPanels();
+        menuPanel.SetActive(true);
+    }
+
     void HideAllPanels()
     {
         firstPanel.SetActive(false);
         menuPanel.SetActive(false);
         saveLoadPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
+        langPanel.SetActive(false);     // 추가!
     }
 
     // ========== 게임 시작/종료 ==========
@@ -104,7 +118,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(FadeAndQuit());
     }
 
-    // 씬 로드 (빌드 인덱스 사용)
     IEnumerator FadeAndLoadScene(int sceneIndex)
     {
         float elapsed = 0f;
@@ -121,7 +134,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneIndex);
     }
 
-    // 씬 로드 (씬 이름 사용)
     IEnumerator FadeAndLoadSceneByName(string sceneName)
     {
         float elapsed = 0f;
@@ -138,7 +150,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
-    // 게임 종료
     IEnumerator FadeAndQuit()
     {
         float elapsed = 0f;
