@@ -43,9 +43,12 @@ public class ApiResponseHandler
         Debug.Log($"[ApiResponseHandler] 인간성 변화량: {humanityChange:F1}");
 
         // 응답 텍스트 표시 - InputFieldManager 있으면 문단 나누기 사용
+        // 기존
+        // 수정 후
         if (inputFieldManager != null)
         {
-            inputFieldManager.SetResultText(response);
+            inputFieldManager.ShowResultText(); // resultText 활성화 먼저!
+            inputFieldManager.SetResultTextWithTyping(response);
         }
         else if (resultText != null)
         {

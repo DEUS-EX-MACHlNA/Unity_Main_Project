@@ -53,7 +53,8 @@ public class InputHandler : MonoBehaviour
         GameStateManager gsmForHandler = GameStateManager.Instance != null ? GameStateManager.Instance : gameStateManager;
         if (gsmForHandler != null && turnManager != null && resultText != null)
         {
-            apiResponseHandler = new ApiResponseHandler(gsmForHandler, turnManager, resultText);
+            // ✅ inputFieldManager 전달 추가
+            apiResponseHandler = new ApiResponseHandler(gsmForHandler, turnManager, resultText, inputFieldManager);
         }
         else
         {

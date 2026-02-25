@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 /// <summary>
 /// API 클라이언트 메인 코디네이터 클래스입니다.
@@ -71,6 +72,56 @@ public class ApiClient : MonoBehaviour
         {
             instance = null;
         }
+    }
+    
+    // ============================================
+// 타이핑 효과
+// ============================================
+
+    private Coroutine typingCoroutine;
+
+    /// <summary>
+    /// 타이핑 효과 코루틴을 시작합니다. InputFieldManager에서 위임받아 실행합니다.
+    /// </summary>
+    public void StartTypingEffect(string text, float typingSpeed, TextMeshProUGUI targetText, Action onComplete)
+    {
+        // 이전 타이핑 중단
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+        typingCoroutine = StartCoroutine(TypingCoroutine(text, typingSpeed, targetText, onComplete));
+    }
+
+    /// <summary>
+    /// 진행 중인 타이핑 코루틴을 중단합니다.
+    /// </summary>
+    public void StopTyping()
+    {
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+    }
+
+    private IEnumerator TypingCoroutine(string text, float typingSpeed, TextMeshProUGUI targetText, Action onComplete)
+    {
+        Debug.Log($"[TypingCoroutine] 시작! 텍스트 길이: {text.Length}, targetText null여부: {targetText == null}, active여부: {targetText?.gameObject.activeInHierarchy}");
+    
+        string currentText = "";
+        foreach (char c in text)
+        {
+            currentText += c;
+            if (targetText != null)
+                targetText.text = currentText;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        Debug.Log("[TypingCoroutine] 완료!");
+        typingCoroutine = null;
+        onComplete?.Invoke();
     }
 
     /// <summary>
