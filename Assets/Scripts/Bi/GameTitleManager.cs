@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 
-public class GameManager : MonoBehaviour
+public class TitleManager : MonoBehaviour
 {
     [Header("Scene Settings")]
     public int titleSceneBuildIndex = 0;

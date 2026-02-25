@@ -6,7 +6,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 게임 시작 씬을 관리하고 게임 시작 기능을 제공합니다.
 /// </summary>
-public class TitleManager : MonoBehaviour
+public class GameTitleManager : MonoBehaviour
 {
     private TextMeshProUGUI titleText;
     private Button startButton;
