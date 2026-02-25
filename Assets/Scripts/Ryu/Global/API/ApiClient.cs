@@ -35,7 +35,7 @@ public class ApiClient : MonoBehaviour
     }
 
     [Header("Server Settings")]
-    [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
+    [SerializeField] private string baseUrl = "https://9221-54-82-46-47.ngrok-free.app";
     private int gameId = 0;  // 백엔드에서 받아온 값으로 설정됨 (0은 미설정 상태)
 
     [Header("Timeout Settings")]
