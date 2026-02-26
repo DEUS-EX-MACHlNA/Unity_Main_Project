@@ -67,10 +67,10 @@ public static class NameMapper
     {
         if (string.IsNullOrEmpty(itemName))
             return ItemType.None;
-        
+
         if (itemNameMapping.TryGetValue(itemName.ToLower(), out ItemType itemType))
             return itemType;
-        
+
         Debug.LogWarning($"[NameMapper] 알 수 없는 아이템 이름: {itemName}");
         return ItemType.None;
     }
@@ -82,10 +82,10 @@ public static class NameMapper
     {
         if (string.IsNullOrEmpty(locationName))
             return GameLocation.Hallway; // 기본값
-        
+
         if (locationNameMapping.TryGetValue(locationName.ToLower(), out GameLocation location))
             return location;
-        
+
         Debug.LogWarning($"[NameMapper] 알 수 없는 위치 이름: {locationName}");
         return GameLocation.Hallway; // 기본값
     }
@@ -97,10 +97,10 @@ public static class NameMapper
     {
         if (string.IsNullOrEmpty(endingName))
             return EndingType.None;
-        
+
         if (endingNameMapping.TryGetValue(endingName.ToLower(), out EndingType endingType))
             return endingType;
-        
+
         Debug.LogWarning($"[NameMapper] 알 수 없는 엔딩 이름: {endingName}");
         return EndingType.None;
     }
@@ -112,12 +112,36 @@ public static class NameMapper
     {
         if (string.IsNullOrEmpty(stateName))
             return ItemState.InWorld; // 기본값
-        
+
         if (itemStateNameMapping.TryGetValue(stateName.ToLower(), out ItemState state))
             return state;
-        
+
         Debug.LogWarning($"[NameMapper] 알 수 없는 아이템 상태 이름: {stateName}");
         return ItemState.InWorld; // 기본값
+    }
+
+    /// <summary>
+    /// GameLocation enum을 백엔드 위치 이름으로 변환합니다.
+    /// </summary>
+    public static string ConvertLocationTypeToName(GameLocation location)
+    {
+        // 역방향 매핑을 위한 Dictionary 생성
+        var reverseMapping = new Dictionary<GameLocation, string>
+        {
+            { GameLocation.PlayersRoom, "players_room" },
+            { GameLocation.Hallway, "hallway" },
+            { GameLocation.LivingRoom, "living_room" },
+            { GameLocation.Kitchen, "kitchen" },
+            { GameLocation.SiblingsRoom, "siblings_room" },
+            { GameLocation.Basement, "basement" },
+            { GameLocation.Backyard, "backyard" }
+        };
+
+        if (reverseMapping.TryGetValue(location, out string locationName))
+            return locationName;
+
+        Debug.LogWarning($"[NameMapper] 알 수 없는 위치 타입: {location}");
+        return "hallway"; // 기본값
     }
 }
 

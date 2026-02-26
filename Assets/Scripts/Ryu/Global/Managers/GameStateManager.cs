@@ -92,16 +92,16 @@ public class GameStateManager : MonoBehaviour
     /// <summary>
     /// 현재 날짜를 반환합니다 (1~5일차).
     /// </summary>
-    public int CurrentDay 
-    { 
+    public int CurrentDay
+    {
         get { return dayManager?.GetCurrentDay() ?? 1; }
     }
 
     /// <summary>
     /// 현재 엔딩 타입을 반환합니다.
     /// </summary>
-    public EndingType CurrentEnding 
-    { 
+    public EndingType CurrentEnding
+    {
         get { return currentEnding; }
     }
 
@@ -128,7 +128,7 @@ public class GameStateManager : MonoBehaviour
 
         // 각 매니저 인스턴스 생성 및 초기화
         InitializeManagers();
-        
+
         // 이벤트 연결
         ConnectEvents();
     }
@@ -174,7 +174,7 @@ public class GameStateManager : MonoBehaviour
             turnManager,
             eventFlagManager);
         endingManager.SetGameOverSettings(gameOverSceneName, gameOverFadeDuration);
-        
+
         // HumanityManager에 EndingManager 설정 (UnfinishedDoll 엔딩 트리거용)
         humanityManager.SetEndingManager(endingManager);
     }
@@ -225,12 +225,25 @@ public class GameStateManager : MonoBehaviour
 
         if (locationManager != null)
         {
-            locationManager.OnLocationChanged += (location) => OnLocationChanged?.Invoke(location);
+            locationManager.OnLocationChanged += (location) =>
+            {
+                OnLocationChanged?.Invoke(location);
+
+                // 백엔드에 위치 변경 정보 전송
+                if (ApiClient.Instance != null)
+                {
+                    ApiClient.Instance.Move(
+                        location,
+                        onSuccess: () => Debug.Log($"[GameStateManager] 위치 이동 API 호출 성공: {location}"),
+                        onError: (error) => Debug.LogWarning($"[GameStateManager] 위치 이동 API 호출 실패: {error}")
+                    );
+                }
+            };
         }
 
         if (endingManager != null)
         {
-            endingManager.OnEndingTriggered += (ending) => 
+            endingManager.OnEndingTriggered += (ending) =>
             {
                 currentEnding = ending;
                 OnEndingTriggered?.Invoke(ending);
@@ -276,16 +289,16 @@ public class GameStateManager : MonoBehaviour
         if (dayManager == null) return false;
 
         bool reachedMaxDay = dayManager.AdvanceToNextDay();
-        
+
         if (!reachedMaxDay)
         {
             // 인간성 10% 감소 (시간 경과 페널티)
             float oldHumanity = humanityManager.GetHumanity();
             humanityManager.ModifyHumanity(-10f);
-            
+
             // 게임 오버가 발생했는지 확인
             bool gameOverOccurred = humanityManager.IsHumanityZero() && oldHumanity > 0f;
-            
+
             if (!gameOverOccurred)
             {
                 // 홍차에 수면제를 넣었을 경우: 다음 날 새 Day 시작 시 가족 전원 3턴 무력화 (씬에 미표시)
@@ -304,14 +317,14 @@ public class GameStateManager : MonoBehaviour
 
                 // 턴 수 리셋
                 turnManager?.ResetTurns();
-                
+
                 // 시간대를 Day로 설정
                 turnManager?.SetTimeOfDay(TimeOfDay.Day);
-                
+
                 // 아이템 리스폰
                 itemStateManager?.RespawnDailyItems(dayManager.GetCurrentDay());
             }
-            
+
             return gameOverOccurred;
         }
         else
@@ -319,7 +332,7 @@ public class GameStateManager : MonoBehaviour
             // 5일차 종료 시: 백엔드가 별도로 처리하므로 엔딩을 트리거하지 않음
             // 백엔드 응답의 ending_info를 통해 엔딩이 트리거됨
             Debug.Log("[GameStateManager] 5일차 종료: 백엔드가 엔딩을 처리합니다.");
-                return false;
+            return false;
         }
     }
 
@@ -451,16 +464,16 @@ public class GameStateManager : MonoBehaviour
         if (turnManager == null) return false;
 
         bool success = turnManager.ConsumeTurn(amount);
-        
+
         if (success)
         {
             // NPC 무력화 상태 업데이트
             npcManager?.UpdateNPCDisabledStates();
-            
+
             // 턴 소진 시: 백엔드 응답의 ending_info를 통해 엔딩이 트리거됨
             // 프론트엔드에서 엔딩 조건을 판단하지 않음
         }
-        
+
         return success;
     }
 
@@ -566,14 +579,14 @@ public class GameStateManager : MonoBehaviour
         {
             GameObject oldInstance = Instance.gameObject;
             Destroy(oldInstance);
-            
+
             // 리플렉션을 사용하여 private setter로 Instance를 null로 설정
             PropertyInfo propertyInfo = typeof(GameStateManager).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
             if (propertyInfo != null)
             {
                 propertyInfo.SetValue(null, null);
             }
-            
+
             Debug.Log("[GameStateManager] Instance가 초기화되었습니다.");
         }
     }

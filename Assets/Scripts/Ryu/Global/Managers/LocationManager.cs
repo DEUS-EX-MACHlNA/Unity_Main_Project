@@ -29,10 +29,10 @@ public class LocationManager
     {
         if (currentLocation == location)
             return;
-        
+
         GameLocation oldLocation = currentLocation;
         currentLocation = location;
-        
+
         OnLocationChanged?.Invoke(location);
         Debug.Log($"[LocationManager] 위치 변경: {oldLocation} → {location}");
     }

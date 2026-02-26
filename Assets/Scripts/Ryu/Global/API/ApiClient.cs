@@ -47,6 +47,7 @@ public class ApiClient : MonoBehaviour
     // API 클라이언트 인스턴스
     private GameStepApiClient gameStepApiClient;
     private ScenarioStartApiClient scenarioStartApiClient;
+    private MoveApiClient moveApiClient;
 
     private void Awake()
     {
@@ -64,6 +65,7 @@ public class ApiClient : MonoBehaviour
         // API 클라이언트 초기화
         gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
         scenarioStartApiClient = new ScenarioStartApiClient(baseUrl, timeoutSeconds);
+        moveApiClient = new MoveApiClient(baseUrl, () => gameId, timeoutSeconds);
     }
 
     private void OnDestroy()
@@ -73,10 +75,10 @@ public class ApiClient : MonoBehaviour
             instance = null;
         }
     }
-    
+
     // ============================================
-// 타이핑 효과
-// ============================================
+    // 타이핑 효과
+    // ============================================
 
     private Coroutine typingCoroutine;
 
@@ -109,7 +111,7 @@ public class ApiClient : MonoBehaviour
     private IEnumerator TypingCoroutine(string text, float typingSpeed, TextMeshProUGUI targetText, Action onComplete)
     {
         Debug.Log($"[TypingCoroutine] 시작! 텍스트 길이: {text.Length}, targetText null여부: {targetText == null}, active여부: {targetText?.gameObject.activeInHierarchy}");
-    
+
         string currentText = "";
         foreach (char c in text)
         {
@@ -212,8 +214,9 @@ public class ApiClient : MonoBehaviour
             (response) =>
             {
                 SetGameId(response.game_id);
-                // GameStepApiClient도 새로운 gameId로 재초기화
+                // GameStepApiClient와 MoveApiClient도 새로운 gameId로 재초기화
                 gameStepApiClient = new GameStepApiClient(baseUrl, () => gameId, timeoutSeconds, MOCK_RESPONSE);
+                moveApiClient = new MoveApiClient(baseUrl, () => gameId, timeoutSeconds);
                 onSuccess?.Invoke(response.game_id);
             },
             onError
@@ -340,5 +343,27 @@ public class ApiClient : MonoBehaviour
             yield return fadeManager.StartCoroutine(fadeManager.FadeInRoutine(duration));
         }
         callback?.Invoke();
+    }
+
+    // ============================================
+    // Move API
+    // ============================================
+
+    /// <summary>
+    /// 백엔드 서버에 위치 이동 정보를 전송합니다.
+    /// </summary>
+    /// <param name="location">이동할 위치 (GameLocation enum)</param>
+    /// <param name="onSuccess">성공 콜백</param>
+    /// <param name="onError">에러 콜백</param>
+    /// <returns>Coroutine</returns>
+    public Coroutine Move(GameLocation location, Action onSuccess = null, Action<string> onError = null)
+    {
+        // MoveApiClient가 null이면 생성 (gameId 체크는 MoveApiClient.MoveCoroutine에서 수행)
+        if (moveApiClient == null)
+        {
+            moveApiClient = new MoveApiClient(baseUrl, () => gameId, timeoutSeconds);
+        }
+
+        return StartCoroutine(moveApiClient.MoveCoroutine(location, onSuccess, onError));
     }
 }
