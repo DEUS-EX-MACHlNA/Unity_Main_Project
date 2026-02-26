@@ -22,7 +22,7 @@ public class TitleManager : MonoBehaviour
     public float fadeDuration = 1.5f;
 
     [Header("Game Start Settings")]
-    [SerializeField] private int scenarioId = 5;
+    [SerializeField] private int scenarioId = 3;
     [SerializeField] private int userId = 1;
 
     private const string PLAYERS_ROOM_SCENE_NAME = "pg";

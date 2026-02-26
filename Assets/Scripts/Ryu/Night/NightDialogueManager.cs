@@ -32,7 +32,7 @@ public class NightDialogueManager : MonoBehaviour
     [SerializeField] private float typingSpeed = 0.05f; // 타이핑 효과 속도 (초)
 
     [Header("API Settings")]
-    [SerializeField] private string baseUrl = "https://d564-115-95-186-2.ngrok-free.app";
+    [SerializeField] private string baseUrl = "https://9221-54-82-46-47.ngrok-free.app";
     [SerializeField] private float timeoutSeconds = 300f;
 
     private DialogueLine[] dialogues;
@@ -126,25 +126,11 @@ public class NightDialogueManager : MonoBehaviour
     /// </summary>
     private void InitializeApiClient()
     {
-        // ApiClient에서 baseUrl과 gameId 가져오기 시도
-        ApiClient apiClientComponent = FindFirstObjectByType<ApiClient>();
-        if (apiClientComponent != null)
-        {
-            // ApiClient의 baseUrl을 가져오기 위해 리플렉션 사용 (또는 public 필드로 변경 필요)
-            // 일단 Inspector에서 설정한 baseUrl 사용
-        }
-
-        // gameId를 가져오는 함수
         System.Func<int> getGameId = () =>
         {
-            // ApiClient에서 gameId 가져오기 시도
-            ApiClient client = FindFirstObjectByType<ApiClient>();
-            if (client != null)
-            {
-                // ApiClient에 public getter가 있다면 사용
-                // 일단 기본값 사용 (실제로는 ApiClient에서 가져와야 함)
-            }
-            return 24; // 기본값 (실제로는 ApiClient에서 가져와야 함)
+            if (ApiClient.Instance != null)
+                return ApiClient.Instance.GetGameId(); // ← 이걸로 교체
+            return 0;
         };
 
         apiClient = new NightDialogueApiClient(

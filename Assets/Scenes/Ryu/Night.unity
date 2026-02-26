@@ -553,7 +553,7 @@ MonoBehaviour:
   nextSceneName: PlayersRoom
   fadeDuration: 1
   typingSpeed: 0.05
-  baseUrl: https://d564-115-95-186-2.ngrok-free.app
+  baseUrl: https://9221-54-82-46-47.ngrok-free.app
   timeoutSeconds: 30
 --- !u!4 &470425650
 Transform:
